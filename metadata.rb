@@ -1,19 +1,18 @@
 name 'chef_client_updater'
-maintainer 'The Authors'
-maintainer_email 'you@example.com'
-license 'all_rights'
-description 'Installs/Configures chef_client_updater'
-long_description 'Installs/Configures chef_client_updater'
-version '0.1.0'
+maintainer 'Chef Software, Inc.'
+maintainer_email 'cookbooks@chef.io'
+license 'Apache-2.0'
+description 'Upgrades chef-client to specified releases'
+long_description 'Upgrades chef-client to specified releases'
+version '1.0.0'
 
-# The `issues_url` points to the location where issues for this cookbook are
-# tracked.  A `View Issues` link will be displayed on this cookbook's page when
-# uploaded to a Supermarket.
-#
-# issues_url 'https://github.com/<insert_org_here>/chef_client_updater/issues' if respond_to?(:issues_url)
+%w(amazon centos debian mac_os_x opensuse opensuseleap oracle redhat scientific solaris suse ubuntu windows aix).each do |os|
+  supports os
+end
 
-# The `source_url` points to the development reposiory for this cookbook.  A
-# `View Source` link will be displayed on this cookbook's page when uploaded to
-# a Supermarket.
-#
-# source_url 'https://github.com/<insert_org_here>/chef_client_updater' if respond_to?(:source_url)
+source_url 'https://github.com/chef-cookbooks/omnibus_updater'
+issues_url 'https://github.com/chef-cookbooks/omnibus_updater/issues'
+
+depends 'compat_resource'
+
+chef_version '>= 12.1' if respond_to?(:chef_version)

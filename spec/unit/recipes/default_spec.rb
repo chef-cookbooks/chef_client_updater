@@ -1,20 +1,10 @@
-#
-# Cookbook:: chef_client_updater
-# Spec:: default
-#
-# Copyright:: 2017, The Authors, All Rights Reserved.
-
 require 'spec_helper'
 
-describe 'chef_client_updater::default' do
-  context 'When all attributes are default, on an unspecified platform' do
-    let(:chef_run) do
-      runner = ChefSpec::ServerRunner.new
-      runner.converge(described_recipe)
-    end
+describe 'default recipe on ubuntu 16.04' do
+  let(:runner) { ChefSpec::ServerRunner.new(platform: 'ubuntu', version: '16.04') }
+  let(:chef_run) { runner.converge('test::default') }
 
-    it 'converges successfully' do
-      expect { chef_run }.to_not raise_error
-    end
+  it 'converges successfully' do
+    expect { :chef_run }.to_not raise_error
   end
 end
