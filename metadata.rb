@@ -10,9 +10,9 @@ version '1.0.0'
   supports os
 end
 
+depends 'compat_resource', '>= 12.16.3'
+
 source_url 'https://github.com/chef-cookbooks/omnibus_updater'
 issues_url 'https://github.com/chef-cookbooks/omnibus_updater/issues'
-
-depends 'compat_resource'
 
 chef_version '>= 12.1' if respond_to?(:chef_version)

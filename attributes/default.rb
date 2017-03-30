@@ -17,13 +17,13 @@
 # limitations under the License.
 
 # stable or current channel
-default['chef_client']['channel'] = 'stable'
+default['chef_client_updater']['channel'] = 'stable'
 
 # prevent a newer client "updating" to an older client
-default['chef_client']['prevent_downgrade'] = true
+default['chef_client_updater']['prevent_downgrade'] = true
 
 # the version to install (ex: '12.12.13') or 'latest'
-default['chef_client']['version'] = 'latest'
+default['chef_client_updater']['version'] = 'latest'
 
 # kill the client post install or exec the client post install for non-service based installs
-default['chef_client']['post_install_action'] = 'kill'
+default['chef_client_updater']['post_install_action'] = 'kill'
