@@ -121,7 +121,7 @@ action_class.class_eval do
         end
       end
       Chef::Log.warn 'Replacing ourselves with the new version of Chef to continue the run.'
-      exec(new_resource.exec_command, *new_resource.exec_args)
+      Kernel.exec(new_resource.exec_command, *new_resource.exec_args)
     when 'kill'
       if Chef::Config[:client_fork] && Process.ppid != 1
         Chef::Log.warn 'Chef client is defined for forked runs. Sending TERM to parent process!'

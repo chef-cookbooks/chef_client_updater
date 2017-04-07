@@ -50,3 +50,4 @@ suites:
   - name: default
     run_list:
       - recipe[chef_client_updater::default]
+    attributes: { chef_client_updater: {channel: 'current'}}
