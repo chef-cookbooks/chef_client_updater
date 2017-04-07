@@ -1,9 +1,9 @@
 #
-# Cookbook Name:: chef_client_updater
+# Cookbook:: chef_client_updater
 # Resource:: updater
 #
-# Copyright 2016, Will Jordan
-# Copyright 2016-2017, Chef Software, Inc.
+# Copyright:: 2016-2017, Will Jordan
+# Copyright:: 2016-2017, Chef Software, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
 # limitations under the License.
 #
 
-require 'mixlib/shellout'
 provides 'chef_client_updater'
 
 property :channel, [String, Symbol], default: :stable
@@ -38,7 +37,7 @@ action :update do
   end
 end
 
-action_class do
+action_class.class_eval do
   def load_mixlib_install
     require 'mixlib/install'
   rescue LoadError
