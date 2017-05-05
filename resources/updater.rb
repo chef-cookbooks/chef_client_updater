@@ -26,6 +26,8 @@ property :version, [String, Symbol], default: :latest
 property :post_install_action, String, default: 'exec'
 property :exec_command, String, default: $PROGRAM_NAME.split(' ').first
 property :exec_args, Array, default: ARGV
+property :download_url_override, String
+property :checksum, String
 
 action :update do
   if update_necessary? # ~FC023
@@ -39,7 +41,8 @@ end
 
 action_class.class_eval do
   def load_mixlib_install
-    require 'mixlib/install'
+    gem 'mixlib-install', '~> 3.2', '>= 3.2.1'
+    require 'mixlib-install'
   rescue LoadError
     Chef::Log.info('mixlib-install gem not found. Installing now')
     chef_gem 'mixlib-install' do
@@ -69,6 +72,9 @@ action_class.class_eval do
       product_version: new_resource.version == 'latest' ? :latest : new_resource.version,
 
     }
+    if new_resource.download_url_override && new_resource.checksum
+      options[:install_command_options] = { download_url_override: new_resource.download_url_override, checksum: new_resource.checksum }
+    end
     Mixlib::Install.new(options)
   end
 

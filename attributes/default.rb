@@ -27,3 +27,9 @@ default['chef_client_updater']['version'] = 'latest'
 
 # kill the client post install or exec the client post install for non-service based installs
 default['chef_client_updater']['post_install_action'] = 'kill'
+
+# the download URL (for use in an air-gapped environment)
+default['chef_client_updater']['download_url_override'] = nil
+
+# the checksum of the package from "download_url_override"
+default['chef_client_updater']['checksum'] = nil

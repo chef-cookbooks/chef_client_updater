@@ -34,6 +34,8 @@ Installs the mixlib-install/mixlib-install gems and upgrades the chef-client.
 - `post_install_action` - After installing the chef-client what should we do. `exec` to exec the new client or `kill` to kill the client and rely on the init system to start up the new version. Default: `exec`
 - `exec_command` - The chef-client command. default: $PROGRAM_NAME.split(' ').first
 - `exec_args` - An array of arguments to exec the chef-client with. default: ARGV
+- `download_url_override` - The direct URL for the chef-client package.
+- `checksum` - The SHA-256 checksum of the chef-client package from the direct URL.
 
 #### examples
 
