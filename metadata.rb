@@ -6,7 +6,7 @@ description 'Upgrades chef-client to specified releases'
 long_description 'Upgrades chef-client to specified releases'
 version '1.0.2'
 
-%w(amazon centos debian mac_os_x opensuse opensuseleap oracle redhat scientific solaris suse ubuntu windows aix).each do |os|
+%w(amazon centos debian mac_os_x opensuse opensuseleap oracle redhat scientific solaris2 suse ubuntu windows aix).each do |os|
   supports os
 end
 
