@@ -30,7 +30,7 @@ property :download_url_override, String
 property :checksum, String
 
 action :update do
-  if update_necessary? # ~FC023
+  if update_necessary?
     converge_by "Upgraded chef-client #{current_version} to #{desired_version}" do
       upgrade_command = Mixlib::ShellOut.new(mixlib_install.install_command)
       upgrade_command.run_command
