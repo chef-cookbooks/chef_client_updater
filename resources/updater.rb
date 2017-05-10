@@ -39,7 +39,7 @@ action :update do
   end
 end
 
-action_class.class_eval do
+action_class do
   def load_mixlib_install
     gem 'mixlib-install', '~> 3.2', '>= 3.2.1'
     require 'mixlib-install'
