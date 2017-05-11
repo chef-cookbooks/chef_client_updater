@@ -2,6 +2,11 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 1.1.1 (2017-05-11)
+
+- Fix the initial load of mixlib-install failing
+
+
 ## 1.1.0 (2017-05-10)
 
 - Add support for download URL overrides via new properties on the resource and attributes for the default recipe. This requires mixlib-install 3.2.1, which we now ensure we install in the updater resource.

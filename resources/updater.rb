@@ -42,7 +42,7 @@ end
 action_class do
   def load_mixlib_install
     gem 'mixlib-install', '~> 3.2', '>= 3.2.1'
-    require 'mixlib-install'
+    require 'mixlib/install'
   rescue LoadError
     Chef::Log.info('mixlib-install gem not found. Installing now')
     chef_gem 'mixlib-install' do
