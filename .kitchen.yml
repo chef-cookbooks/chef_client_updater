@@ -16,7 +16,7 @@ verifier:
   name: inspec
 
 platforms:
-  - name: centos-6.8
+  - name: centos-6.9
   - name: centos-7.3
   - name: debian-7.11
   - name: debian-8.7
@@ -43,14 +43,11 @@ platforms:
 suites:
   - name: default
     run_list:
-      - recipe[chef_client_updater::default]
-    attributes: { chef_client_updater: {channel: 'current'}}
+      - recipe[test::default]
+  - name: kill
+    run_list:
+      - recipe[test::kill]
   - name: direct_url
     run_list:
-      - recipe[chef_client_updater::default]
-    attributes:
-      chef_client_updater:
-        version: 12.19.36
-        download_url_override: https://packages.chef.io/files/stable/chef/12.19.36/el/6/chef-12.19.36-1.el6.x86_64.rpm
-        checksum: 89e8e6e9aebe95bb31e9514052a8926f61d82067092ca3bc976b0bd223710c81
-    includes: centos-6.8
+      - recipe[test::direct_url]
+    includes: centos-6.9
