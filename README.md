@@ -18,9 +18,15 @@ This cookbook updates the chef-client
 
 - compat_resource
 
-### Usage
+## Usage
 
 This cookbook provides both a custom resource and a default recipe. The default recipe simply uses the custom resource with a set of attributes. You can add chef_client_updater::default to your run list or use the custom resource in a wrapper cookbook.
+
+### Init System Caveats
+
+When Chef runs as a service under a system init daemon such as Sys-V or systemd each chef run forks off from the main chef-client process being managed by the init system. For a chef-client upgrade to occur the running chef-client as well as the parent process must be killed, and a new chef-client must start using the updated binaries. This cookbook handles killing the chef-client, but your init system must properly handle starting the service back up. For systemd and upstart this can be handled via configuration, and chef-client cookbook 8.1.1 or later handles this by default. This functionality is not available in sys-v (RHEL 6, Debian 7, and others), so you will need to employ a secondary process such as a monitoring system to start the chef-client service.
+
+## Resources
 
 ### chef_client_updater
 
