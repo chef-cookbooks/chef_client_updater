@@ -87,7 +87,7 @@ action_class do
   end
 
   def desired_version
-    new_resource.version == 'latest' ? mixlib_install.available_versions.last : new_resource.version
+    new_resource.version.to_sym == :latest ? mixlib_install.available_versions.last : new_resource.version
   end
 
   # why wouldn't we use the built in update_available? method in mixlib-install?
