@@ -30,8 +30,12 @@ property :download_url_override, String
 property :checksum, String
 
 action :update do
+  cleanup_windows_workaround if platform_family?('windows')
+
   if update_necessary?
     converge_by "Upgraded chef-client #{current_version} to #{desired_version}" do
+      windows_workaround if platform_family?('windows')
+
       upgrade_command = Mixlib::ShellOut.new(mixlib_install.install_command)
       upgrade_command.run_command
       run_post_install_action
@@ -139,6 +143,21 @@ action_class do
       exit(213)
     else
       raise "Unexpected post_install_action behavior: #{new_resource.post_install_action}"
+    end
+  end
+
+  # cleanup a previous backup of the chef-client on windows
+  def cleanup_windows_workaround
+    directory 'c:/opscode/chef.upgrade' do
+      action :delete
+      recursive true
+    end
+  end
+
+  # Windows does not like having files that are open deleted. We need to workaround that
+  def windows_workaround
+    execute 'chef-move' do
+      command 'move c:/opscode/chef c:/opscode/chef.upgrade'
     end
   end
 end
