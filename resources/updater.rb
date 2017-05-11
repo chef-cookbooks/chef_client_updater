@@ -97,6 +97,7 @@ action_class do
     load_mixlib_versioning
     cur_version = Mixlib::Versioning.parse(current_version)
     des_version = Mixlib::Versioning.parse(desired_version)
+    Chef::Log.debug("The current chef-client version is #{cur_version} and the desired version is #{desired_version}")
     new_resource.prevent_downgrade ? (des_version > cur_version) : (des_version != cur_version)
   end
 
