@@ -19,6 +19,7 @@
 #
 
 provides 'chef_client_updater'
+default_action :update
 
 property :channel, [String, Symbol], default: :stable
 property :prevent_downgrade, [true, false], default: false
@@ -64,13 +65,28 @@ action_class do
     require 'mixlib/versioning'
   end
 
+  def load_semverse
+    gem 'semverse', '~> 2'
+    require 'semverse/constraint'
+    require 'semverse/version'
+  rescue LoadError
+    Chef::Log.info('semverse gem not found. Installing now')
+    chef_gem 'semverse' do
+      compile_time true if respond_to?(:compile_time)
+    end
+
+    require 'semverse/constraint'
+    require 'semverse/version'
+  end
+
   def mixlib_install
     load_mixlib_install
+    load_semverse
     options = {
       product_name: 'chef',
       platform_version_compatibility_mode: true,
       channel: new_resource.channel.to_sym,
-      product_version: new_resource.version == 'latest' ? :latest : new_resource.version,
+      product_version: computed_version,
 
     }
     if new_resource.download_url_override && new_resource.checksum
@@ -86,8 +102,28 @@ action_class do
     node['chef_packages']['chef']['version']
   end
 
+  def available_versions
+    Mixlib::Install.new(
+      product_name: 'chef',
+      channel: new_resource.channel.to_sym
+    ).available_versions
+  end
+
+  def computed_version
+    if new_resource.version.to_sym == :latest
+      available_versions.sort.last
+    else
+      Semverse::Constraint.satisfy_best(
+        Semverse::Constraint.new(new_resource.version),
+        available_versions
+      ).to_s
+    end
+  end
+
   def desired_version
-    new_resource.version.to_sym == :latest ? mixlib_install.available_versions.last : new_resource.version
+    load_mixlib_install
+    load_semverse
+    computed_version
   end
 
   # why wouldn't we use the built in update_available? method in mixlib-install?
