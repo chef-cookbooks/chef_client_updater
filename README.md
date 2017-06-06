@@ -12,11 +12,11 @@ This cookbook updates the chef-client
 
 ### Chef
 
-- Chef 12.1+
+- Chef 11.6.2+
 
 ### Cookbooks
 
-- compat_resource
+- <none>
 
 ## Usage
 
