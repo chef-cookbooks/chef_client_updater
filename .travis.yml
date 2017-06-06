@@ -1,4 +1,4 @@
-# Use Travis's cointainer based infrastructure
+# TAS50: THIS COOKBOOK DELIBERATELY DOES NOT USE THE STANDARD TRAVIS.YML FILE
 sudo: false
 dist: trusty
 
@@ -9,19 +9,42 @@ addons:
     packages:
       - chefdk
 
-# Don't `bundle install` which takes about 1.5 mins
-install: echo "skip bundle install"
-
 branches:
   only:
     - master
 
-# Ensure we make ChefDK's Ruby the default
-before_script:
-  - eval "$(/opt/chefdk/bin/chef shell-init bash)"
+before_install:
+  - gem install bundler
+  - bundle --version
+  - gem update --system
+  - gem --version
 
-script:
-  - /opt/chefdk/embedded/bin/chef --version
-  - /opt/chefdk/embedded/bin/cookstyle --version
-  - /opt/chefdk/embedded/bin/foodcritic --version
-  - /opt/chefdk/bin/chef exec delivery local all
+matrix:
+  include:
+    - rvm: 2.4.1
+      before_script:
+        - eval "$(/opt/chefdk/bin/chef shell-init bash)"
+      install: echo "skip bundle install"
+      script:
+        - /opt/chefdk/embedded/bin/chef --version
+        - /opt/chefdk/embedded/bin/cookstyle --version
+        - /opt/chefdk/embedded/bin/foodcritic --version
+        - /opt/chefdk/bin/chef exec delivery local all
+#    - rvm: 2.4.1
+#      services: docker
+#      sudo: required
+#      before_script:
+#        - eval "$(/opt/chefdk/bin/chef shell-init bash)"
+#        - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
+#      install: echo "skip bundle install"
+#      # 11.10.4 is the earliest we can test due to test-kitchen / chef-zero not supporting earlier
+#      # (cookbook likely supports earlier versions)
+#      env:
+#        - OMNIBUS_CHEF_VERSION=12.19.36
+#        - KITCHEN_YAML=.kitchen.dokken.yml
+#      script:
+#        - kitchen test default-ubuntu-1604
+    - rvm: 1.9.3
+      gemfile: gemfiles/Gemfile.ancient
+      script:
+        - bundle exec rspec

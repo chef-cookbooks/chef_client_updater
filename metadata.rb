@@ -10,9 +10,7 @@ version '1.1.1'
   supports os
 end
 
-depends 'compat_resource', '>= 12.16.3'
-
-source_url 'https://github.com/chef-cookbooks/chef_client_updater'
-issues_url 'https://github.com/chef-cookbooks/chef_client_updater/issues'
-
-chef_version '>= 12.1' if respond_to?(:chef_version)
+unless defined?(Ridley)
+  source_url 'https://github.com/chef-cookbooks/chef_client_updater' if responds_to?(:source_url)
+  issues_url 'https://github.com/chef-cookbooks/chef_client_updater/issues' if responds_to?(:issues_url)
+end
