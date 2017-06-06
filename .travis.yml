@@ -30,20 +30,20 @@ matrix:
         - /opt/chefdk/embedded/bin/cookstyle --version
         - /opt/chefdk/embedded/bin/foodcritic --version
         - /opt/chefdk/bin/chef exec delivery local all
-    - rvm: 2.4.1
-      services: docker
-      sudo: required
-      before_script:
-        - eval "$(/opt/chefdk/bin/chef shell-init bash)"
-        - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
-      install: echo "skip bundle install"
-      # 11.10.4 is the earliest we can test due to test-kitchen / chef-zero not supporting earlier
-      # (cookbook likely supports earlier versions)
-      env:
-        - OMNIBUS_CHEF_VERSION=12.19.36
-        - KITCHEN_YAML=.kitchen.dokken.yml
-      script:
-        - kitchen test default-ubuntu-1604
+#    - rvm: 2.4.1
+#      services: docker
+#      sudo: required
+#      before_script:
+#        - eval "$(/opt/chefdk/bin/chef shell-init bash)"
+#        - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
+#      install: echo "skip bundle install"
+#      # 11.10.4 is the earliest we can test due to test-kitchen / chef-zero not supporting earlier
+#      # (cookbook likely supports earlier versions)
+#      env:
+#        - OMNIBUS_CHEF_VERSION=12.19.36
+#        - KITCHEN_YAML=.kitchen.dokken.yml
+#      script:
+#        - kitchen test default-ubuntu-1604
     - rvm: 1.9.3
       gemfile: gemfiles/Gemfile.ancient
       script:
