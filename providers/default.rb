@@ -20,6 +20,8 @@
 
 use_inline_resources
 
+include Chef::Mixin::ShellOut
+
 provides :chef_client_updater if respond_to?(:provides)
 
 def load_mixlib_install
@@ -44,6 +46,26 @@ rescue LoadError
   end
 
   require 'mixlib/versioning'
+end
+
+def update_rubygems
+  gem_bin = "#{Gem.bindir}/gem"
+  raise 'cannot find omnibus install' unless ::File.exist?(gem_bin)
+
+  rubygems_version = Gem::Version.new(shell_out("#{gem_bin} --version").stdout.chomp)
+  target_version = '2.6.11'
+  return if Gem::Requirement.new(">= #{target_version}").satisfied_by?(rubygems_version)
+
+  converge_by "upgrading rubygems to #{target_version} was #{rubygems_version}" do
+    # note that the rubygems that we're upgrading is likely so old that you can't pin a version
+    shell_out!("#{gem_bin} update --system --no-rdoc --no-ri")
+  end
+end
+
+def load_prerequisites!
+  update_rubygems
+  load_mixlib_install
+  load_mixlib_versioning
 end
 
 def mixlib_install
@@ -141,6 +163,8 @@ end
 
 action :update do
   cleanup_windows_workaround if platform_family?('windows')
+
+  load_prerequisites!
 
   if update_necessary?
     converge_by "Upgraded chef-client #{current_version} to #{desired_version}" do
