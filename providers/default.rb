@@ -74,7 +74,7 @@ end
 
 # why wouldn't we use the built in update_available? method in mixlib-install?
 # well that would use current_version from mixlib-install and it has no
-# concept or preventing downgrades
+# concept of preventing downgrades
 def update_necessary?
   load_mixlib_versioning
   cur_version = Mixlib::Versioning.parse(current_version)
