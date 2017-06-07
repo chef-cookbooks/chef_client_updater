@@ -36,7 +36,7 @@ matrix:
       sudo: required
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
-      # 11.10.4 is the earliest we can test due to test-kitchen / chef-zero not supporting earlier
+      # 11.8.2 is the earliest we can test due to test-kitchen / chef-zero not supporting earlier
       # (cookbook likely supports earlier versions)
       env:
         - OMNIBUS_CHEF_VERSION=11.8.2
