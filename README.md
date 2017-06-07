@@ -14,10 +14,6 @@ This cookbook updates the chef-client
 
 - Chef 11.6.2+
 
-### Cookbooks
-
-- <none>
-
 ## Usage
 
 This cookbook provides both a custom resource and a default recipe. The default recipe simply uses the custom resource with a set of attributes. You can add chef_client_updater::default to your run list or use the custom resource in a wrapper cookbook.
