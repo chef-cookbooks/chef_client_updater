@@ -39,7 +39,7 @@ matrix:
       # 11.10.4 is the earliest we can test due to test-kitchen / chef-zero not supporting earlier
       # (cookbook likely supports earlier versions)
       env:
-        - OMNIBUS_CHEF_VERSION=11.18.12
+        - OMNIBUS_CHEF_VERSION=11.8.2
         - KITCHEN_YAML=.kitchen.dokken.yml
       script:
         - bundle exec kitchen test default-ubuntu-1604
