@@ -75,7 +75,6 @@ def mixlib_install
     platform_version_compatibility_mode: true,
     channel: new_resource.channel.to_sym,
     product_version: new_resource.version == 'latest' ? :latest : new_resource.version,
-
   }
   if new_resource.download_url_override && new_resource.checksum
     options[:install_command_options] = { download_url_override: new_resource.download_url_override, checksum: new_resource.checksum }
@@ -100,7 +99,8 @@ end
 def update_necessary?
   load_mixlib_versioning
   cur_version = Mixlib::Versioning.parse(current_version)
-  des_version = Mixlib::Versioning.parse(desired_version)
+  # we have to "resolve" partial versions like "12" through mixlib-install before comparing them here
+  des_version = Mixlib::Versioning.parse(mixlib_install.artifact_info.first.version)
   Chef::Log.debug("The current chef-client version is #{cur_version} and the desired version is #{desired_version}")
   new_resource.prevent_downgrade ? (des_version > cur_version) : (des_version != cur_version)
 end
