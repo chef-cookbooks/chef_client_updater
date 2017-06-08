@@ -163,6 +163,11 @@ def windows?
   platform_family?('windows')
 end
 
+# this behavior of fully nuking the old version is absolutely mandatory.  future versions of
+# the omnibus chef and chef-dk packages will behave this way.  not doing it *will* cause
+# problems with old chef_gems-installed gems being left around.  do not submit PRs to make
+# this behavior optional or to revert it.
+#
 def clean_opt_chef
   # we don't care about idempotency and we need compile-time so doing these actions in pure-ruby
   if windows?
