@@ -33,7 +33,7 @@ Installs the mixlib-install/mixlib-install gems and upgrades the chef-client.
 - `channel` - The chef channel you fetch the chef client from. `stable` contains all officially released chef-client builds where as `current` contains unreleased builds. Default: `stable`
 - `prevent_downgrade` - Don't allow this cookbook to downgrade the chef-client version. Default: true
 - `version` - The version of the chef-client to install. Default :latest
-- `post_install_action` - After installing the chef-client what should we do. `exec` to exec the new client or `kill` to kill the client and rely on the init system to start up the new version. Default: `exec`
+- `post_install_action` - After installing the chef-client what should we do. `exec` to exec the new client or `kill` to kill the client and rely on the init system to start up the new version. Default: `kill`
 - `exec_command` - The chef-client command. default: $PROGRAM_NAME.split(' ').first
 - `exec_args` - An array of arguments to exec the chef-client with. default: ARGV
 - `download_url_override` - The direct URL for the chef-client package.
