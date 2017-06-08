@@ -46,6 +46,12 @@ chef_client_updater 'Install latest'
 ```
 
 ```ruby
+chef_client_updater 'Install latest Chef 13.x' do
+  version '13'
+end
+```
+
+```ruby
 chef_client_updater 'Install 12.13.36 and kill' do
   version '12.13.36'
   post_install_action 'kill'
