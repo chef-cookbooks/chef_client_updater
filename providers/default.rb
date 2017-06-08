@@ -73,6 +73,9 @@ def mixlib_install
   options = {
     product_name: 'chef',
     platform_version_compatibility_mode: true,
+    platform: node['platform'],
+    platform_version: node['platform_version'],
+    architecture: node['kernel']['machine'],
     channel: new_resource.channel.to_sym,
     product_version: new_resource.version == 'latest' ? :latest : new_resource.version,
   }
@@ -100,7 +103,7 @@ def update_necessary?
   load_mixlib_versioning
   cur_version = Mixlib::Versioning.parse(current_version)
   # we have to "resolve" partial versions like "12" through mixlib-install before comparing them here
-  des_version = Mixlib::Versioning.parse(mixlib_install.artifact_info.first.version)
+  des_version = Mixlib::Versioning.parse(mixlib_install.artifact_info.version)
   Chef::Log.debug("The current chef-client version is #{cur_version} and the desired version is #{desired_version}")
   new_resource.prevent_downgrade ? (des_version > cur_version) : (des_version != cur_version)
 end
@@ -146,32 +149,63 @@ def run_post_install_action
   end
 end
 
-# cleanup a previous backup of the chef-client on windows
-def cleanup_windows_workaround
-  directory 'c:/opscode/chef.upgrade' do
-    action :delete
-    recursive true
+# cleanup cruft from *prior* runs
+def cleanup
+  if windows?
+    directory 'c:/opscode/chef.upgrade' do
+      action :delete
+      recursive true
+    end
   end
 end
 
-# Windows does not like having files that are open deleted. We need to workaround that
-def windows_workaround
-  execute 'chef-move' do
-    command 'move c:/opscode/chef c:/opscode/chef.upgrade'
+def windows?
+  platform_family?('windows')
+end
+
+def clean_opt_chef
+  # we don't care about idempotency and we need compile-time so doing these actions in pure-ruby
+  if windows?
+    # windows does not like having files that are open deleted, so must move the dir
+    converge_by('moving all files under c:/opscode/chef to c:/opscode/chef.upgrade') do
+      FileUtils.mv "c:/opscode/chef", "c:/opscode/chef.upgrade"
+    end
+  else
+    # removing /opt/chef doesn't work on dokken (mountpoint) so we use a glob
+    converge_by('removing all files under /opt/chef') do
+      FileUtils.rm_rf Dir.glob('/opt/chef/*')
+    end
+  end
+rescue
+  # don't care about EBUSY or other errors here
+end
+
+def execute_install_script(install_script)
+  if windows?
+    powershell_script 'name' do
+      code <<-EOH
+    #{install_script}
+      EOH
+    end
+  else
+    upgrade_command = Mixlib::ShellOut.new(install_script)
+    upgrade_command.run_command
   end
 end
 
 action :update do
-  cleanup_windows_workaround if platform_family?('windows')
+  cleanup
 
   load_prerequisites!
 
   if update_necessary?
     converge_by "Upgraded chef-client #{current_version} to #{desired_version}" do
-      windows_workaround if platform_family?('windows')
+      # we have to get the script from mibxlib-install..
+      install_script = mixlib_install.install_command
+      # ...before we blow mixlib-install away
+      clean_opt_chef
 
-      upgrade_command = Mixlib::ShellOut.new(mixlib_install.install_command)
-      upgrade_command.run_command
+      execute_install_script(install_script)
       run_post_install_action
     end
   end
