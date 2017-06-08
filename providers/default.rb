@@ -138,7 +138,7 @@ def run_post_install_action
     Chef::Log.warn 'Replacing ourselves with the new version of Chef to continue the run.'
     Kernel.exec(new_resource.exec_command, *new_resource.exec_args)
   when 'kill'
-    if Chef::Config[:client_fork] && Process.ppid != 1
+    if Chef::Config[:client_fork] && Process.ppid != 1 && !windows?
       Chef::Log.warn 'Chef client is defined for forked runs. Sending TERM to parent process!'
       Process.kill('TERM', Process.ppid)
     end
@@ -191,7 +191,7 @@ def execute_install_script(install_script)
       code <<-EOH
     #{install_script}
       EOH
-    end
+    end.run_action(:run)
   else
     upgrade_command = Mixlib::ShellOut.new(install_script)
     upgrade_command.run_command
