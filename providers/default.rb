@@ -151,7 +151,7 @@ end
 
 # cleanup cruft from *prior* runs
 def cleanup
-  if windows?
+  if windows? # rubocop:disable Style/GuardClause
     directory 'c:/opscode/chef.upgrade' do
       action :delete
       recursive true
@@ -168,7 +168,7 @@ def clean_opt_chef
   if windows?
     # windows does not like having files that are open deleted, so must move the dir
     converge_by('moving all files under c:/opscode/chef to c:/opscode/chef.upgrade') do
-      FileUtils.mv "c:/opscode/chef", "c:/opscode/chef.upgrade"
+      FileUtils.mv 'c:/opscode/chef', 'c:/opscode/chef.upgrade'
     end
   else
     # removing /opt/chef doesn't work on dokken (mountpoint) so we use a glob
@@ -176,7 +176,7 @@ def clean_opt_chef
       FileUtils.rm_rf Dir.glob('/opt/chef/*')
     end
   end
-rescue
+rescue # rubocop:disable Lint/HandleExceptions
   # don't care about EBUSY or other errors here
 end
 
