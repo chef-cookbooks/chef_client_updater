@@ -204,6 +204,7 @@ def execute_install_script(install_script)
       code <<-EOH
     #{install_script}
       EOH
+      action :nothing
     end.run_action(:run)
   else
     upgrade_command = Mixlib::ShellOut.new(install_script)
