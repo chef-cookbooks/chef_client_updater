@@ -149,12 +149,19 @@ def run_post_install_action
   end
 end
 
+def chef_install_dir
+  windows? ? 'c:/opscode/chef' : '/opt/chef'
+end
+
+def chef_backup_dir
+  windows? ? 'c:/opscode/chef.upgrade' : '/opt/chef.upgrade'
+end
+
 # cleanup cruft from *prior* runs
 def cleanup
-  if windows? # rubocop:disable Style/GuardClause
-    directory 'c:/opscode/chef.upgrade' do
-      action :delete
-      recursive true
+  if ::File.exist?(chef_backup_dir) # rubocop:disable Style/GuardClause
+    converge_by("removing #{chef_backup_dir}") do
+      FileUtils.rm_rf chef_backup_dir
     end
   end
 end
@@ -163,26 +170,32 @@ def windows?
   platform_family?('windows')
 end
 
-# this behavior of fully nuking the old version is absolutely mandatory.  future versions of
-# the omnibus chef and chef-dk packages will behave this way.  not doing it *will* cause
-# problems with old chef_gems-installed gems being left around.  do not submit PRs to make
-# this behavior optional or to revert it.
+# windows does not like having running open files nuked behind it so we have to move the old file
+# out of the way.  on both platforms we must clean up the old install to not leave behind any old
+# gem files.
 #
-def clean_opt_chef
-  # we don't care about idempotency and we need compile-time so doing these actions in pure-ruby
-  if windows?
-    # windows does not like having files that are open deleted, so must move the dir
-    converge_by('moving all files under c:/opscode/chef to c:/opscode/chef.upgrade') do
-      FileUtils.mv 'c:/opscode/chef', 'c:/opscode/chef.upgrade'
-    end
-  else
-    # removing /opt/chef doesn't work on dokken (mountpoint) so we use a glob
-    converge_by('removing all files under /opt/chef') do
-      FileUtils.rm_rf Dir.glob('/opt/chef/*')
-    end
+def move_opt_chef(src, dest)
+  converge_by("moving all files under #{src} to #{dest}") do
+    FileUtils.rm_rf dest
+    raise "rm_rf of #{dest} failed" if ::File.exist?(dest) # detect mountpoints that were not deleted
+    FileUtils.mv src, dest
   end
-rescue # rubocop:disable Lint/HandleExceptions
-  # don't care about EBUSY or other errors here
+rescue => e
+  # this handles mountpoints
+  converge_by("caught #{e}, falling back to copying and removing from #{src} to #{dest}") do
+    begin
+      FileUtils.rm_rf dest
+    rescue
+      nil
+    end # mountpoints can throw EBUSY
+    begin
+      FileUtils.mkdir dest
+    rescue
+      nil
+    end # mountpoints can throw EBUSY
+    FileUtils.cp_r Dir.glob("#{src}/*"), dest
+    FileUtils.rm_rf Dir.glob("#{src}/*")
+  end
 end
 
 def execute_install_script(install_script)
@@ -199,19 +212,31 @@ def execute_install_script(install_script)
 end
 
 action :update do
-  cleanup
+  begin
+    cleanup
 
-  load_prerequisites!
+    load_prerequisites!
 
-  if update_necessary?
-    converge_by "Upgraded chef-client #{current_version} to #{desired_version}" do
-      # we have to get the script from mibxlib-install..
-      install_script = mixlib_install.install_command
-      # ...before we blow mixlib-install away
-      clean_opt_chef
+    if update_necessary?
+      converge_by "Upgraded chef-client #{current_version} to #{desired_version}" do
+        # we have to get the script from mibxlib-install..
+        install_script = mixlib_install.install_command
+        # ...before we blow mixlib-install away
+        move_opt_chef(chef_install_dir, chef_backup_dir)
 
-      execute_install_script(install_script)
-      run_post_install_action
+        execute_install_script(install_script)
+        run_post_install_action
+      end
     end
+  rescue SystemExit
+    raise
+  rescue Exception => e # rubocop:disable Lint/RescueException
+    if ::File.exist?(chef_backup_dir)
+      Chef::Log.warn "CHEF UPGRADE ABORTED due to #{e}: rolling back to #{chef_backup_dir} copy"
+      move_opt_chef(chef_backup_dir, chef_install_dir)
+    else
+      Chef::Log.warn "NO #{chef_backup_dir} DIR TO ROLL BACK TO!"
+    end
+    raise
   end
 end
