@@ -58,6 +58,80 @@ chef_client_updater 'Install 12.13.36 and kill' do
 end
 ```
 
+## Updating Windows Nodes
+
+There are a couple of considerations on Windows that have to be dealt with.  The Chef Client installer uses a custom component to speed up the installation.  This component does not gracefully handle open file handles the way the MSI installer does.  To work around this, the resource moves the currently installed Chef Client to a staging directory and that clears the way for the newer installer to run.  At the end of that installation process though, that Chef Client run must exit or it will fail trying to find files that do not exist in their expected locations.  The next run of the Chef Client will use the newly installed version.
+
+
+### Running Chef Client as a Scheduled Task
+
+If you run as a scheduled task, then this will work smoothly.  The path to the newly installed Chef Client will be the same and the scheduled task will launch it.  Part of this resource's job on the next run is to make sure the staging directory with the older client is removed.
+
+### Running Chef Client As A Windows Service
+
+If you run Chef Client as a service, things get a tiny bit more complicated.  When the new installer runs, the service is removed.  This isn't a big deal if you've got the chef-client cookbook set to configure the Windows service.  If that is the case, we can register a scheduled task to run shortly after the `chef_client_updater` terminates the current chef run.  An example recipe might look like:
+
+```ruby
+if Chef::VERSION < node['my_update_cookbook']['desired_version']
+  run_chef_task_in_ten_minutes = Time.now + 600
+
+  windows_task 'chef-client-upgrade' do
+    cwd 'C:\\opscode\\chef\\bin'
+    command 'chef-client'
+    run_level :highest
+    frequency :once
+    start_time "#{run_chef_task_in_ten_minutes.hour}:#{run_chef_task_in_ten_minutes.min}"
+    action :create
+  end
+else
+  windows_task 'chef-client-upgrade' do
+    cwd 'C:\\opscode\\chef\\bin'
+    command 'chef-client'
+    run_level :highest
+    frequency :once
+    start_time "#{run_chef_task_in_ten_minutes.hour}:#{run_chef_task_in_ten_minutes.min}"
+    action :delete
+  end
+end
+
+chef_client_updater 'Install latest Chef' do
+  post_install_action 'kill'
+end
+```
+
+### From Chef 11 to Chef 12
+
+Moving from Chef 11 has a few challenges when we are dealing with public update sources.  Chef 11 ships with a very old `cacert.pem`.  To work through this, we need to get a more current `cacert.pem` file and point OpenSSL to it.  Unfortunately, for this to work consistently on Windows, we'll need to reboot.  Chef 11 does not have the reboot resource, so this isn't a graceful process.  However, on the next Chef run after the reboot, things will be back on track and the upgrade will perform as on other platforms.
+
+Below is an example of a recipe that can set up Chef 11 to work using public update sources.
+
+```ruby
+if platform_family?('windows') && (Chef::VERSION < '12')
+  new_cert_file = File.join(ENV['USERPROFILE'], 'cacert.pem')
+
+  remote_file new_cert_file do
+    source 'https://curl.haxx.se/ca/cacert.pem'
+    action :create
+  end
+
+  powershell_script 'restart' do
+    code <<-EOH
+    restart-computer -force
+    EOH
+    action :nothing
+  end
+
+  env 'SSL_CERT_FILE' do
+    value new_cert_file
+    notifies :run, 'powershell_script[restart]', :immediately
+  end
+end
+
+chef_client_updater 'Install latest Chef' do
+  post_install_action 'kill'
+end
+```
+
 ## License & Authors
 
 - Author: Tim Smith ([tsmith@chef.io](mailto:tsmith@chef.io))
