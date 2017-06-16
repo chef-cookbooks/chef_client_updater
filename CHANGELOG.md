@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 2.0.1 (2017-06-16)
+
+- Add information on upgrading Windows nodes and upgrading from Chef 11 to the readme
+
 ## 2.0.0 (2017-06-15)
 
 - The custom resource has been converted to a LWRP so that we can support Chef Client updates from chef-client 11.6.2 to current. This also removes the need for the compat_resource cookbook.
