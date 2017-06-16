@@ -62,7 +62,7 @@ chef_client_updater 'Install latest Chef' do
 end
 ```
 
-#### From Chef 11 to Chef 12
+### Upgrading from Chef 11
 
 Moving from Chef 11 has a few challenges when we are dealing with public update sources. Chef 11 ships with a very old `cacert.pem`. To work through this, we need to get a more current `cacert.pem` file and point OpenSSL to it. Unfortunately, for this to work consistently on Windows, we'll need to reboot. Chef 11 does not have the reboot resource, so this isn't a graceful process. However, on the next Chef run after the reboot, things will be back on track and the upgrade will perform as on other platforms.
 
