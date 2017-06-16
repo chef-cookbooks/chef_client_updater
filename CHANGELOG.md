@@ -2,10 +2,17 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 2.0.0 (2017-06-15)
+
+- The custom resource has been converted to a LWRP so that we can support Chef Client updates from chef-client 11.6.2 to current. This also removes the need for the compat_resource cookbook.
+- Support for upgrading Windows clients has been added
+- A potential infinite loop in the upgrade process has been fixed
+- The existing /opt/chef directory will now be cleaned up before the reinstall so leftover files will not carry over during upgrades
+- Full Travis testing of the cookbook has been added
+
 ## 1.1.1 (2017-05-11)
 
 - Fix the initial load of mixlib-install failing
-
 
 ## 1.1.0 (2017-05-10)
 
