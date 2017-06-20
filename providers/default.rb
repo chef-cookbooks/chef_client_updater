@@ -103,7 +103,13 @@ def update_necessary?
   load_mixlib_versioning
   cur_version = Mixlib::Versioning.parse(current_version)
   # we have to "resolve" partial versions like "12" through mixlib-install before comparing them here
-  des_version = Mixlib::Versioning.parse(mixlib_install.artifact_info.version)
+  des_version =
+    if new_resource.download_url_override
+      # probably in an air-gapped environment.
+      Mixlib::Versioning.parse(desired_version)
+    else
+      Mixlib::Versioning.parse(mixlib_install.artifact_info.version)
+    end
   Chef::Log.debug("The current chef-client version is #{cur_version} and the desired version is #{desired_version}")
   new_resource.prevent_downgrade ? (des_version > cur_version) : (des_version != cur_version)
 end
