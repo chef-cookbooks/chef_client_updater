@@ -70,12 +70,13 @@ end
 
 def mixlib_install
   load_mixlib_install
+  detected_platform = Mixlib::Install.detect_platform
   options = {
     product_name: 'chef',
     platform_version_compatibility_mode: true,
-    platform: node['platform'],
-    platform_version: node['platform_version'],
-    architecture: node['kernel']['machine'],
+    platform: detected_platform[:platform],
+    platform_version: detected_platform[:platform_version],
+    architecture: detected_platform[:architecture],
     channel: new_resource.channel.to_sym,
     product_version: new_resource.version == 'latest' ? :latest : new_resource.version,
   }
