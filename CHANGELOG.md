@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 2.0.3 (2017-06-27)
+
+- Fix #31 detect centos platform correctly
+
 ## 2.0.2 (2017-06-22)
 
 - Fix air-gapped installation regression introduced by support for partial versions
