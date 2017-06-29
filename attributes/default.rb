@@ -26,7 +26,7 @@ default['chef_client_updater']['prevent_downgrade'] = false
 default['chef_client_updater']['version'] = 'latest'
 
 # kill the client post install or exec the client post install for non-service based installs
-default['chef_client_updater']['post_install_action'] = 'exec'
+default['chef_client_updater']['post_install_action'] = 'kill'
 
 # the download URL (for use in an air-gapped environment)
 default['chef_client_updater']['download_url_override'] = nil
