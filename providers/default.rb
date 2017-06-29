@@ -109,7 +109,7 @@ def update_necessary?
       # probably in an air-gapped environment.
       Mixlib::Versioning.parse(desired_version)
     else
-      Mixlib::Versioning.parse(mixlib_install.artifact_info.version)
+      Mixlib::Versioning.parse(Array(mixlib_install.artifact_info).first.version)
     end
   Chef::Log.debug("The current chef-client version is #{cur_version} and the desired version is #{desired_version}")
   new_resource.prevent_downgrade ? (des_version > cur_version) : (des_version != cur_version)
