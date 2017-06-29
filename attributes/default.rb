@@ -2,7 +2,7 @@
 # Cookbook::  chef_client_updater
 # Attributes:: default
 #
-# Copyright:: 2016-2017, Chef Software, Inc.
+# Copyright:: 2016-2017, Chef Software Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 default['chef_client_updater']['channel'] = 'stable'
 
 # prevent a newer client "updating" to an older client
-default['chef_client_updater']['prevent_downgrade'] = true
+default['chef_client_updater']['prevent_downgrade'] = false
 
 # the version to install (ex: '12.12.13') or 'latest'
 default['chef_client_updater']['version'] = 'latest'
