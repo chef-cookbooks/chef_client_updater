@@ -43,7 +43,7 @@ if Chef::VERSION < node['my_update_cookbook']['desired_version']
     command 'chef-client'
     run_level :highest
     frequency :once
-    start_time "#{run_chef_task_in_ten_minutes.hour}:#{run_chef_task_in_ten_minutes.min}"
+    start_time "#{run_chef_task_in_ten_minutes.strftime('%H:%M')}"
     action :create
   end
 else
@@ -52,7 +52,7 @@ else
     command 'chef-client'
     run_level :highest
     frequency :once
-    start_time "#{run_chef_task_in_ten_minutes.hour}:#{run_chef_task_in_ten_minutes.min}"
+    start_time "#{run_chef_task_in_ten_minutes.strftime('%H:%M')}"
     action :delete
   end
 end
