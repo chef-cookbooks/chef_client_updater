@@ -4,7 +4,7 @@ maintainer_email 'cookbooks@chef.io'
 license 'Apache-2.0'
 description 'Upgrades chef-client to specified releases'
 long_description 'Upgrades chef-client to specified releases'
-version '3.0.0'
+version '2.0.4'
 
 %w(amazon centos debian mac_os_x opensuse opensuseleap oracle redhat scientific solaris2 suse ubuntu windows aix).each do |os|
   supports os

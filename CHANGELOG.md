@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 2.0.4 (2017-06-30)
+
+- Fix #32 Windows MSI setup error "No such file or directory" by updating mixlib-install requirement to 3.3.1
+
 ## 2.0.3 (2017-06-27)
 
 - Fix #31 detect centos platform correctly
