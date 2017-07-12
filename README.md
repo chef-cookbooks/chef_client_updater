@@ -131,6 +131,18 @@ chef_client_updater 'Install 12.13.36 and kill' do
 end
 ```
 
+#### Test Kitchen Testing
+
+In order to test this cookbook it will be necessary to change the `post_install_action` to `exec` from `kill`.  While `kill` is better in most actual production use cases
+as it terminates the chef-client run along with cleaning up the parent process, the use of `kill` under test kitchen will fail the chef-client run and fail the
+test-kitchen run.  The use of `exec` allows test-kitchen to complete and then re-runs the recipe to validate that the cookbook does not attempt to re-update the chef-client
+and will succeed with the new chef-client.  This, however, means that it is not possible to exactly test the config which will be running in production.  The best practice
+advice for this cookbook will be to ignore common best practices and not worry about that.  If you change your production config to use `exec` in order to run what you test
+in test-kitchen, then you will find sharp edge cases where your production upgrades will hang and/or fail, which testing will not replicate.  In order to test you should
+most likely test upgrades on your full-scale integration environment (not under test-kitchen) before rolling out to production and not use test-kitchen at all.  If you
+think that there's a rule that you must test absolutely everything you run under test-kitchen, you should probably
+[read this](http://labs.ig.com/code-coverage-100-percent-tragedy).
+
 ## License & Authors
 
 - Author: Tim Smith ([tsmith@chef.io](mailto:tsmith@chef.io))
