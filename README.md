@@ -143,6 +143,21 @@ most likely test upgrades on your full-scale integration environment (not under 
 think that there's a rule that you must test absolutely everything you run under test-kitchen, you should probably
 [read this](http://labs.ig.com/code-coverage-100-percent-tragedy).
 
+In order to test that your recipes work under the new chef-client codebase, you should simply test your cookbooks against the new version of chef-client that you wish
+to deploy in "isolation" from the upgrade process.  If your recipes all work on the old client, and all work on the new client, and the upgrader works, then the sum
+of the parts should work as well (and again, if you really deeply care about the edge conditions where that might not work -- then test on real production-like images and
+not with test-kitchen).
+
+#### Use of 'exec' in production
+
+This is highly discouraged since the exec will not clean up the supervising process.  You're very likely to see it upgrade successfully and then see the old chef-client
+process continue to run and fork off copies of the old chef-client to run again.  Or for the upgrade process to hang, or for other issues to occur causing failed
+upgrades.
+
+You can use 'exec' in production if you are running from cron or some other process manager and firing off single-shot `--no-fork` chef-client processes without
+using the `--interval` option.  This will have the advantage that the new chef-client kicks off immediately after the upgrade giving fast feedback on any failures under
+the new chef-client.  The utility of this approach is most likely is not enough to justify the hassle.
+
 ## License & Authors
 
 - Author: Tim Smith ([tsmith@chef.io](mailto:tsmith@chef.io))
