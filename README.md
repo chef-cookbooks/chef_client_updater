@@ -141,7 +141,7 @@ advice for this cookbook will be to ignore common best practices and not worry a
 in test-kitchen, then you will find sharp edge cases where your production upgrades will hang and/or fail, which testing will not replicate.  In order to test you should
 most likely test upgrades on your full-scale integration environment (not under test-kitchen) before rolling out to production and not use test-kitchen at all.  If you
 think that there's a rule that you must test absolutely everything you run under test-kitchen, you should probably
-[read this](http://labs.ig.com/code-coverage-100-percent-tragedy).
+[read this](http://labs.ig.com/code-coverage-100-percent-tragedy) or [this](https://coderanger.net/overtesting/).
 
 In order to test that your recipes work under the new chef-client codebase, you should simply test your cookbooks against the new version of chef-client that you wish
 to deploy in "isolation" from the upgrade process.  If your recipes all work on the old client, and all work on the new client, and the upgrader works, then the sum
