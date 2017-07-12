@@ -118,14 +118,15 @@ end
 def eval_post_install_action
   return unless new_resource.post_install_action == 'exec'
 
-  if Chef::Config[:interval]
-    Chef::Log.warn 'post_install_action "exec" not supported for long-running client process -- changing to "kill".'
+  if Chef::Config[:interval] || Chef::Config[:client_fork]
+    Chef::Log.warn 'post_install_action "exec" not supported for chef-client running forked -- changing to "kill".'
     new_resource.post_install_action = 'kill'
   end
 
-  return if Process.respond_to?(:exec)
-  Chef::Log.warn 'post_install_action Process.exec not available -- changing to "kill".'
-  new_resource.post_install_action = 'kill'
+  if windows?
+    Chef::Log.warn 'forcing "exec" to "kill" on windows.'
+    new_resource.post_install_action = 'kill'
+  end
 end
 
 def run_post_install_action
@@ -142,11 +143,11 @@ def run_post_install_action
         Chef::LocalMode.destroy_server_connectivity
       end
     end
-    Chef::Log.warn 'Replacing ourselves with the new version of Chef to continue the run.'
+    Chef::Log.warn 'Replacing chef-client process with upgraded version and re-running.'
     Kernel.exec(new_resource.exec_command, *new_resource.exec_args)
   when 'kill'
     if Chef::Config[:client_fork] && Process.ppid != 1 && !windows?
-      Chef::Log.warn 'Chef client is defined for forked runs. Sending TERM to parent process!'
+      Chef::Log.warn 'Chef client is running forked with a supervisor. Sending TERM to parent process!'
       Process.kill('TERM', Process.ppid)
     end
     Chef::Log.warn 'New chef-client installed. Forcing chef exit!'
