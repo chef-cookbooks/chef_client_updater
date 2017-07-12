@@ -123,10 +123,10 @@ def eval_post_install_action
     new_resource.post_install_action = 'kill'
   end
 
-  if windows?
-    Chef::Log.warn 'forcing "exec" to "kill" on windows.'
-    new_resource.post_install_action = 'kill'
-  end
+  return unless windows?
+
+  Chef::Log.warn 'forcing "exec" to "kill" on windows.'
+  new_resource.post_install_action = 'kill'
 end
 
 def run_post_install_action
