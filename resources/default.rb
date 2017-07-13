@@ -26,7 +26,7 @@ default_action :update
 attribute :channel, kind_of: [String, Symbol], default: :stable
 attribute :prevent_downgrade, kind_of: [TrueClass, FalseClass], default: false
 attribute :version, kind_of: [String, Symbol], default: :latest
-attribute :post_install_action, kind_of: String, default: 'exec'
+attribute :post_install_action, kind_of: String, default: 'kill'
 attribute :exec_command, kind_of: String, default: $PROGRAM_NAME.split(' ').first
 attribute :exec_args, kind_of: Array, default: ARGV
 attribute :download_url_override, kind_of: String
