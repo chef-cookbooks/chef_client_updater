@@ -50,6 +50,9 @@ end
 
 def update_rubygems
   gem_bin = "#{Gem.bindir}/gem"
+  if !::File.exist?(gem_bin) && windows?
+    gem_bin = "#{Gem.bindir}/gem.cmd" # on Chef Client 13+ the rubygem executable is gem.cmd, not gem
+  end
   raise 'cannot find omnibus install' unless ::File.exist?(gem_bin)
 
   rubygems_version = Gem::Version.new(shell_out("#{gem_bin} --version").stdout.chomp)
