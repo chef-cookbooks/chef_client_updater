@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.0.2 (2017-08-08)
+
+- Improve logging to actually log when the upgrade occurs before we kill or exec the current chef-client run
+
 ## 3.0.1 (2017-07-14)
 
 - adding check for gem.cmd on chef-client 13 windows
