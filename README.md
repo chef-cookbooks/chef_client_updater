@@ -158,9 +158,11 @@ You can use 'exec' in production if you are running from cron or some other proc
 using the `--interval` option.  This will have the advantage that the new chef-client kicks off immediately after the upgrade giving fast feedback on any failures under
 the new chef-client.  The utility of this approach is most likely is not enough to justify the hassle.
 
-## License & Authors
+## Maintainers
 
-- Author: Tim Smith ([tsmith@chef.io](mailto:tsmith@chef.io))
+This cookbook is maintained by Chef's Community Cookbook Engineering team. Our goal is to improve cookbook quality and to aid the community in contributing to cookbooks. To learn more about our team, process, and design goals see our [team documentation](https://github.com/chef-cookbooks/community_cookbook_documentation/blob/master/COOKBOOK_TEAM.MD). To learn more about contributing to cookbooks like this see our [contributing documentation](https://github.com/chef-cookbooks/community_cookbook_documentation/blob/master/CONTRIBUTING.MD), or if you have general questions about this cookbook come chat with us in #cookbok-engineering on the [Chef Community Slack](http://community-slack.chef.io/)
+
+## License
 
 ```text
 Copyright:: 2016-2017, Chef Software, Inc

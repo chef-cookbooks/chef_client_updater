@@ -2,7 +2,6 @@
 # testing with the latest version of kitchen-dokken in chef-dk
 source 'https://rubygems.org'
 
-gem 'tomlrb'
 gem 'stove'
 gem 'community_cookbook_releaser'
 gem 'test-kitchen'

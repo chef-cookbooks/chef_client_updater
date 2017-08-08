@@ -20,6 +20,7 @@ platforms:
   - name: centos-7.3
   - name: debian-7.11
   - name: debian-8.8
+  - name: debian-9.0
   - name: freebsd-10.3
   - name: freebsd-11.0
   - name: fedora-25
@@ -50,4 +51,8 @@ suites:
   - name: direct_url
     run_list:
       - recipe[test::direct_url]
+    includes: centos-6.9
+  - name: constrained
+    run_list:
+      - recipe[test::constrained]
     includes: centos-6.9
