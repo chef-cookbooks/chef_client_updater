@@ -237,6 +237,8 @@ action :update do
         move_opt_chef(chef_install_dir, chef_backup_dir)
 
         execute_install_script(install_script)
+      end
+      converge_by "take post install action" do
         run_post_install_action
       end
     end
