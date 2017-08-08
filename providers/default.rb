@@ -60,7 +60,7 @@ def update_rubygems
   Chef::Log.debug("Found gem version #{rubygems_version}. Desired version is at least #{target_version}")
   return if Gem::Requirement.new(">= #{target_version}").satisfied_by?(rubygems_version)
 
-  converge_by "upgrade rubygems #{rubygems_version} to #{target_version}" do
+  converge_by "upgrade rubygems #{rubygems_version} to latest" do
     # note that the rubygems that we're upgrading is likely so old that you can't pin a version
     shell_out!("#{gem_bin} update --system --no-rdoc --no-ri")
   end
