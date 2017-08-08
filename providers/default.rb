@@ -75,6 +75,7 @@ end
 def mixlib_install
   load_mixlib_install
   detected_platform = Mixlib::Install.detect_platform
+  Chef::Log.debug("Platform detected as #{detected_platform} by mixlib_install")
   options = {
     product_name: 'chef',
     platform_version_compatibility_mode: true,
@@ -85,8 +86,10 @@ def mixlib_install
     product_version: new_resource.version == 'latest' ? :latest : new_resource.version,
   }
   if new_resource.download_url_override && new_resource.checksum
+    Chef::Log.debug('Passing download_url_override and checksum to mixlib_install')
     options[:install_command_options] = { download_url_override: new_resource.download_url_override, checksum: new_resource.checksum }
   end
+  Chef::Log.debug("Passing options to mixlib-install: #{options}")
   Mixlib::Install.new(options)
 end
 
