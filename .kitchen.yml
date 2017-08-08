@@ -51,3 +51,7 @@ suites:
     run_list:
       - recipe[test::direct_url]
     includes: centos-6.9
+  - name: constrained
+    run_list:
+      - recipe[test::constrained]
+    includes: centos-6.9
