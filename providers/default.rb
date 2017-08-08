@@ -57,9 +57,10 @@ def update_rubygems
 
   rubygems_version = Gem::Version.new(shell_out("#{gem_bin} --version").stdout.chomp)
   target_version = '2.6.11'
+  Chef::Log.debug("Found gem version #{rubygems_version}. Desired version is at least #{target_version}")
   return if Gem::Requirement.new(">= #{target_version}").satisfied_by?(rubygems_version)
 
-  converge_by "upgrade rubygems #{rubygems_version} to #{target_version}" do
+  converge_by "upgrade rubygems #{rubygems_version} to latest" do
     # note that the rubygems that we're upgrading is likely so old that you can't pin a version
     shell_out!("#{gem_bin} update --system --no-rdoc --no-ri")
   end
@@ -74,6 +75,7 @@ end
 def mixlib_install
   load_mixlib_install
   detected_platform = Mixlib::Install.detect_platform
+  Chef::Log.debug("Platform detected as #{detected_platform} by mixlib_install")
   options = {
     product_name: 'chef',
     platform_version_compatibility_mode: true,
@@ -84,8 +86,10 @@ def mixlib_install
     product_version: new_resource.version == 'latest' ? :latest : new_resource.version,
   }
   if new_resource.download_url_override && new_resource.checksum
+    Chef::Log.debug('Passing download_url_override and checksum to mixlib_install')
     options[:install_command_options] = { download_url_override: new_resource.download_url_override, checksum: new_resource.checksum }
   end
+  Chef::Log.debug("Passing options to mixlib-install: #{options}")
   Mixlib::Install.new(options)
 end
 
