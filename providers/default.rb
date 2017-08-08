@@ -59,7 +59,7 @@ def update_rubygems
   target_version = '2.6.11'
   return if Gem::Requirement.new(">= #{target_version}").satisfied_by?(rubygems_version)
 
-  converge_by "upgrading rubygems to #{target_version} was #{rubygems_version}" do
+  converge_by "upgrade rubygems #{rubygems_version} to #{target_version}" do
     # note that the rubygems that we're upgrading is likely so old that you can't pin a version
     shell_out!("#{gem_bin} update --system --no-rdoc --no-ri")
   end
@@ -171,7 +171,7 @@ end
 # cleanup cruft from *prior* runs
 def cleanup
   if ::File.exist?(chef_backup_dir) # rubocop:disable Style/GuardClause
-    converge_by("removing #{chef_backup_dir}") do
+    converge_by("remove #{chef_backup_dir} from previous chef-client run") do
       FileUtils.rm_rf chef_backup_dir
     end
   end
@@ -186,7 +186,7 @@ end
 # gem files.
 #
 def move_opt_chef(src, dest)
-  converge_by("moving all files under #{src} to #{dest}") do
+  converge_by("move all files under #{src} to #{dest}") do
     FileUtils.rm_rf dest
     raise "rm_rf of #{dest} failed" if ::File.exist?(dest) # detect mountpoints that were not deleted
     FileUtils.mv src, dest
@@ -230,7 +230,7 @@ action :update do
     load_prerequisites!
 
     if update_necessary?
-      converge_by "Upgraded chef-client #{current_version} to #{desired_version}" do
+      converge_by "upgrade chef-client #{current_version} to #{desired_version}" do
         # we have to get the script from mibxlib-install..
         install_script = mixlib_install.install_command
         # ...before we blow mixlib-install away
@@ -238,7 +238,7 @@ action :update do
 
         execute_install_script(install_script)
       end
-      converge_by "take post install action" do
+      converge_by 'take post install action' do
         run_post_install_action
       end
     end
