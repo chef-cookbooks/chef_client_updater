@@ -2,6 +2,13 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.0.3 (2017-08-10)
+
+- Add accurate logging for the rubygems upgrade to reflect that we're actually upgrading to the latest release.
+- Require mixlib-install 3.3.4 to prevent failures on Windows nodes due to architecture detection failing within mixlib-install
+- Add debug logging for the desired version logic
+- Improve logging of the version we're upgrading to in situations where the user provides either :latest or a partial version like '12'. Show the version we're upgrading to instead of what the user passed
+
 ## 3.0.2 (2017-08-08)
 
 - Improve logging to actually log when the upgrade occurs before we kill or exec the current chef-client run
