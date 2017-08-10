@@ -100,8 +100,24 @@ def current_version
   node['chef_packages']['chef']['version']
 end
 
+# the version we WANT TO INSTALL. If :latest is specified this will be the actual
+# latest version returned by mixlib-install. if download_url_override is passed
+# we parse the version, but blindly assume it's correct. Otherwise we rely on
+# mixlib-install to give us the exact version since someone could pass ~12 which
+# needs to be expanded to the latest 12.X.
 def desired_version
-  new_resource.version.to_sym == :latest ? mixlib_install.available_versions.last : new_resource.version
+  if new_resource.download_url_override
+    # probably in an air-gapped environment.
+    version = Mixlib::Versioning.parse(new_resource.version)
+    Chef::Log.debug("download_url_override specified. Using specified version of #{version}")
+  elsif new_resource.version.to_sym == :latest
+    version = mixlib_install.available_versions.last
+    Chef::Log.debug("Version set to :latest, which currently maps to #{version}")
+  else
+    version = Mixlib::Versioning.parse(Array(mixlib_install.artifact_info).first.version)
+    Chef::Log.debug("Desired version in specified channel maps to #{version}")
+  end
+  version
 end
 
 # why wouldn't we use the built in update_available? method in mixlib-install?
@@ -110,15 +126,9 @@ end
 def update_necessary?
   load_mixlib_versioning
   cur_version = Mixlib::Versioning.parse(current_version)
-  # we have to "resolve" partial versions like "12" through mixlib-install before comparing them here
-  des_version =
-    if new_resource.download_url_override
-      # probably in an air-gapped environment.
-      Mixlib::Versioning.parse(desired_version)
-    else
-      Mixlib::Versioning.parse(Array(mixlib_install.artifact_info).first.version)
-    end
-  Chef::Log.debug("The current chef-client version is #{cur_version} and the desired version is #{desired_version}")
+  des_version = desired_version
+
+  Chef::Log.debug("The current chef-client version is #{cur_version} and the desired version is #{des_version}")
   new_resource.prevent_downgrade ? (des_version > cur_version) : (des_version != cur_version)
 end
 
