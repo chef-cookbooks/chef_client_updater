@@ -2,6 +2,11 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.0.4 (2017-08-17)
+
+- Fix gem install to actually install mixlib-install 3.3.4
+- Fix :latest resulting in chef installing on every run
+
 ## 3.0.3 (2017-08-10)
 
 - Add accurate logging for the rubygems upgrade to reflect that we're actually upgrading to the latest release.
