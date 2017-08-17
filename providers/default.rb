@@ -111,7 +111,7 @@ def desired_version
     version = Mixlib::Versioning.parse(new_resource.version)
     Chef::Log.debug("download_url_override specified. Using specified version of #{version}")
   elsif new_resource.version.to_sym == :latest
-    version = mixlib_install.available_versions.last
+    version = Mixlib::Versioning.parse(mixlib_install.available_versions.last)
     Chef::Log.debug("Version set to :latest, which currently maps to #{version}")
   else
     version = Mixlib::Versioning.parse(Array(mixlib_install.artifact_info).first.version)
