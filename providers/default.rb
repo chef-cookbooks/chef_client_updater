@@ -85,8 +85,9 @@ def mixlib_install
     channel: new_resource.channel.to_sym,
     product_version: new_resource.version == 'latest' ? :latest : new_resource.version,
   }
-  if new_resource.download_url_override && new_resource.checksum
-    Chef::Log.debug('Passing download_url_override and checksum to mixlib_install')
+  if new_resource.download_url_override
+    raise('Using download_url_override in the chef_client_updater resource requires also setting checksum property!') unless new_resource.checksum
+    Chef::Log.debug("Passing download_url_override of #{new_resource.download_url_override} and checksum of #{new_resource.checksum} to mixlib_install")
     options[:install_command_options] = { download_url_override: new_resource.download_url_override, checksum: new_resource.checksum }
   end
   Chef::Log.debug("Passing options to mixlib-install: #{options}")
