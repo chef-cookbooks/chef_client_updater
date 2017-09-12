@@ -6,6 +6,8 @@ description 'Upgrades chef-client to specified releases'
 long_description 'Upgrades chef-client to specified releases'
 version '3.0.4001'
 
+chef_version '>= 11' if respond_to?(:chef_version)
+
 %w(amazon centos debian mac_os_x opensuse opensuseleap oracle redhat scientific solaris2 suse ubuntu windows aix).each do |os|
   supports os
 end
