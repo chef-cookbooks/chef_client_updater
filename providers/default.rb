@@ -196,6 +196,13 @@ def windows?
   platform_family?('windows')
 end
 
+def copy_opt_chef(src, dest)
+  FileUtils.mkdir dest
+  FileUtils.cp_r "#{src}/.", dest
+rescue
+  nil
+end
+
 # windows does not like having running open files nuked behind it so we have to move the old file
 # out of the way.  on both platforms we must clean up the old install to not leave behind any old
 # gem files.
@@ -224,11 +231,40 @@ rescue => e
   end
 end
 
+def prepare_windows
+  copy_opt_chef(chef_install_dir, chef_backup_dir)
+  Kernel.spawn('c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc minute /mo 1 /tn Chef_upgrade /tr "powershell.exe c:/opscode/chef_upgrade.ps1"')
+  FileUtils.rm_rf "#{chef_install_dir}/bin/chef-client.bat"
+end
+
 def execute_install_script(install_script)
   if windows?
     powershell_script 'name' do
       code <<-EOH
-    #{install_script}
+        $command = {
+          Get-Service chef-client -ErrorAction SilentlyContinue | stop-service
+
+          if ((Get-WmiObject Win32_Process -Filter "name = 'ruby.exe'" | Select-Object CommandLine | select-string 'opscode').count -gt 0) { exit 8 }
+
+          Remove-Item "#{chef_install_dir}" -Recurse -Force
+
+          if (test-path "#{chef_install_dir}") { exit 3 }
+
+          #{install_script}
+
+          Remove-Item "c:/opscode/chef_upgrade.ps1"
+          c:/windows/system32/schtasks.exe /delete /f /tn Chef_upgrade
+
+          Get-Service chef-client -ErrorAction SilentlyContinue | Start-service
+          c:/opscode/chef/bin/chef-client.bat
+        }
+
+        $http_proxy = $env:http_proxy
+        $set_proxy = "`$env:http_proxy=`'$http_proxy`'"
+
+        Set-Content -Path c:/opscode/chef_upgrade.ps1 -Value $set_proxy
+        Add-Content c:/opscode/chef_upgrade.ps1 "`n$command"
+
       EOH
       action :nothing
     end.run_action(:run)
@@ -240,8 +276,6 @@ end
 
 action :update do
   begin
-    cleanup
-
     load_prerequisites!
 
     if update_necessary?
@@ -249,20 +283,22 @@ action :update do
         # we have to get the script from mibxlib-install..
         install_script = mixlib_install.install_command
         # ...before we blow mixlib-install away
-        move_opt_chef(chef_install_dir, chef_backup_dir)
+        platform_family?('windows') ? prepare_windows : move_opt_chef(chef_install_dir, chef_backup_dir)
 
         execute_install_script(install_script)
       end
       converge_by 'take post install action' do
         run_post_install_action
       end
+    else
+      cleanup
     end
   rescue SystemExit
     raise
   rescue Exception => e # rubocop:disable Lint/RescueException
     if ::File.exist?(chef_backup_dir)
       Chef::Log.warn "CHEF UPGRADE ABORTED due to #{e}: rolling back to #{chef_backup_dir} copy"
-      move_opt_chef(chef_backup_dir, chef_install_dir)
+      move_opt_chef(chef_backup_dir, chef_install_dir) unless platform_family?('windows')
     else
       Chef::Log.warn "NO #{chef_backup_dir} DIR TO ROLL BACK TO!"
     end
