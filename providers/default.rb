@@ -148,6 +148,8 @@ def eval_post_install_action
 end
 
 def run_post_install_action
+  Kernel.spawn('c:/windows/system32/schtasks.exe /delete /f /tn Chef_upgrade') if platform_family?('windows')
+
   # make sure the passed action will actually work
   eval_post_install_action
 
@@ -284,6 +286,7 @@ action :update do
         # we have to get the script from mibxlib-install..
         install_script = mixlib_install.install_command
         # ...before we blow mixlib-install away
+
         platform_family?('windows') ? prepare_windows : move_opt_chef(chef_install_dir, chef_backup_dir)
 
         execute_install_script(install_script)
