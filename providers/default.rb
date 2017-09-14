@@ -234,17 +234,40 @@ rescue => e
 end
 
 def prepare_windows
-  Kernel.spawn("c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc minute /mo 1 /tn Chef_upgrade /tr #{chef_backup_dir}/bin/chef-client.bat")
-  copy_opt_chef(chef_install_dir, chef_backup_dir)
-  FileUtils.rm_rf chef_install_dir
-  raise 'Source folder still exists - aborting Chef upgrade for now' if ::File.exist?(chef_install_dir)
+  Kernel.spawn('c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc minute /mo 1 /tn Chef_upgrade /tr "powershell.exe c:/opscode/chef_upgrade.ps1"') if platform_family?('windows')
+  FileUtils.rm_rf "#{chef_install_dir}/bin/chef-client.bat" if platform_family?('windows') && platform_family?('windows')
 end
 
 def execute_install_script(install_script)
   if windows?
     powershell_script 'name' do
       code <<-EOH
-    #{install_script}
+	  $command = {
+		Get-Service chef-client | stop-service
+
+		if ((Get-WmiObject Win32_Process -Filter "name = 'ruby.exe'" | Select-Object CommandLine | select-string 'chef-client').count -gt 0) { exit 8 }
+
+	    Remove-Item "#{chef_install_dir}" -Recurse -Force
+
+		if (test-path "#{chef_install_dir}") { exit 3 }
+		if (test-path "#{chef_install_dir}/bin/chef-client.bat") { exit 4 }
+
+	    #{install_script}
+
+		Remove-Item "c:/opscode/chef_upgrade.ps1"
+		c:/windows/system32/schtasks.exe /delete /f /tn Chef_upgrade
+
+		c:/opscode/chef/bin/chef-client.bat
+	  }
+
+	  $http_proxy = $env:http_proxy
+	  $set_proxy = "`$env:http_proxy=`'$http_proxy`'"
+
+	  $set_proxy | Set-Content c:/opscode/chef_upgrade.ps1
+	  $command | Add-Content c:/opscode/chef_upgrade.ps1
+
+	  Get-Service chef-client | Start-service
+
       EOH
       action :nothing
     end.run_action(:run)
@@ -263,8 +286,7 @@ action :update do
         # we have to get the script from mibxlib-install..
         install_script = mixlib_install.install_command
         # ...before we blow mixlib-install away
-        prepare_windows if platform_family?('windows')
-        move_opt_chef(chef_install_dir, chef_backup_dir) unless platform_family?('windows')
+        platform_family?('windows') ? prepare_windows : move_opt_chef(chef_install_dir, chef_backup_dir)
 
         execute_install_script(install_script)
       end
