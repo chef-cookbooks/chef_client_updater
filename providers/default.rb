@@ -255,7 +255,7 @@ def execute_install_script(install_script)
 		Remove-Item "c:/opscode/chef_upgrade.ps1"
 		c:/windows/system32/schtasks.exe /delete /f /tn Chef_upgrade
 
-		c:\opscode\chef\bin\chef-client.bat
+		c:/opscode/chef/bin/chef-client.bat
 	  }
 
 	  $http_proxy = $env:http_proxy
