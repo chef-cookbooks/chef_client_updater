@@ -232,8 +232,8 @@ rescue => e
 end
 
 def prepare_windows
-  Kernel.spawn('c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc minute /mo 1 /tn Chef_upgrade /tr "powershell.exe c:/opscode/chef_upgrade.ps1"') if platform_family?('windows')
-  FileUtils.rm_rf "#{chef_install_dir}/bin/chef-client.bat" if platform_family?('windows') && platform_family?('windows')
+  Kernel.spawn('c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc minute /mo 1 /tn Chef_upgrade /tr "powershell.exe c:/opscode/chef_upgrade.ps1"')
+  FileUtils.rm_rf "#{chef_install_dir}/bin/chef-client.bat"
 end
 
 def execute_install_script(install_script)
