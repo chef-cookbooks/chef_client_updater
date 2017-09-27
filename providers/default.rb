@@ -234,8 +234,8 @@ rescue => e
 end
 
 def prepare_windows
-  Kernel.spawn('c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc minute /mo 1 /tn Chef_upgrade /tr "powershell.exe c:/opscode/chef_upgrade.ps1"') if platform_family?('windows')
-  FileUtils.rm_rf "#{chef_install_dir}/bin/chef-client.bat" if platform_family?('windows') && platform_family?('windows')
+  Kernel.spawn('c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc minute /mo 1 /tn Chef_upgrade /tr "powershell.exe c:/opscode/chef_upgrade.ps1"')
+  FileUtils.rm_rf "#{chef_install_dir}/bin/chef-client.bat"
 end
 
 def execute_install_script(install_script)
@@ -243,9 +243,9 @@ def execute_install_script(install_script)
     powershell_script 'name' do
       code <<-EOH
 	  $command = {
-		Get-Service chef-client | stop-service
+		Get-Service chef-client -ErrorAction SilentlyContinue | stop-service
 
-		if ((Get-WmiObject Win32_Process -Filter "name = 'ruby.exe'" | Select-Object CommandLine | select-string 'chef-client').count -gt 0) { exit 8 }
+		if ((Get-WmiObject Win32_Process -Filter "name = 'opscode'" | Select-Object CommandLine | select-string 'chef-client').count -gt 0) { exit 8 }
 
 	    Remove-Item "#{chef_install_dir}" -Recurse -Force
 
@@ -256,7 +256,8 @@ def execute_install_script(install_script)
 
 		Remove-Item "c:/opscode/chef_upgrade.ps1"
 		c:/windows/system32/schtasks.exe /delete /f /tn Chef_upgrade
-
+		
+		Get-Service chef-client -ErrorAction SilentlyContinue | Start-service
 		c:/opscode/chef/bin/chef-client.bat
 	  }
 
@@ -265,8 +266,6 @@ def execute_install_script(install_script)
 
 	  $set_proxy | Set-Content c:/opscode/chef_upgrade.ps1
 	  $command | Add-Content c:/opscode/chef_upgrade.ps1
-
-	  Get-Service chef-client | Start-service
 
       EOH
       action :nothing

@@ -107,8 +107,6 @@ Vagrantfile
 
 # GitHub #
 ##########
-.delivery/project.toml
-.github/ISSUE_TEMPLATE.md
-.github/PULL_REQUEST_TEMPLATE.md
-gemfiles/Gemfile.ancient
-gemfiles/Gemfile.ancient.lock
+.delivery/*
+.github/*
+gemfiles/*
