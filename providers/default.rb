@@ -254,7 +254,7 @@ def execute_install_script(install_script)
 
 		Remove-Item "c:/opscode/chef_upgrade.ps1"
 		c:/windows/system32/schtasks.exe /delete /f /tn Chef_upgrade
-		
+
 		Get-Service chef-client -ErrorAction SilentlyContinue | Start-service
 		c:/opscode/chef/bin/chef-client.bat
 	  }
