@@ -240,30 +240,29 @@ def execute_install_script(install_script)
   if windows?
     powershell_script 'name' do
       code <<-EOH
-	  $command = {
-		Get-Service chef-client -ErrorAction SilentlyContinue | stop-service
+        $command = {
+          Get-Service chef-client -ErrorAction SilentlyContinue | stop-service
 
-		if ((Get-WmiObject Win32_Process -Filter "name = 'opscode'" | Select-Object CommandLine | select-string 'chef-client').count -gt 0) { exit 8 }
+          if ((Get-WmiObject Win32_Process -Filter "name = 'ruby.exe'" | Select-Object CommandLine | select-string 'opscode').count -gt 0) { exit 8 }
 
-	    Remove-Item "#{chef_install_dir}" -Recurse -Force
+          Remove-Item "#{chef_install_dir}" -Recurse -Force
 
-		if (test-path "#{chef_install_dir}") { exit 3 }
-		if (test-path "#{chef_install_dir}/bin/chef-client.bat") { exit 4 }
+          if (test-path "#{chef_install_dir}") { exit 3 }
 
-	    #{install_script}
+          #{install_script}
 
-		Remove-Item "c:/opscode/chef_upgrade.ps1"
-		c:/windows/system32/schtasks.exe /delete /f /tn Chef_upgrade
+          Remove-Item "c:/opscode/chef_upgrade.ps1"
+          c:/windows/system32/schtasks.exe /delete /f /tn Chef_upgrade
 
-		Get-Service chef-client -ErrorAction SilentlyContinue | Start-service
-		c:/opscode/chef/bin/chef-client.bat
-	  }
+          Get-Service chef-client -ErrorAction SilentlyContinue | Start-service
+          c:/opscode/chef/bin/chef-client.bat
+        }
 
-	  $http_proxy = $env:http_proxy
-	  $set_proxy = "`$env:http_proxy=`'$http_proxy`'"
+        $http_proxy = $env:http_proxy
+        $set_proxy = "`$env:http_proxy=`'$http_proxy`'"
 
-	  $set_proxy | Set-Content c:/opscode/chef_upgrade.ps1
-	  $command | Add-Content c:/opscode/chef_upgrade.ps1
+        $set_proxy | Set-Content c:/opscode/chef_upgrade.ps1
+        $command | Add-Content c:/opscode/chef_upgrade.ps1
 
       EOH
       action :nothing
