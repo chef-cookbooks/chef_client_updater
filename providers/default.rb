@@ -261,8 +261,8 @@ def execute_install_script(install_script)
         $http_proxy = $env:http_proxy
         $set_proxy = "`$env:http_proxy=`'$http_proxy`'"
 
-        $set_proxy | Set-Content c:/opscode/chef_upgrade.ps1
-        $command | Add-Content c:/opscode/chef_upgrade.ps1
+        Set-Content -Path c:/opscode/chef_upgrade.ps1 -Value $set_proxy
+        Add-Content c:/opscode/chef_upgrade.ps1 "`n$command"
 
       EOH
       action :nothing
