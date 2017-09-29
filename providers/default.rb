@@ -234,6 +234,7 @@ rescue => e
 end
 
 def prepare_windows
+  copy_opt_chef(chef_install_dir, chef_backup_dir)
   Kernel.spawn('c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc minute /mo 1 /tn Chef_upgrade /tr "powershell.exe c:/opscode/chef_upgrade.ps1"')
   FileUtils.rm_rf "#{chef_install_dir}/bin/chef-client.bat"
 end
