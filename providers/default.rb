@@ -148,8 +148,6 @@ def eval_post_install_action
 end
 
 def run_post_install_action
-  Kernel.spawn('c:/windows/system32/schtasks.exe /delete /f /tn Chef_upgrade') if platform_family?('windows')
-
   # make sure the passed action will actually work
   eval_post_install_action
 
