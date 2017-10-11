@@ -104,9 +104,3 @@ Strainerfile
 ###########
 .vagrant
 Vagrantfile
-
-# GitHub #
-##########
-.delivery/*
-.github/*
-gemfiles/*

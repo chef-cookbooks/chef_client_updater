@@ -256,7 +256,7 @@ def execute_install_script(install_script)
           c:/windows/system32/schtasks.exe /delete /f /tn Chef_upgrade
 
           Get-Service chef-client -ErrorAction SilentlyContinue | Start-service
-          c:/opscode/chef/bin/chef-client.bat
+          #{chef_install_dir}/bin/chef-client.bat
         }
 
         $http_proxy = $env:http_proxy

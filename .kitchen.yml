@@ -30,9 +30,19 @@ platforms:
   - name: windows-2008r2
     driver:
       box: chef/windows-server-2008r2-standard # private box in Chef's Atlas account
+    provisioner:
+      wait_for_retry: 300
+    transport:
+      name: winrm
+      elevated: true
   - name: windows-2012r2
     driver:
       box: chef/windows-server-2012r2-standard # private box in Chef's Atlas account
+    provisioner:
+      wait_for_retry: 300
+    transport:
+      name: winrm
+      elevated: true
   - name: macosx-10.11
     driver:
       box: chef/macosx-10.11 # private box in Chef's Atlas account
@@ -45,9 +55,15 @@ suites:
   - name: default
     run_list:
       - recipe[test::default]
+    excludes:
+      - windows-2008r2
+      - windows-2012r2
   - name: kill
     run_list:
       - recipe[test::kill]
+    verifier:
+      inspec_tests:
+        - path: ./test/integration/default/
   - name: direct_url
     run_list:
       - recipe[test::direct_url]
