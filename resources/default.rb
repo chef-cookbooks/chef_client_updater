@@ -18,6 +18,10 @@
 # limitations under the License.
 #
 
+# NOTE: this cookbook uses Chef-11 backwards compatible syntax to support
+# upgrades from Chef 11.x and this pattern should not be copied for any modern
+# cookbook.  This is a poor example cookbook of how to write Chef.
+
 provides :chef_client_updater
 
 actions [:update]
