@@ -2,6 +2,14 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.1.0 (2017-11-01)
+
+- Raise if download_url_override is set but checksum isn't
+- Require a mixin-install that supports proxies
+- Improve how we perform the cleanup of the previous install directory on Windows
+- Remove a hardcoded path to the chef-client on Windows
+- Improve how we perform the Windows upgrade by using a scheduled task to avoid failures during the upgrade
+
 ## 3.0.4 (2017-08-17)
 
 - Fix gem install to actually install mixlib-install 3.3.4
