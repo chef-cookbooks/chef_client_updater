@@ -29,12 +29,12 @@ include Chef::Mixin::ShellOut
 provides :chef_client_updater if respond_to?(:provides)
 
 def load_mixlib_install
-  gem 'mixlib-install', '~> 3.3', '>= 3.3.4'
+  gem 'mixlib-install', '~> 3.5'
   require 'mixlib/install'
 rescue LoadError
   Chef::Log.info('mixlib-install gem not found. Installing now')
   chef_gem 'mixlib-install' do
-    version '>= 3.3.4'
+    version '~> 3.5'
     compile_time true if respond_to?(:compile_time)
   end
 
