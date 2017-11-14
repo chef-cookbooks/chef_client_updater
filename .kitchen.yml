@@ -43,9 +43,17 @@ platforms:
     transport:
       name: winrm
       elevated: true
-  - name: macosx-10.11
+  - name: windows-2016
     driver:
-      box: chef/macosx-10.11 # private box in Chef's Atlas account
+      box: chef/windows-server-2016-standard # private box in Chef's Atlas account
+    provisioner:
+      wait_for_retry: 300
+    transport:
+      name: winrm
+      elevated: true
+  - name: macosx-10.13
+    driver:
+      box: chef/macosx-10.13 # private box in Chef's Atlas account
       provider: vmware_fusion
   - name: sles-12-sp1
     driver:
@@ -58,6 +66,7 @@ suites:
     excludes:
       - windows-2008r2
       - windows-2012r2
+      - windows-2016
   - name: kill
     run_list:
       - recipe[test::kill]
