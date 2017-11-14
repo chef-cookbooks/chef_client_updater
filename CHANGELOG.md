@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.1.1 (2017-11-14)
+
+- Windows: Bypass Powershell Execution Policy for upgrade scheduled task
+
 ## 3.1.0 (2017-11-01)
 
 - Raise if download_url_override is set but checksum isn't
