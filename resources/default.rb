@@ -35,3 +35,4 @@ attribute :exec_command, kind_of: String, default: $PROGRAM_NAME.split(' ').firs
 attribute :exec_args, kind_of: Array, default: ARGV
 attribute :download_url_override, kind_of: String
 attribute :checksum, kind_of: String
+attribute :uninstall_first, kind_of: [TrueClass, FalseClass], default: false

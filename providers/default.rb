@@ -241,8 +241,42 @@ def prepare_windows
   FileUtils.rm_rf "#{chef_install_dir}/bin/chef-client.bat"
 end
 
+def uninstall_ps_code
+  uninstall_ps_code = <<-EOH
+  function guid_from_regvalue($value) {
+    $order = 7,6,5,4,3,2,1,0,11,10,9,8,15,14,13,12,17,16,19,18,21,20,23,22,25,24,27,26,29,28,31,30
+    $dash_pos = 8,13,18,23
+
+    $guid = ""
+    $order | % {
+      $letter = $value.Substring($_,1)
+      $guid = "$guid$letter"
+      if ($dash_pos -contains $guid.length) {$guid = "$guid-"}
+    }
+      return $guid
+    }
+
+    function installed_remove() {
+      $installed_product = (get-item HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\UpgradeCodes\\C58A706DAFDB80F438DEE2BCD4DCB65C).Property
+      $msi_guid = guid_from_regvalue $installed_product
+
+      Start-Process msiexec.exe -Wait -ArgumentList "/x {$msi_guid} /q"
+    }
+
+    installed_remove
+  EOH
+
+  uninstall_ps_code
+end
+
 def execute_install_script(install_script)
   if windows?
+    uninstall_first = if new_resource.uninstall_first
+                        uninstall_ps_code
+                      else
+                        ''
+                      end
+
     powershell_script 'name' do
       code <<-EOH
         $command = {
@@ -254,6 +288,7 @@ def execute_install_script(install_script)
 
           if (test-path "#{chef_install_dir}") { exit 3 }
 
+          #{uninstall_first}
           #{install_script}
 
           Remove-Item "c:/opscode/chef_upgrade.ps1"
