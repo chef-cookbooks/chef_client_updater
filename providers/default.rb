@@ -243,16 +243,16 @@ end
 
 def uninstall_ps_code
   uninstall_ps_code = <<-EOH
-  function guid_from_regvalue($value) {
-    $order = 7,6,5,4,3,2,1,0,11,10,9,8,15,14,13,12,17,16,19,18,21,20,23,22,25,24,27,26,29,28,31,30
-    $dash_pos = 8,13,18,23
+    function guid_from_regvalue($value) {
+      $order = 7,6,5,4,3,2,1,0,11,10,9,8,15,14,13,12,17,16,19,18,21,20,23,22,25,24,27,26,29,28,31,30
+      $dash_pos = 8,13,18,23
 
-    $guid = ""
-    $order | % {
-      $letter = $value.Substring($_,1)
-      $guid = "$guid$letter"
-      if ($dash_pos -contains $guid.length) {$guid = "$guid-"}
-    }
+      $guid = ""
+      $order | % {
+        $letter = $value.Substring($_,1)
+        $guid = "$guid$letter"
+        if ($dash_pos -contains $guid.length) {$guid = "$guid-"}
+      }
       return $guid
     }
 
@@ -271,7 +271,8 @@ end
 
 def execute_install_script(install_script)
   if windows?
-    uninstall_first = if new_resource.uninstall_first
+    cur_version = Mixlib::Versioning.parse(current_version)
+    uninstall_first = if desired_version < cur_version
                         uninstall_ps_code
                       else
                         ''
