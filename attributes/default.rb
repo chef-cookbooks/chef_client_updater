@@ -33,3 +33,7 @@ default['chef_client_updater']['download_url_override'] = nil
 
 # the checksum of the package from "download_url_override"
 default['chef_client_updater']['checksum'] = nil
+
+# Root installation path for chef-client for when a custom path is used.
+# Defaults to 'C:/opscode/chef' on Windows and '/opt/chef' for everything else.
+default['chef_client_updater']['chef_install_path'] = nil

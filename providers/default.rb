@@ -81,7 +81,7 @@ def mixlib_install
   detected_platform = Mixlib::Install.detect_platform
   Chef::Log.debug("Platform detected as #{detected_platform} by mixlib_install")
   options = {
-    product_name: 'chef',
+    product_name: node['chef_client_updater']['product_name'] || 'chef',
     platform_version_compatibility_mode: true,
     platform: detected_platform[:platform],
     platform_version: detected_platform[:platform_version],
@@ -180,11 +180,11 @@ def run_post_install_action
 end
 
 def chef_install_dir
-  windows? ? 'c:/opscode/chef' : '/opt/chef'
+  node['chef_client_updater']['chef_install_path'] || windows? ? 'c:/opscode/chef' : '/opt/chef'
 end
 
 def chef_backup_dir
-  windows? ? 'c:/opscode/chef.upgrade' : '/opt/chef.upgrade'
+  "#{chef_install_dir}.upgrade"
 end
 
 # cleanup cruft from *prior* runs
