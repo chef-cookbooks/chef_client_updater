@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.1.3 (2017-12-20)
+
+- Support custom paths to chef-client
+
 ## 3.1.2 (2017-11-22)
 
 - Windows: Support for downgrading the Chef client
