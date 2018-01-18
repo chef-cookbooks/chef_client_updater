@@ -134,7 +134,9 @@ def update_necessary?
   des_version = desired_version
 
   Chef::Log.debug("The current chef-client version is #{cur_version} and the desired version is #{des_version}")
-  new_resource.prevent_downgrade ? (des_version > cur_version) : (des_version != cur_version)
+  necessary = new_resource.prevent_downgrade ? (des_version > cur_version) : (des_version != cur_version)
+  Chef::Log.debug("A chef-client upgrade #{necessary == true ? "is" : "isn't"} necessary")
+  necessary
 end
 
 def eval_post_install_action
