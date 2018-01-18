@@ -8,7 +8,7 @@ provisioner:
     - 213
   max_retries: 1
   wait_for_retry: 1
-  client_rb:
+  solo_rb:
     exit_status: :enabled
     client_fork: false
 
