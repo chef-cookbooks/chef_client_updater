@@ -311,7 +311,7 @@ def execute_install_script(install_script)
   else
     upgrade_command = Mixlib::ShellOut.new(install_script)
     upgrade_command.run_command
-    if upgrade_command.error?
+    if upgrade_command.exitstatus != 0
       raise "Error updating chef-client. exit code: #{upgrade_command.exitstatus}.\nSTDERR: #{upgrade_command.stderr}\nSTDOUT: #{upgrade_command.stdout}"
     end
   end
