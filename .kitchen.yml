@@ -71,3 +71,7 @@ suites:
     run_list:
       - recipe[test::constrained]
     includes: centos-6
+  - name: noop
+    run_list:
+      - recipe[test::noop]
+    includes: centos-6
