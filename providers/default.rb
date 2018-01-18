@@ -114,15 +114,17 @@ def desired_version
   if new_resource.version.to_sym == :latest # we need to find what :latest really means
     version = Mixlib::Versioning.parse(mixlib_install.available_versions.last)
     Chef::Log.debug("User specified version of :latest. Looking up using mixlib-install. Value maps to #{version}.")
-    version
+  elsif new_resource.download_url_override # probably in an air-gapped environment.
+    version = Mixlib::Versioning.parse(new_resource.version)
+    Chef::Log.debug("download_url_override specified. Using specified version of #{version}")
   elsif new_resource.version.split('.').count == 3 # X.Y.Z version format given
     Chef::Log.debug("User specified version of #{new_resource.version}. No need check this against Chef servers.")
-    Mixlib::Versioning.parse(new_resource.version)
+    version = Mixlib::Versioning.parse(new_resource.version)
   else # lookup their shortened version to find the X.Y.Z version
     version = Mixlib::Versioning.parse(Array(mixlib_install.artifact_info).first.version)
     Chef::Log.debug("User specified version of #{new_resource.version}. Looking up using mixlib-install as this is not X.Y.Z format. Value maps to #{version}.")
-    version
   end
+  version
 end
 
 # why wouldn't we use the built in update_available? method in mixlib-install?
