@@ -8,7 +8,7 @@ provisioner:
     - 213
   max_retries: 1
   wait_for_retry: 1
-  client_rb:
+  solo_rb:
     exit_status: :enabled
     client_fork: false
 
@@ -70,4 +70,8 @@ suites:
   - name: constrained
     run_list:
       - recipe[test::constrained]
+    includes: centos-6
+  - name: noop
+    run_list:
+      - recipe[test::noop]
     includes: centos-6

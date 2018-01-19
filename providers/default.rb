@@ -101,26 +101,28 @@ end
 # why would we use this when mixlib-install has a current_version method?
 # well mixlib-version parses the manifest JSON, which might not be there.
 # ohai handles this better IMO
+# @return String
 def current_version
   node['chef_packages']['chef']['version']
 end
 
-# the version we WANT TO INSTALL. If :latest is specified this will be the actual
-# latest version returned by mixlib-install. if download_url_override is passed
-# we parse the version, but blindly assume it's correct. Otherwise we rely on
-# mixlib-install to give us the exact version since someone could pass ~12 which
-# needs to be expanded to the latest 12.X.
+# the version we WANT TO INSTALL. If the user specifies a version in X.Y.X format
+# we use that without looking it up. If :latest or a non-X.Y.Z format version we
+# look it up with mixlib-install to determine the latest version matching the request
+# @return Mixlib::Versioning::Format::PartialSemVer
 def desired_version
-  if new_resource.download_url_override
-    # probably in an air-gapped environment.
+  if new_resource.version.to_sym == :latest # we need to find what :latest really means
+    version = Mixlib::Versioning.parse(mixlib_install.available_versions.last)
+    Chef::Log.debug("User specified version of :latest. Looking up using mixlib-install. Value maps to #{version}.")
+  elsif new_resource.download_url_override # probably in an air-gapped environment.
     version = Mixlib::Versioning.parse(new_resource.version)
     Chef::Log.debug("download_url_override specified. Using specified version of #{version}")
-  elsif new_resource.version.to_sym == :latest
-    version = Mixlib::Versioning.parse(mixlib_install.available_versions.last)
-    Chef::Log.debug("Version set to :latest, which currently maps to #{version}")
-  else
+  elsif new_resource.version.split('.').count == 3 # X.Y.Z version format given
+    Chef::Log.debug("User specified version of #{new_resource.version}. No need check this against Chef servers.")
+    version = Mixlib::Versioning.parse(new_resource.version)
+  else # lookup their shortened version to find the X.Y.Z version
     version = Mixlib::Versioning.parse(Array(mixlib_install.artifact_info).first.version)
-    Chef::Log.debug("Desired version in specified channel maps to #{version}")
+    Chef::Log.debug("User specified version of #{new_resource.version}. Looking up using mixlib-install as this is not X.Y.Z format. Value maps to #{version}.")
   end
   version
 end
@@ -134,7 +136,9 @@ def update_necessary?
   des_version = desired_version
 
   Chef::Log.debug("The current chef-client version is #{cur_version} and the desired version is #{des_version}")
-  new_resource.prevent_downgrade ? (des_version > cur_version) : (des_version != cur_version)
+  necessary = new_resource.prevent_downgrade ? (des_version > cur_version) : (des_version != cur_version)
+  Chef::Log.debug("A chef-client upgrade #{necessary == true ? 'is' : "isn't"} necessary")
+  necessary
 end
 
 def eval_post_install_action
