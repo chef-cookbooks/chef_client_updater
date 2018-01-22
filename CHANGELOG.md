@@ -2,6 +2,13 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.2.0 (2018-01-22)
+
+- Require mixlib-install 3.9 which includes initial support for proxies and support for Amazon Linux 2.0
+- Add additional debug logging for the installation 
+- If the user provides an X.Y.Z format version don't contact Chef Inc's servers to validate the version
+- error out chef run if shell update fails
+
 ## 3.1.3 (2017-12-20)
 
 - Support custom paths to chef-client
