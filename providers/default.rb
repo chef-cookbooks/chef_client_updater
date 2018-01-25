@@ -81,7 +81,7 @@ def mixlib_install
   detected_platform = Mixlib::Install.detect_platform
   Chef::Log.debug("Platform detected as #{detected_platform} by mixlib_install")
   options = {
-    product_name: node['chef_client_updater']['product_name'] || 'chef',
+    product_name: new_resource.product_name,
     platform_version_compatibility_mode: true,
     platform: detected_platform[:platform],
     platform_version: detected_platform[:platform_version],

@@ -2,8 +2,8 @@
 # Cookbook:: chef_client_updater
 # Resource:: updater
 #
-# Copyright:: 2016-2017, Will Jordan
-# Copyright:: 2016-2017, Chef Software Inc.
+# Copyright:: 2016-2018, Will Jordan
+# Copyright:: 2016-2018, Chef Software Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,3 +36,4 @@ attribute :exec_args, kind_of: Array, default: ARGV
 attribute :download_url_override, kind_of: String
 attribute :checksum, kind_of: String
 attribute :upgrade_delay, kind_of: Integer, default: 30
+attribute :product_name, kind_of: String, default: 'chef'

@@ -40,3 +40,6 @@ default['chef_client_updater']['chef_install_path'] = nil
 
 # delay for triggering Chef client upgrade in seconds
 default['chef_client_updater']['upgrade_delay'] = nil
+
+# name of the product to upgrade (chef or chefdk)
+default['chef_client_updater']['product_name'] = nil
