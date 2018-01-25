@@ -176,7 +176,7 @@ def run_post_install_action
       Chef::Log.warn 'Chef client is running forked with a supervisor. Sending TERM to parent process!'
       Process.kill('TERM', Process.ppid)
     end
-    Chef::Log.warn 'New chef-client installed. Forcing chef exit!'
+    Chef::Log.warn 'New chef-client installed and exit is allowed. Forcing chef exit!'
     exit(213)
   else
     raise "Unexpected post_install_action behavior: #{new_resource.post_install_action}"
@@ -239,9 +239,14 @@ rescue => e
   end
 end
 
+def upgrade_start_time
+  shifted_time = Time.now + node['chef_client_updater']['upgrade_delay']
+  shifted_time.strftime('%H:%M')
+end
+
 def prepare_windows
   copy_opt_chef(chef_install_dir, chef_backup_dir)
-  Kernel.spawn('c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc minute /mo 1 /tn Chef_upgrade /tr "powershell.exe -ExecutionPolicy Bypass c:/opscode/chef_upgrade.ps1"')
+  Kernel.spawn("c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc once /ST \"#{upgrade_start_time}\" /tn Chef_upgrade /tr \"powershell.exe -ExecutionPolicy Bypass c:/opscode/chef_upgrade.ps1\"")
   FileUtils.rm_rf "#{chef_install_dir}/bin/chef-client.bat"
 end
 

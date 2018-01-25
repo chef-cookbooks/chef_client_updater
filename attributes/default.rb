@@ -37,3 +37,6 @@ default['chef_client_updater']['checksum'] = nil
 # Root installation path for chef-client for when a custom path is used.
 # Defaults to 'C:/opscode/chef' on Windows and '/opt/chef' for everything else.
 default['chef_client_updater']['chef_install_path'] = nil
+
+# delay for triggering Chef client upgrade in seconds
+default['chef_client_updater']['upgrade_delay'] = 60
