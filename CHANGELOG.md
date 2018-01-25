@@ -5,6 +5,7 @@ This file is used to list changes made in each version of the chef_client_update
 ## 3.2.1 (2018-01-25)
 
 - Added new attribute 'upgrade_delay' that defines delay in seconds before upgrading Chef client.
+- Added new attribute 'allow_exit_before_upgrade' defines whether Chef client is allowed to be terminated immediately.
 
 ## 3.2.0 (2018-01-22)
 

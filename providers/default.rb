@@ -172,12 +172,14 @@ def run_post_install_action
     Chef::Log.warn 'Replacing chef-client process with upgraded version and re-running.'
     Kernel.exec(new_resource.exec_command, *new_resource.exec_args)
   when 'kill'
-    if Chef::Config[:client_fork] && Process.ppid != 1 && !windows?
+    if Chef::Config[:client_fork] && Process.ppid != 1 && !windows? && allow_exit?
       Chef::Log.warn 'Chef client is running forked with a supervisor. Sending TERM to parent process!'
       Process.kill('TERM', Process.ppid)
     end
-    Chef::Log.warn 'New chef-client installed and exit is allowed. Forcing chef exit!'
-    exit(213)
+    if allow_exit?
+      Chef::Log.warn 'New chef-client installed and exit is allowed. Forcing chef exit!'
+      exit(213)
+    end
   else
     raise "Unexpected post_install_action behavior: #{new_resource.post_install_action}"
   end
@@ -202,6 +204,10 @@ end
 
 def windows?
   platform_family?('windows')
+end
+
+def allow_exit?
+  node['chef_client_updater']['allow_exit_before_upgrade']
 end
 
 def copy_opt_chef(src, dest)
@@ -247,7 +253,7 @@ end
 def prepare_windows
   copy_opt_chef(chef_install_dir, chef_backup_dir)
   Kernel.spawn("c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc once /ST \"#{upgrade_start_time}\" /tn Chef_upgrade /tr \"powershell.exe -ExecutionPolicy Bypass c:/opscode/chef_upgrade.ps1\"")
-  FileUtils.rm_rf "#{chef_install_dir}/bin/chef-client.bat"
+  FileUtils.rm_rf "#{chef_install_dir}/bin/chef-client.bat" if allow_exit?
 end
 
 def uninstall_ps_code
