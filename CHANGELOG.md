@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.2.3 (2018-01-25)
+
+- Make product_name attribute into a real property on the resource
+
 ## 3.2.2 (2018-01-25)
 
 - Make upgrade_delay a true resource property
