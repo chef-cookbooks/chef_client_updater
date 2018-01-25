@@ -240,7 +240,7 @@ rescue => e
 end
 
 def upgrade_start_time
-  shifted_time = Time.now + node['chef_client_updater']['upgrade_delay']
+  shifted_time = Time.now + new_resource.upgrade_delay
   shifted_time.strftime('%H:%M')
 end
 

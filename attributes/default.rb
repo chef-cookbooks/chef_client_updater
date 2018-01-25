@@ -39,4 +39,4 @@ default['chef_client_updater']['checksum'] = nil
 default['chef_client_updater']['chef_install_path'] = nil
 
 # delay for triggering Chef client upgrade in seconds
-default['chef_client_updater']['upgrade_delay'] = 60
+default['chef_client_updater']['upgrade_delay'] = nil
