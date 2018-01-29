@@ -1,0 +1,5 @@
+# position 50
+ufw allow in proto tcp to any port 22 from any
+<% @rubygems_ips.each do |rubygems_ip| %>
+<%= "ufw deny in proto tcp to #{rubygems_ip} from any" %>
+<% end %>

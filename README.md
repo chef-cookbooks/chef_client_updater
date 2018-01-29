@@ -87,6 +87,7 @@ Installs the mixlib-install/mixlib-install gems and upgrades the chef-client.
 - `checksum` - The SHA-256 checksum of the chef-client package from the direct URL.
 - `upgrade_delay` - The delay in seconds before the scheduled task to upgrade chef-client runs on windows. default: 61. Lowering this limit is not recommended.
 - `product_name` - The name of the product to upgrade. This can be `chef` or `chefdk` default: chef
+- `rubygems_url` - The location to source rubygems. Replaces the default https://www.rubygems.org.
 
 #### examples
 

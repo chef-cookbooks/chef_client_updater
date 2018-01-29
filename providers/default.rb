@@ -34,6 +34,10 @@ rescue LoadError
   chef_gem 'mixlib-install' do
     version '~> 3.9'
     compile_time true if respond_to?(:compile_time)
+    if new_resource.rubygems_url
+      clear_sources true if respond_to?(:clear_sources)
+      options "--source #{new_resource.rubygems_url}" if respond_to?(:options)
+    end
   end
 
   require 'mixlib/install'
@@ -45,6 +49,10 @@ rescue LoadError
   Chef::Log.info('mixlib-versioning gem not found. Installing now')
   chef_gem 'mixlib-versioning' do
     compile_time true if respond_to?(:compile_time)
+    if new_resource.rubygems_url
+      clear_sources true if respond_to?(:clear_sources)
+      options "--source #{new_resource.rubygems_url}" if respond_to?(:options)
+    end
   end
 
   require 'mixlib/versioning'
@@ -63,10 +71,20 @@ def update_rubygems
   pin = Gem::Requirement.new(pin_rubygems_range).satisfied_by?(rubygems_version)
 
   converge_by "upgrade rubygems #{rubygems_version} to #{pin ? target_version : 'latest'}" do
-    require 'rubygems/commands/update_command'
-    args = ['--no-rdoc', '--no-ri', '--system']
-    args.push(target_version) if pin
-    Gem::Commands::UpdateCommand.new.invoke(*args)
+    if new_resource.rubygems_url
+      gem_bin = "#{Gem.bindir}/gem"
+      if !::File.exist?(gem_bin) && windows?
+        gem_bin = "#{Gem.bindir}/gem.cmd" # on Chef Client 13+ the rubygem executable is gem.cmd, not gem
+      end
+      raise 'cannot find omnibus install' unless ::File.exist?(gem_bin)
+      source = "--clear-sources --source #{new_resource.rubygems_url}"
+      shell_out!("#{gem_bin} update --system --no-rdoc --no-ri #{source}")
+    else
+      require 'rubygems/commands/update_command'
+      args = ['--no-rdoc', '--no-ri', '--system' ]
+      args.push(target_version) if pin
+      Gem::Commands::UpdateCommand.new.invoke(*args)
+    end
   end
 end
 
@@ -193,7 +211,7 @@ end
 
 # cleanup cruft from *prior* runs
 def cleanup
-  if ::File.exist?(chef_backup_dir) # rubocop:disable Style/GuardClause
+  if ::File.exist?(chef_backup_dir)
     converge_by("remove #{chef_backup_dir} from previous chef-client run") do
       FileUtils.rm_rf chef_backup_dir
     end
