@@ -22,7 +22,7 @@ before_install:
 
 matrix:
   include:
-    - rvm: 2.4.1
+    - rvm: 2.4.3
       before_script:
         - eval "$(chef shell-init bash)"
       install: echo "skip bundle install"
@@ -42,7 +42,7 @@ matrix:
       script:
         # this tests a downgrade from latest "13" to latest "12" via partial versions
         - bundle exec kitchen test constrained-ubuntu-1604
-    - rvm: 2.4.1
+    - rvm: 2.4.3
       services: docker
       sudo: required
       before_script:
