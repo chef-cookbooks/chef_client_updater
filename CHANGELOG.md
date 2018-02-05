@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.2.4 (2018-02-05)
+
+- Fix warning '/ST is earlier than current time' on Windows
+
 ## 3.2.3 (2018-01-25)
 
 - Make product_name attribute into a real property on the resource
