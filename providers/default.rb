@@ -51,15 +51,21 @@ rescue LoadError
 end
 
 def update_rubygems
-  rubygems_version = Gem::VERSION
+  compatible_rubygems_versions = '>= 2.0.0'
   target_version = '2.6.11'
-  Chef::Log.debug("Found gem version #{rubygems_version}. Desired version is at least #{target_version}")
-  return if Gem::Requirement.new(">= #{target_version}").satisfied_by?(rubygems_version)
 
-  converge_by "upgrade rubygems #{rubygems_version} to latest" do
-    # note that the rubygems that we're upgrading is likely so old that you can't pin a version
+  rubygems_version = Gem::Version.new(Gem::VERSION)
+  Chef::Log.debug("Found gem version #{rubygems_version}. Desired version is at least #{target_version}")
+  return if Gem::Requirement.new(compatible_rubygems_versions).satisfied_by?(rubygems_version)
+
+  pin_rubygems_range = '>= 1.5.2'
+  pin = Gem::Requirement.new(pin_rubygems_range).satisfied_by?(rubygems_version)
+
+  converge_by "upgrade rubygems #{rubygems_version} to #{pin ? target_version : 'latest'}" do
     require 'rubygems/commands/update_command'
-    Gem::Commands::UpdateCommand.new.invoke '--system', '--no-rdoc', '--no-ri'
+    args = ['--no-rdoc', '--no-ri', '--system']
+    args.push(target_version) if pin
+    Gem::Commands::UpdateCommand.new.invoke(*args)
   end
 end
 
