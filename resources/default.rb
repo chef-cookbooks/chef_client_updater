@@ -35,5 +35,5 @@ attribute :exec_command, kind_of: String, default: $PROGRAM_NAME.split(' ').firs
 attribute :exec_args, kind_of: Array, default: ARGV
 attribute :download_url_override, kind_of: String
 attribute :checksum, kind_of: String
-attribute :upgrade_delay, kind_of: Integer, default: 30
+attribute :upgrade_delay, kind_of: Integer, default: 61
 attribute :product_name, kind_of: String, default: 'chef'
