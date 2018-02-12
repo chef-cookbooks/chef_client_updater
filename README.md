@@ -111,7 +111,7 @@ Installs the mixlib-install/mixlib-install gems and upgrades the chef-client.
 - `exec_args` - An array of arguments to exec the chef-client with. default: ARGV
 - `download_url_override` - The direct URL for the chef-client package.
 - `checksum` - The SHA-256 checksum of the chef-client package from the direct URL.
-- `upgrade_delay` - The delay in seconds before the scheduled task to upgrade chef-client runs on windows. default: 61. Lowering this limit is not recommended, there is a risk to schedule upgrade within the same minute that Chef runs and upgrade won't be triggered.
+- `upgrade_delay` - The delay in seconds before the scheduled task to upgrade chef-client runs on windows. default: 61. Lowering this limit is not recommended.
 - `product_name` - The name of the product to upgrade. This can be `chef` or `chefdk` default: chef
 
 #### examples
