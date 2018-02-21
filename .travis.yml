@@ -31,7 +31,7 @@ matrix:
         - cookstyle --version
         - foodcritic --version
         - chef exec delivery local all
-    - rvm: 2.4.1
+    - rvm: 2.4.3
       services: docker
       sudo: required
       before_script:
