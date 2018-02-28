@@ -2,6 +2,11 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.2.5 (2018-02-28)
+
+- Use KILL instead of TERM on Windows since TERM isn't always actually killing the process
+- Updated the upgrade_delay value on Windows to be 60 seconds since anything less causes issues
+
 ## 3.2.4 (2018-02-05)
 
 - Fix warning '/ST is earlier than current time' on Windows
