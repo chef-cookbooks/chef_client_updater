@@ -35,5 +35,8 @@ attribute :exec_command, kind_of: String, default: $PROGRAM_NAME.split(' ').firs
 attribute :exec_args, kind_of: Array, default: ARGV
 attribute :download_url_override, kind_of: String
 attribute :checksum, kind_of: String
-attribute :upgrade_delay, kind_of: Integer, default: 30
+# If the upgrade is scheduled in the same minute that Chef runs,
+# there is a risk the upgrade will not be triggered.
+# Lowering upgrade_delay limit is not recommended.
+attribute :upgrade_delay, kind_of: Integer, default: 60
 attribute :product_name, kind_of: String, default: 'chef'
