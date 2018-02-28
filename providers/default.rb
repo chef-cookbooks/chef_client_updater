@@ -174,7 +174,7 @@ def run_post_install_action
   when 'kill'
     if Chef::Config[:client_fork] && Process.ppid != 1 && !windows?
       Chef::Log.warn 'Chef client is running forked with a supervisor. Sending TERM to parent process!'
-      Process.kill('TERM', Process.ppid)
+      Process.kill('KILL', Process.ppid)
     end
     Chef::Log.warn 'New chef-client installed and exit is allowed. Forcing chef exit!'
     exit(213)

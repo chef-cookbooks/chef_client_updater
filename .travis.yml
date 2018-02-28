@@ -31,13 +31,13 @@ matrix:
         - cookstyle --version
         - foodcritic --version
         - chef exec delivery local all
-    - rvm: 2.4.1
+    - rvm: 2.4.3
       services: docker
       sudo: required
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
-        - OMNIBUS_CHEF_VERSION=13
+        - OMNIBUS_CHEF_VERSION=13.6.4
         - KITCHEN_YAML=.kitchen.dokken.yml
       script:
         # this tests a downgrade from latest "13" to latest "12" via partial versions
