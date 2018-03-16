@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.2.6 (2018-03-16)
+
+- Added additional logic to decide if a 'kill' or 'exec' should be done post upgrade. If the chef-client isn't running with the supervsior process then we will no longer try to use kill.
+
 ## 3.2.5 (2018-02-28)
 
 - Use KILL instead of TERM on Windows since TERM isn't always actually killing the process

@@ -4,7 +4,7 @@ maintainer_email 'cookbooks@chef.io'
 license 'Apache-2.0'
 description 'Upgrades chef-client to specified releases'
 long_description 'Upgrades chef-client to specified releases'
-version '3.2.5'
+version '3.2.6'
 
 chef_version '>= 11' if respond_to?(:chef_version)
 
