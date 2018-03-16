@@ -51,13 +51,14 @@ rescue LoadError
 end
 
 def update_rubygems
-  compatible_rubygems_versions = '>= 2.0.0'
+  compatible_rubygems_versions = '>= 2.6.11'
   target_version = '2.6.11'
 
   rubygems_version = Gem::Version.new(Gem::VERSION)
   Chef::Log.debug("Found gem version #{rubygems_version}. Desired version is at least #{target_version}")
   return if Gem::Requirement.new(compatible_rubygems_versions).satisfied_by?(rubygems_version)
 
+  # only rubygems >= 1.5.2 supports pinning, and we might be coming from older versions
   pin_rubygems_range = '>= 1.5.2'
   pin = Gem::Requirement.new(pin_rubygems_range).satisfied_by?(rubygems_version)
 
