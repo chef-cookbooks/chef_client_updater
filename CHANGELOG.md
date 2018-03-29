@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.2.7 (2018-03-29)
+
+- Update log message to KILL from TERM. We updated the behavior but missed the logging
+
 ## 3.2.6 (2018-03-16)
 
 - Added additional logic to decide if a 'kill' or 'exec' should be done post upgrade. If the chef-client isn't running with the supervsior process then we will no longer try to use kill.
