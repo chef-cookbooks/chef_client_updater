@@ -1,0 +1,17 @@
+# Configuration file for the chef-client service
+
+CONFIG=<%= node["chef_client_updater"]["conf_dir"] %>/client.rb
+PIDFILE=<%= node["chef_client_updater"]["run_path"] %>/client.pid
+#LOCKFILE=/var/lock/subsys/chef-client
+# Sleep interval between runs.
+# This value is in seconds.
+INTERVAL=<%= node["chef_client_updater"]["interval"] %>
+# Maximum amount of random delay before starting a run. Prevents every client
+# from contacting the server at the exact same time.
+# This value is in seconds.
+SPLAY=<%= node["chef_client_updater"]["splay"] %>
+# Any additional chef-client options.
+OPTIONS="<%= node["chef_client_updater"]["daemon_options"].join(' ') %>"
+<% if node["chef_client_updater"]["ca_cert_path"] %>
+export SSL_CERT_FILE="<%= node["chef_client"]["ca_cert_path"] %>"
+<% end %>

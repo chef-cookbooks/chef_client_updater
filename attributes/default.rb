@@ -43,3 +43,17 @@ default['chef_client_updater']['upgrade_delay'] = nil
 
 # name of the product to upgrade (chef or chefdk)
 default['chef_client_updater']['product_name'] = nil
+
+default['chef_client_updater']['init_style']  = node['init_package']
+default['chef_client_updater']['bin']         = '/usr/bin/chef-client'
+default['chef_client_updater']['chkconfig']['start_order'] = 98
+default['chef_client_updater']['chkconfig']['stop_order']  = 02
+
+
+
+
+default['chef_client_updater']['interval']    = '1800'
+default['chef_client_updater']['splay']       = '300'
+default['chef_client_updater']['conf_dir']    = '/etc/chef'
+default['chef_client_updater']['run_path']    = '/var/run/chef'
+default['chef_client_updater']['daemon_options'] = []
