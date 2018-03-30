@@ -1,4 +1,3 @@
-#
 # Author:: Dheeraj Dubey (<dheeraj.dubey@msystechnologies.com>)
 # Cookbook::  chef-client_updater
 # Library:: helpers

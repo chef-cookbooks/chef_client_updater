@@ -1,4 +1,3 @@
-#
 # Author:: Tim Smith (<tsmith@chef.io>)
 # Cookbook:: chef_client_updater
 # Recipe:: default
@@ -17,7 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 # include helper methods
 class ::Chef::Recipe
   include ::Opscode::ChefClient::Helpers
@@ -29,7 +27,7 @@ Chef::Log.debug("Found chef-client in #{client_bin}")
 node.default['chef_client_updater']['bin'] = client_bin
 
 dist_dir, conf_dir = value_for_platform_family(
-  %w(amazon rhel fedora) => %w( redhat sysconfig )
+  %w(amazon rhel fedora) => %w(redhat sysconfig)
 )
 
 template '/etc/init.d/chef-client' do
@@ -59,7 +57,7 @@ chef_client_updater 'update chef-client' do
   ignore_failure true
 end
 
-execute "restart service" do
+execute 'restart service' do
   command 'echo /etc/init.d/chef-client start | at now + 2 minutes'
   action :nothing
 end
