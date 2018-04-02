@@ -103,11 +103,11 @@ end
 # ohai handles this better IMO
 # @return String
 def current_version
-  if node['platform_family'] == 'windows' && new_resource.product_name == 'chef'
-    # on Windows it is chef-client instead of chef
-    node['packages']['chef-client']['version']
-  else
-    node['packages'][new_resource.product_name]['version']
+  case new_resource.product_name
+  when 'chef'
+    node['chef_packages']['chef']['version']
+  when 'chefdk'
+    Mixlib::ShellOut.new('chef -v').run_command.stdout.match(/^Chef Development Kit Version.*/).to_s.split(': ').last
   end
 end
 
