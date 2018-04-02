@@ -103,7 +103,12 @@ end
 # ohai handles this better IMO
 # @return String
 def current_version
-  node['chef_packages']['chef']['version']
+  if node['platform_family'] == 'windows' && new_resource.product_name == 'chef'
+    # on Windows it is chef-client instead of chef
+    node['packages']['chef-client']['version']
+  else
+    node['packages'][new_resource.product_name]['version']
+  end
 end
 
 # the version we WANT TO INSTALL. If the user specifies a version in X.Y.X format
