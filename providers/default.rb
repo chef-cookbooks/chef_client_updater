@@ -1,4 +1,3 @@
-#
 # Cookbook:: chef_client_updater
 # Resource:: updater
 #
@@ -174,7 +173,14 @@ def run_post_install_action
   when 'kill'
     if Chef::Config[:client_fork] && Process.ppid != 1 && !windows?
       Chef::Log.warn 'Chef client is running forked with a supervisor. Sending KILL to parent process!'
-      Process.kill('KILL', Process.ppid)
+      if ::File.exist?('/usr/share/upstart') || ::File.exist?('/usr/share/systemd')
+        Process.kill('KILL', Process.ppid)
+      else
+        Chef::Log.warn 'Scheduling cron for starting chef-client service.'
+        cron_entry = "echo '*/5 * * * * /etc/init.d/chef-client start'"
+        shell_out!("#{cron_entry} | crontab -")
+        Process.kill('KILL', Process.ppid)
+      end
     end
     Chef::Log.warn 'New chef-client installed and exit is allowed. Forcing chef exit!'
     exit(213)
