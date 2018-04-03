@@ -17,6 +17,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+execute 'delete entry from cron' do
+  command "crontab -l | grep -v '/etc/init.d/chef-client start' | crontab -"
+end
+
 chef_client_updater 'update chef-client' do
   channel node['chef_client_updater']['channel']
   version node['chef_client_updater']['version']

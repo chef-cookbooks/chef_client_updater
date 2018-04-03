@@ -1,4 +1,3 @@
-#
 # Cookbook::  chef_client_updater
 # Attributes:: default
 #
