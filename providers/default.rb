@@ -346,6 +346,17 @@ action :update do
       cleanup
     end
   rescue SystemExit
+    # sysvinit won't restart after we exit, potentially use cron to do so
+    # either trust the chef-client cookbook's init scripts or the users choice
+    if node['chef_client']['init_style'] == 'init' || node['chef_client_updater']['restart_chef_via_cron']
+      r = cron 'chef_client_updater' do
+        minute '*/1'
+        command '/etc/init.d/chef-client start'
+      end
+
+      r.run_action(:create)
+    end
+
     raise
   rescue Exception => e # rubocop:disable Lint/RescueException
     if ::File.exist?(chef_backup_dir)
