@@ -184,7 +184,7 @@ def run_post_install_action
 end
 
 def chef_install_dir
-  node['chef_client_updater']['chef_install_path'] || windows? ? 'c:/opscode/chef' : '/opt/chef'
+  node['chef_client_updater']['chef_install_path'] || (windows? ? 'c:/opscode/chef' : '/opt/chef')
 end
 
 def chef_backup_dir
