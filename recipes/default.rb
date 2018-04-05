@@ -20,7 +20,7 @@
 # When running under init this cron job is created after an update
 cron 'chef_client_updater' do
   action :delete
-end
+end unless platform_family?('windows')
 
 chef_client_updater 'update chef-client' do
   channel node['chef_client_updater']['channel']
