@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.2.9 (2018-04-05)
+
+- Don't run cron on Windows
+
 ## 3.2.8 (2018-04-04)
 
 - Restart chef-client with cron under sysvinit to ensure that chef-client properly restarts
