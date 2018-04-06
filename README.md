@@ -26,41 +26,15 @@ When Chef runs as a service under a system init daemon such as Sys-V or systemd 
 
 There are a couple of considerations on Windows that have to be dealt with. The Chef Client installer uses a custom component to speed up the installation. This component does not gracefully handle open file handles the way the MSI installer does. To work around this, the resource moves the currently installed Chef Client to a staging directory and that clears the way for the newer installer to run. At the end of that installation process though, that Chef Client run must exit or it will fail trying to find files that do not exist in their expected locations. The next run of the Chef Client will use the newly installed version.
 
+On Windows, the recommended `post_install_action` is `exec` instead of `kill` if you intend to run Chef periodically. In `chef_client_updater` versions `>= 3.1.0` and `<= 3.2.9`, the updater resource by default started a new Chef run after upgrading. Newer versions simply run `chef-client` only if `post_install_action` is set to `exec`. To run a custom other Powershell command after-upgrade, define `post_install_action` `exec` and define your custom command in `exec_command`
+
 #### Running Chef Client as a Scheduled Task
 
 If you run as a scheduled task, then this will work smoothly. The path to the newly installed Chef Client will be the same and the scheduled task will launch it. Part of this resource's job on the next run is to make sure the staging directory with the older client is removed.
 
 #### Running Chef Client As A Windows Service
 
-If you run Chef Client as a service, things get a tiny bit more complicated. When the new installer runs, the service is removed. This isn't a big deal if you've got the chef-client cookbook set to configure the Windows service. If that is the case, we can register a scheduled task to run shortly after the `chef_client_updater` terminates the current chef run. An example recipe might look like:
-
-```ruby
-if Chef::VERSION < node['my_update_cookbook']['desired_version']
-  run_chef_task_in_ten_minutes = Time.now + 600
-
-  windows_task 'chef-client-upgrade' do
-    cwd 'C:\\opscode\\chef\\bin'
-    command 'chef-client'
-    run_level :highest
-    frequency :once
-    start_time "#{run_chef_task_in_ten_minutes.strftime('%H:%M')}"
-    action :create
-  end
-else
-  windows_task 'chef-client-upgrade' do
-    cwd 'C:\\opscode\\chef\\bin'
-    command 'chef-client'
-    run_level :highest
-    frequency :once
-    start_time "#{run_chef_task_in_ten_minutes.strftime('%H:%M')}"
-    action :delete
-  end
-end
-
-chef_client_updater 'Install latest Chef' do
-  post_install_action 'kill'
-end
-```
+If you run Chef Client as a service, things get a tiny bit more complicated. When the new installer runs, the service is removed. This isn't a big deal if you've got the chef-client cookbook set to configure the Windows service. If that is the case, define `post_install_action` `exec` and the Chef-run triggered after the upgrade will take care of installing the service.
 
 ### Upgrading from Chef 11
 
