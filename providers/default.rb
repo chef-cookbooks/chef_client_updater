@@ -287,6 +287,12 @@ def execute_install_script(install_script)
                         ''
                       end
 
+    post_action = if new_resource.post_install_action == 'exec'
+                    new_resource.exec_command
+                  else
+                    ''
+                  end
+
     powershell_script 'name' do
       code <<-EOH
         $command = {
@@ -304,8 +310,7 @@ def execute_install_script(install_script)
           Remove-Item "c:/opscode/chef_upgrade.ps1"
           c:/windows/system32/schtasks.exe /delete /f /tn Chef_upgrade
 
-          Get-Service chef-client -ErrorAction SilentlyContinue | Start-service
-          #{chef_install_dir}/bin/chef-client.bat
+          #{post_action}
         }
 
         $http_proxy = $env:http_proxy
