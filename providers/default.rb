@@ -353,7 +353,7 @@ action :update do
   rescue SystemExit
     # sysvinit won't restart after we exit, potentially use cron to do so
     # either trust the chef-client cookbook's init scripts or the users choice
-    if ( node['chef_client'] && node['chef_client']['init_style'] == 'init' ) || node['chef_client_updater']['restart_chef_via_cron']
+    if (node['chef_client'] && node['chef_client']['init_style'] == 'init') || node['chef_client_updater']['restart_chef_via_cron']
       r = cron 'chef_client_updater' do
         minute '*/1'
         command '/etc/init.d/chef-client start'
