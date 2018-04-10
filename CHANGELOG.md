@@ -2,6 +2,11 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.3.0 (2018-04-10)
+
+- Post action support on Windows
+- Prevent failure when the user doesn't use the chef-client cookbook
+
 ## 3.2.9 (2018-04-05)
 
 - Don't run cron on Windows
