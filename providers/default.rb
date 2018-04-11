@@ -24,8 +24,6 @@
 
 use_inline_resources
 
-include Chef::Mixin::ShellOut
-
 provides :chef_client_updater if respond_to?(:provides)
 
 def load_mixlib_install
@@ -53,20 +51,21 @@ rescue LoadError
 end
 
 def update_rubygems
-  gem_bin = "#{Gem.bindir}/gem"
-  if !::File.exist?(gem_bin) && windows?
-    gem_bin = "#{Gem.bindir}/gem.cmd" # on Chef Client 13+ the rubygem executable is gem.cmd, not gem
-  end
-  raise 'cannot find omnibus install' unless ::File.exist?(gem_bin)
-
-  rubygems_version = Gem::Version.new(shell_out("#{gem_bin} --version").stdout.chomp)
+  compatible_rubygems_versions = '>= 2.0.0'
   target_version = '2.6.11'
-  Chef::Log.debug("Found gem version #{rubygems_version}. Desired version is at least #{target_version}")
-  return if Gem::Requirement.new(">= #{target_version}").satisfied_by?(rubygems_version)
 
-  converge_by "upgrade rubygems #{rubygems_version} to latest" do
-    # note that the rubygems that we're upgrading is likely so old that you can't pin a version
-    shell_out!("#{gem_bin} update --system --no-rdoc --no-ri")
+  rubygems_version = Gem::Version.new(Gem::VERSION)
+  Chef::Log.debug("Found gem version #{rubygems_version}. Desired version is at least #{target_version}")
+  return if Gem::Requirement.new(compatible_rubygems_versions).satisfied_by?(rubygems_version)
+
+  pin_rubygems_range = '>= 1.5.2'
+  pin = Gem::Requirement.new(pin_rubygems_range).satisfied_by?(rubygems_version)
+
+  converge_by "upgrade rubygems #{rubygems_version} to #{pin ? target_version : 'latest'}" do
+    require 'rubygems/commands/update_command'
+    args = ['--no-rdoc', '--no-ri', '--system']
+    args.push(target_version) if pin
+    Gem::Commands::UpdateCommand.new.invoke(*args)
   end
 end
 
