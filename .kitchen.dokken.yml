@@ -48,3 +48,9 @@ suites:
   - name: constrained
     run_list:
       - recipe[test::constrained]
+  - name: noop
+    run_list:
+      - recipe[test::default]
+    attributes:
+      chef_client_updater:
+        version: '<%= ENV["OMNIBUS_CHEF_VERSION"] || "11.18.12" %>'

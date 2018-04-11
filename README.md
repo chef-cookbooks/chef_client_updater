@@ -119,6 +119,12 @@ This is highly discouraged since the exec will not clean up the supervising proc
 
 You can use 'exec' in production if you are running from cron or some other process manager and firing off single-shot `--no-fork` chef-client processes without using the `--interval` option. This will have the advantage that the new chef-client kicks off immediately after the upgrade giving fast feedback on any failures under the new chef-client. The utility of this approach is most likely is not enough to justify the hassle.
 
+## A note about purpose
+
+While this cookbook supports running on Chef versions back to 11/12, the supported behavior of the cookbook is to upgrade those versions to 13/14 or newer.  It is not intended that users would maintain old Chef-11/12 versions with this
+cookbook.  The latest released version of Chef 12 (12.22.1 or later) is still be supported as a target.  Older versions of omnibus chef will have their embedded rubygems force upgraded by this cookbook to avoid having to regression test against
+5+ years of rubygems bugs and establish a stable basis for the cookbook to use.
+
 ## Maintainers
 
 This cookbook is maintained by Chef's Community Cookbook Engineering team. Our goal is to improve cookbook quality and to aid the community in contributing to cookbooks. To learn more about our team, process, and design goals see our [team documentation](https://github.com/chef-cookbooks/community_cookbook_documentation/blob/master/COOKBOOK_TEAM.MD). To learn more about contributing to cookbooks like this see our [contributing documentation](https://github.com/chef-cookbooks/community_cookbook_documentation/blob/master/CONTRIBUTING.MD), or if you have general questions about this cookbook come chat with us in #cookbok-engineering on the [Chef Community Slack](http://community-slack.chef.io/)
