@@ -305,6 +305,9 @@ def execute_install_script(install_script)
           }
 
           Remove-Item "#{chef_install_dir}" -Recurse -Force
+          if (Test-Path "#{chef_install_dir}") {
+              Rename-Item "#{chef_install_dir}" -NewName "#{chef_install_dir}.locked_files"
+          }
 
           if (test-path "#{chef_install_dir}") { exit 3 }
 
