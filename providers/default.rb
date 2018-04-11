@@ -301,6 +301,9 @@ def execute_install_script(install_script)
           if ((Get-WmiObject Win32_Process -Filter "name = 'ruby.exe'" | Select-Object CommandLine | select-string 'opscode').count -gt 0) { exit 8 }
 
           Remove-Item "#{chef_install_dir}" -Recurse -Force
+          if (Test-Path "#{chef_install_dir}") {
+              Rename-Item "#{chef_install_dir}" -NewName "#{chef_install_dir}.locked_files"
+          }
 
           if (test-path "#{chef_install_dir}") { exit 3 }
 
