@@ -2,6 +2,12 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.3.2 (2018-04-11)
+
+- Improve how we handle updating rubygems:
+  - Update RubyGems without shelling out
+  - Don't upgrade to the very latest version unless we have to (due to old current rubygems)
+
 ## 3.3.1 (2018-04-11)
 
 - Stop push jobs before upgrading Chef on Windows and then start it back up. This prevents failures to update.
