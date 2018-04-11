@@ -315,6 +315,8 @@ def execute_install_script(install_script)
           c:/windows/system32/schtasks.exe /delete /f /tn Chef_upgrade
 
           #{post_action}
+
+          Get-Service push-jobs-client -ErrorAction SilentlyContinue | start-service
         }
 
         $http_proxy = $env:http_proxy
