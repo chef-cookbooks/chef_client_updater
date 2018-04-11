@@ -297,8 +297,12 @@ def execute_install_script(install_script)
       code <<-EOH
         $command = {
           Get-Service chef-client -ErrorAction SilentlyContinue | stop-service
+          Get-Service push-jobs-client -ErrorAction SilentlyContinue | stop-service
 
-          if ((Get-WmiObject Win32_Process -Filter "name = 'ruby.exe'" | Select-Object CommandLine | select-string 'opscode').count -gt 0) { exit 8 }
+          if ((Get-WmiObject Win32_Process -Filter "name = 'ruby.exe'" | Select-Object CommandLine | select-string 'opscode').count -gt 0) {
+            Write-Output "Chef cannot be upgraded while in use. Exiting..."
+            exit 8
+          }
 
           Remove-Item "#{chef_install_dir}" -Recurse -Force
 
