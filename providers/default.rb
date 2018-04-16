@@ -191,11 +191,24 @@ def chef_backup_dir
   "#{chef_install_dir}.upgrade"
 end
 
+def chef_locked_files_dir
+  "#{chef_install_dir}.locked_files"
+end
+
 # cleanup cruft from *prior* runs
 def cleanup
   if ::File.exist?(chef_backup_dir) # rubocop:disable Style/GuardClause
     converge_by("remove #{chef_backup_dir} from previous chef-client run") do
       FileUtils.rm_rf chef_backup_dir
+    end
+  end
+  if ::File.exist?(chef_locked_files_dir) # rubocop:disable Style/GuardClause
+    converge_by("remove #{chef_locked_files_dir} from previous chef-client run") do
+      begin
+        FileUtils.rm_r chef_locked_files_dir
+      rescue
+        Chef::Log.warn("Failed to remove locked files dir!")
+      end
     end
   end
 end
@@ -304,7 +317,7 @@ def execute_install_script(install_script)
             exit 8
           }
 
-          $chefDir = Rename-Item -Path "#{chef_install_dir}" -NewName "#{chef_install_dir}_locked_files" -PassThru
+          $chefDir = Rename-Item -Path "#{chef_install_dir}" -NewName "#{chef_locked_files_dir}" -PassThru
           $chefDir | Remove-Item -Recurse -Force
 
           if (test-path "#{chef_install_dir}") { exit 3 }
