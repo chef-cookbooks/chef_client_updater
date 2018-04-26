@@ -20,7 +20,12 @@ This cookbook provides both a custom resource and a default recipe. The default 
 
 ### Init System Caveats
 
-When Chef runs as a service under a system init daemon such as Sys-V or systemd each chef run forks off from the main chef-client process being managed by the init system. For a chef-client upgrade to occur the running chef-client as well as the parent process must be killed, and a new chef-client must start using the updated binaries. This cookbook handles killing the chef-client, but your init system must properly handle starting the service back up. For systemd and upstart this can be handled via configuration, and chef-client cookbook 8.1.1 or later handles this by default. This functionality is not available in sys-v (RHEL 6, Debian 7, and others), so you will need to employ a secondary process such as a monitoring system to start the chef-client service.
+When Chef runs as a service under a system init daemon such as Sys-V or systemd each chef run forks off from the main chef-client process being managed by the init system. For a chef-client upgrade to occur, the running chef-client as well as the parent process must be killed, and a new chef-client must start using the updated binaries. This cookbook handles killing the chef-client, but your init system must properly handle starting the service back up. For systemd and upstart this can be handled via configuration, and chef-client cookbook 8.1.1 or later handles this by default. This functionality is not available in sys-v (RHEL 6, Debian 7, AIX and others).
+
+For systems where the init system will not properly handle starting the service back up automatically (like Sys-V or SRC) this cookbook will attempt to restart the service via a temporary cron job when either of the following conditions are met:
+
+  * node['chef_client']['init_style'] == 'init'
+  * node['chef_client_updater']['restart_chef_via_cron'] == true
 
 ### Updating Windows Nodes
 
