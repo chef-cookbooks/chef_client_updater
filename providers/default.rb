@@ -197,12 +197,12 @@ end
 
 # cleanup cruft from *prior* upgrades
 def cleanup
-  if ::File.exist?(chef_backup_dir) # rubocop:disable Style/GuardClause
+  if ::File.exist?(chef_backup_dir)
     converge_by("remove #{chef_backup_dir} from previous chef-client upgrade") do
       FileUtils.rm_rf chef_backup_dir
     end
   end
-  if ::File.exist?(chef_locked_files_dir)
+  if ::File.exist?(chef_locked_files_dir) # rubocop:disable Style/GuardClause
     converge_by("remove #{chef_locked_files_dir} from previous chef-client upgrade") do
       begin
         FileUtils.rm_r chef_locked_files_dir
