@@ -22,8 +22,14 @@ cron 'chef_client_updater' do
   action :delete
 end unless platform_family?('windows')
 
-cookbook_file "#{Chef::Config[:file_cache_path]}/handle.exe" do
-  source node['kernel']['machine'] == 'x86_64' ? 'handle64.exe' : 'handle.exe'
+# This resource will download the Handle.exe tool required from the
+# Sysinternals site.  If in an airgapped environment, you will need
+# to obtain this file and ensure the files are extracted to
+# Chef::Config[:file_cache_path]
+remote_file "#{Chef::Config[:file_cache_path]}/handle.zip" do
+  source 'https://download.sysinternals.com/files/Handle.zip'
+  action :create
+  not_if { ::File.file?("#{Chef::Config[:file_cache_path]}/handle.exe") }
 end if platform_family?('windows')
 
 chef_client_updater 'update chef-client' do

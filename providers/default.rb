@@ -307,7 +307,7 @@ def open_handle_functions
 
   Function Destroy-OpenChefHandles {
     echo '[*] Destroying open Chef handles.'
-    Get-OpenHandle -Search chef | foreach {
+    Get-OpenHandle -Search opscode | foreach {
       '  [+] Destroying handle that {0} (pid: {1}) has on {2}' -f $_.Program, $_.HandlePid, $_.Path | echo
       Destroy-Handle -Handle $_.Handle -HandlePid $_.HandlePid
     }
@@ -340,6 +340,11 @@ def execute_install_script(install_script)
           if ((Get-WmiObject Win32_Process -Filter "name = 'ruby.exe'" | Select-Object CommandLine | select-string 'opscode').count -gt 0) {
             Write-Output "Chef cannot be upgraded while in use. Exiting..."
             exit 8
+          }
+
+          if (!(Test-Path "#{Chef::Config[:file_cache_path]}/handle.exe")) {
+            Add-Type -AssemblyName System.IO.Compression.FileSystem
+            [System.IO.Compression.ZipFile]::ExtractToDirectory("#{Chef::Config[:file_cache_path]}/handle.zip", "#{Chef::Config[:file_cache_path]}")
           }
 
           #{open_handle_functions}
