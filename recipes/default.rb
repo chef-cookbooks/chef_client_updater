@@ -22,6 +22,10 @@ cron 'chef_client_updater' do
   action :delete
 end unless platform_family?('windows')
 
+cookbook_file "#{Chef::Config[:file_cache_path]}/handle.exe" do
+  source node['kernel']['machine'] == 'x86_64' ? 'handle64.exe' : 'handle.exe'
+end if platform_family?('windows')
+
 chef_client_updater 'update chef-client' do
   channel node['chef_client_updater']['channel']
   version node['chef_client_updater']['version']

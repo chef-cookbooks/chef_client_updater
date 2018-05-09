@@ -278,6 +278,44 @@ def uninstall_ps_code
   uninstall_ps_code
 end
 
+def open_handle_functions
+  <<-EOH
+  Function Get-OpenHandle {
+    param(
+          [Parameter(ValueFromPipelineByPropertyName=$true)]
+          $Search
+    )
+    $handleOutput = &#{Chef::Config[:file_cache_path]}/handle.exe -accepteula -nobanner -a -u $Search
+    $handleOutput | foreach {
+      if ($_ -match '^(?<program>\\S*)\\s*pid: (?<pid>\\d*)\\s*type: (?<type>\\S*)\\s*(?<user>\\S*)\\s*(?<handle>\\d*):\\s*(?<file>(\\\\\\\\)|([a-z]:).*)') {
+        $matches | select @{n="User";e={$_.user}},@{n="Path";e={$_.file}},@{n="Handle";e={$_.handle}},@{n="Type";e={$_.type}},@{n="HandlePid";e={$_.pid}},@{n="Program";e={$_.program}}
+      }
+    }
+  }
+
+  Function Destroy-Handle {
+    param(
+          [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
+          $Handle,
+          [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
+          $HandlePid
+    )
+
+    $handleOutput = &#{Chef::Config[:file_cache_path]}/handle.exe -accepteula -nobanner -c $Handle -p $HandlePid -y
+    '      Destroyed handle {0} from pid {1}' -f $Handle, $HandlePid | echo
+  }
+
+  Function Destroy-OpenChefHandles {
+    echo '[*] Destroying open Chef handles.'
+    Get-OpenHandle -Search chef | foreach {
+      '  [+] Destroying handle that {0} (pid: {1}) has on {2}' -f $_.Program, $_.HandlePid, $_.Path | echo
+      Destroy-Handle -Handle $_.Handle -HandlePid $_.HandlePid
+    }
+    echo '[*] Completed destroying open Chef handles.'
+  }
+  EOH
+end
+
 def execute_install_script(install_script)
   if windows?
     cur_version = Mixlib::Versioning.parse(current_version)
@@ -303,6 +341,10 @@ def execute_install_script(install_script)
             Write-Output "Chef cannot be upgraded while in use. Exiting..."
             exit 8
           }
+
+          #{open_handle_functions}
+
+          Destroy-OpenChefHandles
 
           Remove-Item "#{chef_install_dir}" -Recurse -Force
 
