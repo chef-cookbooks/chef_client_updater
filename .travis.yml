@@ -37,7 +37,7 @@ matrix:
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
-        - OMNIBUS_CHEF_VERSION=13.6.8
+        - OMNIBUS_CHEF_VERSION=13.6.0
         - KITCHEN_YAML=.kitchen.dokken.yml
       script:
         # this tests a downgrade from latest "13" to latest "12" via partial versions
@@ -58,7 +58,7 @@ matrix:
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
-        - OMNIBUS_CHEF_VERSION=13.8.14
+        - OMNIBUS_CHEF_VERSION=13.8.5
         - KITCHEN_YAML=.kitchen.dokken.yml
       script:
         - bundle exec kitchen test default-ubuntu-1604
@@ -68,7 +68,7 @@ matrix:
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
-        - OMNIBUS_CHEF_VERSION=12.21.29
+        - OMNIBUS_CHEF_VERSION=12.21.31
         - KITCHEN_YAML=.kitchen.dokken.yml
       script:
         - bundle exec kitchen test default-ubuntu-1604
