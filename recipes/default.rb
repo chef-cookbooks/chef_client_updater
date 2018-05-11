@@ -17,11 +17,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# When running under init this cron job is created after an update
-cron 'chef_client_updater' do
-  action :delete
-end unless platform_family?('windows')
-
 chef_client_updater 'update chef-client' do
   channel node['chef_client_updater']['channel']
   version node['chef_client_updater']['version']

@@ -198,6 +198,10 @@ def cleanup
       FileUtils.rm_rf chef_backup_dir
     end
   end
+  # When running under init this cron job is created after an update
+  cron 'chef_client_updater' do
+    action :delete
+  end unless platform_family?('windows')
 end
 
 def windows?
