@@ -246,7 +246,7 @@ end
 
 def prepare_windows
   copy_opt_chef(chef_install_dir, chef_backup_dir)
-  Kernel.spawn("c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc once /ST \"#{upgrade_start_time}\" /tn Chef_upgrade /tr \"powershell.exe -ExecutionPolicy Bypass c:/opscode/chef_upgrade.ps1\"")
+  Kernel.spawn("c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc once /ST \"#{upgrade_start_time}\" /tn Chef_upgrade /tr \"powershell.exe -ExecutionPolicy Bypass c:/opscode/chef_upgrade.ps1 > c:/opscode/chef_upgrade.log\"")
   FileUtils.rm_rf "#{chef_install_dir}/bin/chef-client.bat"
 end
 
@@ -350,6 +350,7 @@ def execute_install_script(install_script)
           #{open_handle_functions}
 
           Destroy-OpenChefHandles
+          Get-Service EventLog | Restart-Service -Force
 
           Remove-Item "#{chef_install_dir}" -Recurse -Force
 
