@@ -43,3 +43,6 @@ default['chef_client_updater']['upgrade_delay'] = nil
 
 # name of the product to upgrade (chef or chefdk)
 default['chef_client_updater']['product_name'] = nil
+
+# download URL for Sysinternals handle.zip (Windows only)
+default['chef_client_updater']['handle_download_url'] = 'https://download.sysinternals.com/files/Handle.zip'

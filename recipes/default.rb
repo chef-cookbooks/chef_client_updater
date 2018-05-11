@@ -22,12 +22,12 @@ cron 'chef_client_updater' do
   action :delete
 end unless platform_family?('windows')
 
-# This resource will download the Handle.exe tool required from the
-# Sysinternals site.  If in an airgapped environment, you will need
-# to obtain this file and ensure the files are extracted to
-# Chef::Config[:file_cache_path]
+# This resource will download the Handle.exe tool required from the specified
+# URL. If in an airgapped environment, you will need to either override the
+# ['chef_client_updater']['handle_download_url'] attribute or alternatively
+# ensure the executable files are extracted to Chef::Config[:file_cache_path]
 remote_file "#{Chef::Config[:file_cache_path]}/handle.zip" do
-  source 'https://download.sysinternals.com/files/Handle.zip'
+  source node['chef_client_updater']['handle_download_url']
   action :create
   not_if { ::File.file?("#{Chef::Config[:file_cache_path]}/handle.exe") }
 end if platform_family?('windows')
