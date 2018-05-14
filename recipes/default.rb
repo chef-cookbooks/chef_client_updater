@@ -17,11 +17,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# When running under init this cron job is created after an update
-cron 'chef_client_updater' do
-  action :delete
-end unless platform_family?('windows')
-
 # This resource will download the Handle.exe tool required from the specified
 # URL. If in an airgapped environment, you will need to either override the
 # ['chef_client_updater']['handle_download_url'] attribute or alternatively
