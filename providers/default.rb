@@ -22,7 +22,7 @@
 # upgrades from Chef 11.x and this pattern should not be copied for any modern
 # cookbook.  This is a poor example cookbook of how to write Chef.
 
-use_inline_resources
+use_inline_resources # ~FC113
 
 provides :chef_client_updater if respond_to?(:provides)
 
