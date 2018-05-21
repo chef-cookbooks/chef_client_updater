@@ -40,3 +40,4 @@ attribute :checksum, kind_of: String
 # Lowering upgrade_delay limit is not recommended.
 attribute :upgrade_delay, kind_of: Integer, default: 60
 attribute :product_name, kind_of: String, default: 'chef'
+attribute :handle_zip_download_url, kind_of: String, default: 'https://download.sysinternals.com/files/Handle.zip'

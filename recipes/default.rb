@@ -17,16 +17,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This resource will download the Handle.exe tool required from the specified
-# URL. If in an airgapped environment, you will need to either override the
-# ['chef_client_updater']['handle_download_url'] attribute or alternatively
-# ensure the executable files are extracted to Chef::Config[:file_cache_path]
-remote_file "#{Chef::Config[:file_cache_path]}/handle.zip" do
-  source node['chef_client_updater']['handle_download_url']
-  action :create
-  not_if { ::File.file?("#{Chef::Config[:file_cache_path]}/handle.exe") }
-end if platform_family?('windows')
-
 chef_client_updater 'update chef-client' do
   channel node['chef_client_updater']['channel']
   version node['chef_client_updater']['version']
@@ -36,4 +26,5 @@ chef_client_updater 'update chef-client' do
   checksum node['chef_client_updater']['checksum'] if node['chef_client_updater']['checksum']
   upgrade_delay node['chef_client_updater']['upgrade_delay'] unless node['chef_client_updater']['upgrade_delay'].nil?
   product_name node['chef_client_updater']['product_name'] if node['chef_client_updater']['product_name']
+  handle_zip_download_url node['chef_client_updater']['handle_zip_download_url'] if node['chef_client_updater']['handle_zip_download_url']
 end
