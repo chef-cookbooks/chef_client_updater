@@ -29,7 +29,7 @@ For systems where the init system will not properly handle starting the service 
 
 ### Updating Windows Nodes
 
-There are a couple of considerations on Windows that have to be dealt with. The Chef Client installer uses a custom component to speed up the installation. This component does not gracefully handle open file handles the way the MSI installer does. To work around this, the resource moves the currently installed Chef Client to a staging directory and that clears the way for the newer installer to run. At the end of that installation process though, that Chef Client run must exit or it will fail trying to find files that do not exist in their expected locations. The next run of the Chef Client will use the newly installed version.
+On Windows, a scheduled task is used in combination with a PowerShell-based upgrade script and the downloaded [Handle](https://docs.microsoft.com/en-us/sysinternals/downloads/handle) tool. First, the resource moves the current installation to a staging directory and that clears the way for the newer installer to run. Any existing file handles to the old installation folder are forcibly removed and the Eventlog service will be restarted immediately prior to the new installation to release any open file locks. After installation, a log file from the upgrade can be found at `c:\opscode\chef_upgrade.log` until the next Chef Client run where it will be cleaned up along with the backup folder.
 
 On Windows, the recommended `post_install_action` is `exec` instead of `kill` if you intend to run Chef periodically. In `chef_client_updater` versions `>= 3.1.0` and `<= 3.2.9`, the updater resource by default started a new Chef run after upgrading. Newer versions simply run `chef-client` only if `post_install_action` is set to `exec`. To run a custom other Powershell command after-upgrade, define `post_install_action` `exec` and define your custom command in `exec_command`
 
@@ -92,6 +92,7 @@ Installs the mixlib-install/mixlib-install gems and upgrades the chef-client.
 - `checksum` - The SHA-256 checksum of the chef-client package from the direct URL.
 - `upgrade_delay` - The delay in seconds before the scheduled task to upgrade chef-client runs on windows. default: 61. Lowering this limit is not recommended.
 - `product_name` - The name of the product to upgrade. This can be `chef` or `chefdk` default: chef
+- `handle_zip_download_url` - Url to the Handle zip archive used by Windows. Used to override the default in airgapped environments. default: https://download.sysinternals.com/files/Handle.zip
 
 #### examples
 
