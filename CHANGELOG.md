@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.3.4 (2018-05-30)
+
+- Improve install success rate on Windows by destroying existing Chef handles prior to upgrade.
+
 ## 3.3.3 (2018-04-26)
 
 - Better support AIX by also restarting the chef-client service via cron on AIX
