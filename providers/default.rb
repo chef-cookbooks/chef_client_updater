@@ -191,11 +191,20 @@ def chef_backup_dir
   "#{chef_install_dir}.upgrade"
 end
 
+def chef_upgrade_log
+  "#{chef_install_dir}_upgrade.log"
+end
+
 # cleanup cruft from *prior* runs
 def cleanup
-  if ::File.exist?(chef_backup_dir) # rubocop:disable Style/GuardClause
+  if ::File.exist?(chef_backup_dir)
     converge_by("remove #{chef_backup_dir} from previous chef-client run") do
       FileUtils.rm_rf chef_backup_dir
+    end
+  end
+  if ::File.exist?(chef_upgrade_log)
+    converge_by("remove #{chef_upgrade_log} from previous chef-client run") do
+      FileUtils.rm_rf chef_upgrade_log
     end
   end
   # When running under init this cron job is created after an update
@@ -250,7 +259,7 @@ end
 
 def prepare_windows
   copy_opt_chef(chef_install_dir, chef_backup_dir)
-  Kernel.spawn("c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc once /ST \"#{upgrade_start_time}\" /tn Chef_upgrade /tr \"powershell.exe -ExecutionPolicy Bypass c:/opscode/chef_upgrade.ps1\"")
+  Kernel.spawn("c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc once /ST \"#{upgrade_start_time}\" /tn Chef_upgrade /tr \"powershell.exe -ExecutionPolicy Bypass c:/opscode/chef_upgrade.ps1 > #{chef_upgrade_log}\"")
   FileUtils.rm_rf "#{chef_install_dir}/bin/chef-client.bat"
 end
 
@@ -282,6 +291,44 @@ def uninstall_ps_code
   uninstall_ps_code
 end
 
+def open_handle_functions
+  <<-EOH
+  Function Get-OpenHandle {
+    param(
+          [Parameter(ValueFromPipelineByPropertyName=$true)]
+          $Search
+    )
+    $handleOutput = &#{Chef::Config[:file_cache_path]}/handle.exe -accepteula -nobanner -a -u $Search
+    $handleOutput | foreach {
+      if ($_ -match '^(?<program>\\S*)\\s*pid: (?<pid>\\d*)\\s*type: (?<type>\\S*)\\s*(?<user>\\S*)\\s*(?<handle>\\S*):\\s*(?<file>(\\\\\\\\)|([a-z]:).*)') {
+        $matches | select @{n="User";e={$_.user}},@{n="Path";e={$_.file}},@{n="Handle";e={$_.handle}},@{n="Type";e={$_.type}},@{n="HandlePid";e={$_.pid}},@{n="Program";e={$_.program}}
+      }
+    }
+  }
+
+  Function Destroy-Handle {
+    param(
+          [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
+          $Handle,
+          [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
+          $HandlePid
+    )
+
+    $handleOutput = &#{Chef::Config[:file_cache_path]}/handle.exe -accepteula -nobanner -c $Handle -p $HandlePid -y
+    '      Destroyed handle {0} from pid {1}' -f $Handle, $HandlePid | echo
+  }
+
+  Function Destroy-OpenChefHandles {
+    echo '[*] Destroying open Chef handles.'
+    Get-OpenHandle -Search opscode | foreach {
+      '  [+] Destroying handle that {0} (pid: {1}) has on {2}' -f $_.Program, $_.HandlePid, $_.Path | echo
+      Destroy-Handle -Handle $_.Handle -HandlePid $_.HandlePid
+    }
+    echo '[*] Completed destroying open Chef handles.'
+  }
+  EOH
+end
+
 def execute_install_script(install_script)
   if windows?
     cur_version = Mixlib::Versioning.parse(current_version)
@@ -297,6 +344,11 @@ def execute_install_script(install_script)
                     ''
                   end
 
+    remote_file "#{Chef::Config[:file_cache_path]}/handle.zip" do
+      source new_resource.handle_zip_download_url
+      not_if { ::File.file?("#{Chef::Config[:file_cache_path]}/handle.exe") }
+    end.run_action(:create)
+
     powershell_script 'name' do
       code <<-EOH
         $command = {
@@ -308,9 +360,25 @@ def execute_install_script(install_script)
             exit 8
           }
 
+          if (!(Test-Path "#{Chef::Config[:file_cache_path]}/handle.exe")) {
+            Add-Type -AssemblyName System.IO.Compression.FileSystem
+            [System.IO.Compression.ZipFile]::ExtractToDirectory("#{Chef::Config[:file_cache_path]}/handle.zip", "#{Chef::Config[:file_cache_path]}")
+          }
+
+          #{open_handle_functions}
+
+          if (Test-Path "#{Chef::Config[:file_cache_path]}/handle.exe") {
+            Destroy-OpenChefHandles
+          }
+
+          Get-Service EventLog | Restart-Service -Force
+
           Remove-Item "#{chef_install_dir}" -Recurse -Force
 
-          if (test-path "#{chef_install_dir}") { exit 3 }
+          if (test-path "#{chef_install_dir}") {
+            Write-Output "#{chef_install_dir} still exists, upgrade will be aborted. Exiting (3)..."
+            exit 3
+          }
 
           #{uninstall_first}
           #{install_script}
