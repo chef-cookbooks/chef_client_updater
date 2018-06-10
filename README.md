@@ -20,11 +20,16 @@ This cookbook provides both a custom resource and a default recipe. The default 
 
 ### Init System Caveats
 
-When Chef runs as a service under a system init daemon such as Sys-V or systemd each chef run forks off from the main chef-client process being managed by the init system. For a chef-client upgrade to occur the running chef-client as well as the parent process must be killed, and a new chef-client must start using the updated binaries. This cookbook handles killing the chef-client, but your init system must properly handle starting the service back up. For systemd and upstart this can be handled via configuration, and chef-client cookbook 8.1.1 or later handles this by default. This functionality is not available in sys-v (RHEL 6, Debian 7, and others), so you will need to employ a secondary process such as a monitoring system to start the chef-client service.
+When Chef runs as a service under a system init daemon such as Sys-V or systemd each chef run forks off from the main chef-client process being managed by the init system. For a chef-client upgrade to occur, the running chef-client as well as the parent process must be killed, and a new chef-client must start using the updated binaries. This cookbook handles killing the chef-client, but your init system must properly handle starting the service back up. For systemd and upstart this can be handled via configuration, and chef-client cookbook 8.1.1 or later handles this by default. This functionality is not available in sys-v (RHEL 6, Debian 7, AIX and others).
+
+For systems where the init system will not properly handle starting the service back up automatically (like Sys-V or SRC) this cookbook will attempt to restart the service via a temporary cron job when either of the following conditions are met:
+
+  * node['chef_client']['init_style'] == 'init'
+  * node['chef_client_updater']['restart_chef_via_cron'] == true
 
 ### Updating Windows Nodes
 
-There are a couple of considerations on Windows that have to be dealt with. The Chef Client installer uses a custom component to speed up the installation. This component does not gracefully handle open file handles the way the MSI installer does. To work around this, the resource moves the currently installed Chef Client to a staging directory and that clears the way for the newer installer to run. At the end of that installation process though, that Chef Client run must exit or it will fail trying to find files that do not exist in their expected locations. The next run of the Chef Client will use the newly installed version.
+On Windows, a scheduled task is used in combination with a PowerShell-based upgrade script and the downloaded [Handle](https://docs.microsoft.com/en-us/sysinternals/downloads/handle) tool. First, the resource moves the current installation to a staging directory and that clears the way for the newer installer to run. Any existing file handles to the old installation folder are forcibly removed and the Eventlog service will be restarted immediately prior to the new installation to release any open file locks. After installation, a log file from the upgrade can be found at `c:\opscode\chef_upgrade.log` until the next Chef Client run where it will be cleaned up along with the backup folder.
 
 On Windows, the recommended `post_install_action` is `exec` instead of `kill` if you intend to run Chef periodically. In `chef_client_updater` versions `>= 3.1.0` and `<= 3.2.9`, the updater resource by default started a new Chef run after upgrading. Newer versions simply run `chef-client` only if `post_install_action` is set to `exec`. To run a custom other Powershell command after-upgrade, define `post_install_action` `exec` and define your custom command in `exec_command`
 
@@ -88,6 +93,7 @@ Installs the mixlib-install/mixlib-install gems and upgrades the chef-client.
 - `upgrade_delay` - The delay in seconds before the scheduled task to upgrade chef-client runs on windows. default: 61. Lowering this limit is not recommended.
 - `product_name` - The name of the product to upgrade. This can be `chef` or `chefdk` default: chef
 - `rubygems_url` - The location to source rubygems. Replaces the default https://www.rubygems.org.
+- `handle_zip_download_url` - Url to the Handle zip archive used by Windows. Used to override the default in airgapped environments. default: https://download.sysinternals.com/files/Handle.zip
 
 #### examples
 
