@@ -371,7 +371,10 @@ def execute_install_script(install_script)
             Destroy-OpenChefHandles
           }
 
-          Get-Service EventLog | Restart-Service -Force
+          $windows_kernel_version = (Get-WmiObject -class Win32_OperatingSystem).Version
+          if (-Not ($windows_kernel_version.Contains('6.0') -or $windows_kernel_version.Contains('6.1'))) {
+            Get-Service EventLog | Restart-Service -Force
+          }
 
           Remove-Item "#{chef_install_dir}" -Recurse -Force
 
