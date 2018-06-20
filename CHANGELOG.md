@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.3.5 (2018-06-20)
+
+- Do not attempt EventLog restart on Windows 7 or Windows Server 2008 editions.
+
 ## 3.3.4 (2018-05-30)
 
 - Improve install success rate on Windows by destroying existing Chef handles prior to upgrade.
