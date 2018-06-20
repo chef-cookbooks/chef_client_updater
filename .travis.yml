@@ -1,6 +1,5 @@
 # TAS50: THIS COOKBOOK DELIBERATELY DOES NOT USE THE STANDARD TRAVIS.YML FILE
 sudo: false
-dist: trusty
 cache: bundler
 
 addons:
@@ -22,7 +21,7 @@ before_install:
 
 matrix:
   include:
-    - rvm: 2.4.3
+    - rvm: 2.4.4
       before_script:
         - eval "$(chef shell-init bash)"
       install: echo "skip bundle install"
@@ -31,48 +30,48 @@ matrix:
         - cookstyle --version
         - foodcritic --version
         - chef exec delivery local all
-    - rvm: 2.4.3
+    - rvm: 2.4.4
       services: docker
       sudo: required
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
         - OMNIBUS_CHEF_VERSION=13.6.0
-        - KITCHEN_YAML=.kitchen.dokken.yml
+        - KITCHEN_YAML=kitchen.dokken.yml
       script:
         # this tests a downgrade from latest "13" to latest "12" via partial versions
         - bundle exec kitchen test constrained-ubuntu-1604
-    - rvm: 2.4.3
+    - rvm: 2.4.4
       services: docker
       sudo: required
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
         - OMNIBUS_CHEF_VERSION=14.1.1
-        - KITCHEN_YAML=.kitchen.dokken.yml
+        - KITCHEN_YAML=kitchen.dokken.yml
       script:
         - bundle exec kitchen test default-ubuntu-1604
-    - rvm: 2.4.3
+    - rvm: 2.4.4
       services: docker
       sudo: required
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
         - OMNIBUS_CHEF_VERSION=13.8.5
-        - KITCHEN_YAML=.kitchen.dokken.yml
+        - KITCHEN_YAML=kitchen.dokken.yml
       script:
         - bundle exec kitchen test default-ubuntu-1604
-    - rvm: 2.4.3
+    - rvm: 2.4.4
       services: docker
       sudo: required
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
         - OMNIBUS_CHEF_VERSION=12.21.31
-        - KITCHEN_YAML=.kitchen.dokken.yml
+        - KITCHEN_YAML=kitchen.dokken.yml
       script:
         - bundle exec kitchen test default-ubuntu-1604
-    - rvm: 2.4.3
+    - rvm: 2.4.4
       services: docker
       sudo: required
       before_script:
@@ -81,7 +80,7 @@ matrix:
       # (cookbook likely supports earlier versions)
       env:
         - OMNIBUS_CHEF_VERSION=11.10.4
-        - KITCHEN_YAML=.kitchen.dokken.yml
+        - KITCHEN_YAML=kitchen.dokken.yml
       script:
         - bundle exec kitchen test default-ubuntu-1604
     - rvm: 1.9.3

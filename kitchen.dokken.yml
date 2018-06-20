@@ -33,6 +33,7 @@ platforms:
       intermediate_instructions:
         - RUN /usr/bin/apt-get update
         - RUN /usr/bin/apt-get install sudo -y
+        - RUN touch /etc/crontab
 
 suites:
   - name: default
