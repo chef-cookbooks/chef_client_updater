@@ -27,12 +27,12 @@ use_inline_resources # ~FC113
 provides :chef_client_updater if respond_to?(:provides)
 
 def load_mixlib_install
-  gem 'mixlib-install', '~> 3.9'
+  gem 'mixlib-install', '~> 3.11'
   require 'mixlib/install'
 rescue LoadError
   Chef::Log.info('mixlib-install gem not found. Installing now')
   chef_gem 'mixlib-install' do
-    version '~> 3.9'
+    version '~> 3.11'
     compile_time true if respond_to?(:compile_time)
   end
 
