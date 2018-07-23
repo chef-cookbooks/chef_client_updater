@@ -214,6 +214,10 @@ def chef_backup_dir
   "#{chef_install_dir}.upgrade"
 end
 
+def chef_broken_dir
+  "#{chef_install_dir}.broken"
+end
+
 def chef_upgrade_log
   "#{chef_install_dir}_upgrade.log"
 end
@@ -400,6 +404,13 @@ def execute_install_script(install_script)
           }
 
           Remove-Item "#{chef_install_dir}" -Recurse -Force
+
+          if (test-path "#{chef_install_dir}") {
+            Write-Output "Removing #{chef_install_dir} did not completely succeed."
+            Write-Output "It is likely now in a bad state, not even usable as a backup."
+            Write-Output "Attempting to move #{chef_install_dir} to #{chef_broken_dir}"
+            Move-Item "#{chef_install_dir}" "#{chef_broken_dir}"
+          }
 
           if (test-path "#{chef_install_dir}") {
             Write-Output "#{chef_install_dir} still exists, upgrade will be aborted. Exiting (3)..."

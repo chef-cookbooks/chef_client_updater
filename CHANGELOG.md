@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.3.6 (2018-07-23)
+
+- If the chef install directory still exists after being Remove-Item'ed, it is likely in a broken state with a locked file or two being present, and nothing else. Attempt to move it to another location to allow the updated version install to succeed.
+
 ## 3.3.5 (2018-06-20)
 
 - Do not attempt EventLog restart on Windows 7 or Windows Server 2008 editions.
