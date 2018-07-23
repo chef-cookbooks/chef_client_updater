@@ -2,6 +2,13 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.4.0 (2018-07-23)
+
+- Prevent failures on Chef-DK
+- rubygems_url: Allow the rubygems source to be specified
+- Require mixlib-install 3.11+ for Amazon Linux 2.0 support
+- Attempt to move the chef install directory if it still exists before giving up to workaround failures on Windows 2008
+
 ## 3.3.5 (2018-06-20)
 
 - Do not attempt EventLog restart on Windows 7 or Windows Server 2008 editions.
