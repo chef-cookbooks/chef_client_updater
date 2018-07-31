@@ -35,6 +35,9 @@ attribute :exec_command, kind_of: String, default: $PROGRAM_NAME.split(' ').firs
 attribute :exec_args, kind_of: Array, default: ARGV
 attribute :download_url_override, kind_of: String
 attribute :checksum, kind_of: String
+# If the package takes too long to install, mixlib-shellout will time out.
+# This enables users to adjust the timeout.
+attribute :install_timeout, kind_of: Integer, default: 600
 # If the upgrade is scheduled in the same minute that Chef runs,
 # there is a risk the upgrade will not be triggered.
 # Lowering upgrade_delay limit is not recommended.
