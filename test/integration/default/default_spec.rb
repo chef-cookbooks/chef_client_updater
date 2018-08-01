@@ -1,5 +1,5 @@
 describe command('chef-client -v') do
-  target_version = ENV['OMNIBUS_CHEF_VERSION'] || '13.6.0'
+  target_version = '13.10.0'
   its('stdout') { should match "^Chef: #{target_version}" }
 end
 
