@@ -438,7 +438,7 @@ def execute_install_script(install_script)
       action :nothing
     end.run_action(:run)
   else
-    upgrade_command = Mixlib::ShellOut.new(install_script, { timeout: new_resource.install_timeout } )
+    upgrade_command = Mixlib::ShellOut.new(install_script, timeout: new_resource.install_timeout)
     upgrade_command.run_command
     if upgrade_command.exitstatus != 0
       raise "Error updating chef-client. exit code: #{upgrade_command.exitstatus}.\nSTDERR: #{upgrade_command.stderr}\nSTDOUT: #{upgrade_command.stdout}"
