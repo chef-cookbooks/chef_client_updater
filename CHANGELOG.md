@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.4.1 (2018-08-02)
+
+- Allow for a configurable package install timeout. (#130)
+
 ## 3.4.0 (2018-07-23)
 
 - Prevent failures on Chef-DK
