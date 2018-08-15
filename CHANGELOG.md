@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.4.2 (2018-08-15)
+
+- Fix to retrieve current version for angrychef nodes
+
 ## 3.4.1 (2018-08-02)
 
 - Allow for a configurable package install timeout. (#130)
