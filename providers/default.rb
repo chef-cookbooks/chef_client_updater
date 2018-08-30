@@ -469,6 +469,8 @@ action :update do
     # sysvinit won't restart after we exit, potentially use cron to do so
     # either trust the chef-client cookbook's init scripts or the users choice
     if (node['chef_client'] && node['chef_client']['init_style'] == 'init') || node['chef_client_updater']['restart_chef_via_cron']
+      Chef::Log.warn 'Chef Client was upgraded, scheduling chef-client start via cron in 5 minutes'
+      cron_time = Time.now + 300
       start_cmd = case node['platform_family']
                   when 'aix'
                     '/usr/bin/startsrc -s chef > /dev/console 2>&1'
@@ -477,6 +479,8 @@ action :update do
                   end
 
       r = cron 'chef_client_updater' do
+        hour cron_time.hour
+        minute cron_time.min
         command start_cmd
       end
 
