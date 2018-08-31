@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.5.0 (2018-08-31)
+
+- Only run the cron job on *nix 5 minutes from now
+
 ## 3.4.2 (2018-08-15)
 
 - Fix to retrieve current version for angrychef nodes
