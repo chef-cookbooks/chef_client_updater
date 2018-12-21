@@ -86,7 +86,11 @@ def update_rubygems
       end
     else
       require 'rubygems/commands/update_command'
-      args = ['--no-document', '--system' ]
+      args = if Gem::Requirement.new(nodoc_rubygems_versions).satisfied_by?(rubygems_version)
+               ['--no-document', '--system' ]
+             else
+               ['--no-doc', '--no-ri', '--system' ]
+             end
       args.push(target_version) if pin
       Gem::Commands::UpdateCommand.new.invoke(*args)
     end
