@@ -78,10 +78,10 @@ def update_rubygems
       end
       raise 'cannot find omnibus install' unless ::File.exist?(gem_bin)
       source = "--clear-sources --source #{new_resource.rubygems_url}"
-      shell_out!("#{gem_bin} update --system --no-rdoc --no-ri #{source}")
+      shell_out!("#{gem_bin} update --system --no-document #{source}")
     else
       require 'rubygems/commands/update_command'
-      args = ['--no-rdoc', '--no-ri', '--system' ]
+      args = ['--no-document', '--system' ]
       args.push(target_version) if pin
       Gem::Commands::UpdateCommand.new.invoke(*args)
     end
