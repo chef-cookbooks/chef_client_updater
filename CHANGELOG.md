@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.5.1 (2018-12-22)
+
+- use --no-document for rubygems 3.0 to prevent upgrade failures - [@lamont-granquist](https://github.com/lamont-granquist)
+
 ## 3.5.0 (2018-08-31)
 
 - Only run the cron job on *nix 5 minutes from now
