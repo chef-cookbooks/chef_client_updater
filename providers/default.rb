@@ -61,6 +61,7 @@ end
 def update_rubygems
   compatible_rubygems_versions = '>= 2.6.11'
   target_version = '2.6.11'
+  nodoc_rubygems_versions = '>= 3.0'
 
   rubygems_version = Gem::Version.new(Gem::VERSION)
   Chef::Log.debug("Found gem version #{rubygems_version}. Desired version is at least #{target_version}")
@@ -78,10 +79,18 @@ def update_rubygems
       end
       raise 'cannot find omnibus install' unless ::File.exist?(gem_bin)
       source = "--clear-sources --source #{new_resource.rubygems_url}"
-      shell_out!("#{gem_bin} update --system --no-rdoc --no-ri #{source}")
+      if Gem::Requirement.new(nodoc_rubygems_versions).satisfied_by?(rubygems_version)
+        shell_out!("#{gem_bin} update --system --no-document #{source}")
+      else
+        shell_out!("#{gem_bin} update --system --no-rdoc --no-ri #{source}")
+      end
     else
       require 'rubygems/commands/update_command'
-      args = ['--no-rdoc', '--no-ri', '--system' ]
+      args = if Gem::Requirement.new(nodoc_rubygems_versions).satisfied_by?(rubygems_version)
+               ['--no-document', '--system' ]
+             else
+               ['--no-rdoc', '--no-ri', '--system' ]
+             end
       args.push(target_version) if pin
       Gem::Commands::UpdateCommand.new.invoke(*args)
     end
