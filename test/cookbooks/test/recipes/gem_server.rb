@@ -21,7 +21,7 @@ apt-get -q -y install ufw
 ufw --force enable
 ufw allow ssh
 #{deny_rubygems}
-EOH
+  EOH
 end
 
 # This step should fail if the firewall rules work
