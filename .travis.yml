@@ -86,5 +86,10 @@ matrix:
         - bundle exec kitchen test default-ubuntu-1604
     - rvm: 1.9.3
       gemfile: gemfiles/Gemfile.ancient
+      before_install:
+        # ancient ruby gets ancient bundler + ancient gem as well
+        - bundle --version
+        - gem update --system 2.6.11
+        - gem --version
       script:
         - bundle exec rspec
