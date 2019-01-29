@@ -3,7 +3,7 @@
 # Resource:: updater
 #
 # Copyright:: 2016-2018, Will Jordan
-# Copyright:: 2016-2018, Chef Software Inc.
+# Copyright:: 2016-2019, Chef Software Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -60,11 +60,11 @@ end
 
 def update_rubygems
   compatible_rubygems_versions = '>= 2.6.11'
-  target_version = '2.6.11'
+  target_version = '2.7.8' # can be bumped to latest 2.x, but ruby < 2.3.0 support is necessary
   nodoc_rubygems_versions = '>= 3.0'
 
   rubygems_version = Gem::Version.new(Gem::VERSION)
-  Chef::Log.debug("Found gem version #{rubygems_version}. Desired version is at least #{target_version}")
+  Chef::Log.debug("Found gem version #{rubygems_version}. Desired version is #{compatible_rubygems_version}")
   return if Gem::Requirement.new(compatible_rubygems_versions).satisfied_by?(rubygems_version)
 
   # only rubygems >= 1.5.2 supports pinning, and we might be coming from older versions
@@ -80,9 +80,9 @@ def update_rubygems
       raise 'cannot find omnibus install' unless ::File.exist?(gem_bin)
       source = "--clear-sources --source #{new_resource.rubygems_url}"
       if Gem::Requirement.new(nodoc_rubygems_versions).satisfied_by?(rubygems_version)
-        shell_out!("#{gem_bin} update --system --no-document #{source}")
+        shell_out!("#{gem_bin} update --system #{target_version} --no-document #{source}")
       else
-        shell_out!("#{gem_bin} update --system --no-rdoc --no-ri #{source}")
+        shell_out!("#{gem_bin} update --system #{target_version} --no-rdoc --no-ri #{source}")
       end
     else
       require 'rubygems/commands/update_command'
