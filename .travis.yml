@@ -89,6 +89,7 @@ matrix:
       before_install:
         # ancient ruby gets ancient bundler + ancient gem as well
         - bundle --version
+        - gem update --system 2.6.11
         - gem --version
       script:
         - bundle exec rspec
