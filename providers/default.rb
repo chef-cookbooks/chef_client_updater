@@ -60,7 +60,7 @@ end
 
 def update_rubygems
   compatible_rubygems_versions = '>= 2.6.11'
-  target_version = '2.7.8' # can be bumped to latest 2.x, but ruby < 2.3.0 support is necessary
+  target_version = '2.7.8' # should be bumped to latest 2.x, but ruby < 2.3.0 support is necessary
   nodoc_rubygems_versions = '>= 3.0'
 
   rubygems_version = Gem::Version.new(Gem::VERSION)
