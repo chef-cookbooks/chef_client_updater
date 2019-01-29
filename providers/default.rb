@@ -64,7 +64,7 @@ def update_rubygems
   nodoc_rubygems_versions = '>= 3.0'
 
   rubygems_version = Gem::Version.new(Gem::VERSION)
-  Chef::Log.debug("Found gem version #{rubygems_version}. Desired version is #{compatible_rubygems_version}")
+  Chef::Log.debug("Found gem version #{rubygems_version}. Desired version is #{compatible_rubygems_versions}")
   return if Gem::Requirement.new(compatible_rubygems_versions).satisfied_by?(rubygems_version)
 
   # only rubygems >= 1.5.2 supports pinning, and we might be coming from older versions
