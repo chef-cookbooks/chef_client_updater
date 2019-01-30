@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.5.2 (2019-01-30)
+
+- Fix rubygems upgrade logic to prevent breaking older chef-client releases such as Chef 12.X
+
 ## 3.5.1 (2018-12-22)
 
 - use --no-document for rubygems 3.0 to prevent upgrade failures - [@lamont-granquist](https://github.com/lamont-granquist)
