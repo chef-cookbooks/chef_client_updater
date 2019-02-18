@@ -26,5 +26,6 @@ chef_client_updater 'update chef-client' do
   checksum node['chef_client_updater']['checksum'] if node['chef_client_updater']['checksum']
   upgrade_delay node['chef_client_updater']['upgrade_delay'] unless node['chef_client_updater']['upgrade_delay'].nil?
   product_name node['chef_client_updater']['product_name'] if node['chef_client_updater']['product_name']
+  rubygems_url default['chef_client_updater']['rubygems_url'] unless default['chef_client_updater']['rubygems_url'].nil?
   handle_zip_download_url node['chef_client_updater']['handle_zip_download_url'] if node['chef_client_updater']['handle_zip_download_url']
 end
