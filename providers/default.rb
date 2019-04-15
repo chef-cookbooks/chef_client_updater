@@ -22,6 +22,8 @@
 # upgrades from Chef 11.x and this pattern should not be copied for any modern
 # cookbook.  This is a poor example cookbook of how to write Chef.
 
+include ::ChefClientUpdaterHelper
+
 use_inline_resources # cookstyle: disable ChefDeprecations/UseInlineResourcesDefined
 
 provides :chef_client_updater if respond_to?(:provides) # cookstyle: disable ChefModernize/RespondToProvides
@@ -101,28 +103,6 @@ def load_prerequisites!
   update_rubygems
   load_mixlib_install
   load_mixlib_versioning
-end
-
-def mixlib_install
-  load_mixlib_install
-  detected_platform = Mixlib::Install.detect_platform
-  Chef::Log.debug("Platform detected as #{detected_platform} by mixlib_install")
-  options = {
-    product_name: new_resource.product_name,
-    platform_version_compatibility_mode: true,
-    platform: detected_platform[:platform],
-    platform_version: detected_platform[:platform_version],
-    architecture: detected_platform[:architecture],
-    channel: new_resource.channel.to_sym,
-    product_version: new_resource.version == 'latest' ? :latest : new_resource.version,
-  }
-  if new_resource.download_url_override
-    raise('Using download_url_override in the chef_client_updater resource requires also setting checksum property!') unless new_resource.checksum
-    Chef::Log.debug("Passing download_url_override of #{new_resource.download_url_override} and checksum of #{new_resource.checksum} to mixlib_install")
-    options[:install_command_options] = { download_url_override: new_resource.download_url_override, checksum: new_resource.checksum }
-  end
-  Chef::Log.debug("Passing options to mixlib-install: #{options}")
-  Mixlib::Install.new(options)
 end
 
 # why would we use this when mixlib-install has a current_version method?
@@ -349,6 +329,70 @@ def uninstall_ps_code
   uninstall_ps_code
 end
 
+def wait_for_chef_client_or_reschedule_upgrade_task_function
+  <<-EOH
+  Function WaitForChefClientOrRescheduleUpgradeTask {
+    <# Wait for running chef-client to finish up to n times.  If it has not finished after maxcount tries, then reschedule the upgrade task inMinutes minutes in the future and exit.
+    #>
+    param(
+          [Parameter(Mandatory=$true)]
+          [Int]$maxcount = 5,
+          [Parameter(Mandatory=$true)]
+          [Int]$inMinutes = 10
+    )
+
+    # Try maxcount times waiting for given process (chef-client) to finish before rescheduling the upgrade task inMinutes into the future
+    $count = 0
+    $status = (Get-WmiObject Win32_Process -Filter "name = 'ruby.exe'" | Select-Object CommandLine | select-string 'opscode').count
+    while ($status -gt 0) {
+      $count++
+      if ($count -gt $maxcount) {
+        Write-Output "Chef cannot be upgraded while in use.  Rescheduling the upgrade in $inMinutes minutes..."
+        RescheduleTask Chef_upgrade $inMinutes
+        exit 0
+      }
+      Write-Output "Chef cannot be upgraded while in use - Attempt $count of $maxcount.  Sleeping for 60 seconds and retrying..."
+      Start-Sleep 60
+      $status = (Get-WmiObject Win32_Process -Filter "name = 'ruby.exe'" | Select-Object CommandLine | select-string 'opscode').count
+    }
+  }
+  EOH
+end
+
+def reschedule_task_function
+  <<-EOH
+  Function RescheduleTask {
+    <# Reschedule a named scheduled task the given number of minutes in the future
+       The named scheduled task is expected to have an existing one-time TimeTrigger (which Chef_upgrade has)
+    #>
+    param(
+          [Parameter(Mandatory=$true)]
+          [String]$taskName,
+          [Parameter(Mandatory=$true)]
+          [Int]$minutes
+    )
+
+    $env:SystemDirectory = [Environment]::SystemDirectory
+    $tasksRoot = $env:SystemDirectory + '\Tasks\'
+    $taskScheduler = New-Object -ComObject Schedule.Service
+    $taskFolder = $taskScheduler.GetFolder('\')
+    Try {
+      $task = $taskFolder.GetTask($taskName)
+      $xml = [xml]$task.Xml
+      $startBoundary = [datetime]$xml.Task.Triggers.TimeTrigger.StartBoundary
+      $newDateTime = $startBoundary.AddMinutes($minutes)
+      $newDate = $newDateTime.ToString('MM/dd/yyyy')
+      $newTime = $newDateTime.ToString('HH:mm:ss')
+      $prms = '/change', '/tn', $taskName, '/sd', $newDate, '/st', $newTime
+      & schtasks.exe $prms
+    }
+    Catch {
+      $_.Exception.Message
+    }
+  }
+  EOH
+end
+
 def open_handle_functions
   <<-EOH
   Function Get-OpenHandle {
@@ -431,10 +475,10 @@ def execute_install_script(install_script)
           Get-Service chef-client -ErrorAction SilentlyContinue | stop-service
           Get-Service push-jobs-client -ErrorAction SilentlyContinue | stop-service
 
-          if ((Get-WmiObject Win32_Process -Filter "name = 'ruby.exe'" | Select-Object CommandLine | select-string 'opscode').count -gt 0) {
-            Write-Output "Chef cannot be upgraded while in use. Exiting..."
-            exit 8
-          }
+          #{reschedule_task_function}
+          #{wait_for_chef_client_or_reschedule_upgrade_task_function}
+
+          WaitForChefClientOrRescheduleUpgradeTask
 
           if (!(Test-Path "#{node['chef_client_updater']['handle_exe_path']}")) {
             Add-Type -AssemblyName System.IO.Compression.FileSystem

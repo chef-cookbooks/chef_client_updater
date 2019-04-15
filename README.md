@@ -29,7 +29,10 @@ For systems where the init system will not properly handle starting the service 
 
 ### Updating Windows Nodes
 
-On Windows, a scheduled task is used in combination with a PowerShell-based upgrade script and the downloaded [Handle](https://docs.microsoft.com/en-us/sysinternals/downloads/handle) tool. First, the resource moves the current installation to a staging directory and that clears the way for the newer installer to run. Any existing file handles to the old installation folder are forcibly removed and the Eventlog service will be restarted immediately prior to the new installation to release any open file locks. After installation, a log file from the upgrade can be found at `c:\opscode\chef_upgrade.log` until the next Chef Client run where it will be cleaned up along with the backup folder.
+On Windows, a one time scheduled task `Chef_upgrade` is created in combination with a PowerShell-based upgrade script and the downloaded [Handle](https://docs.microsoft.com/en-us/sysinternals/downloads/handle) tool. When the Chef_upgrade scheduled task runs, it executes the Powershell upgrade script, which first determines whether it can successfully stop any existing chef client service and associated Ruby processes, since the MSI Installer will fail if there is a running chef client service or ruby.exe process. If it cannot it will sleep for one minute and try again up to five times. If after five tries it still hasn't been successful it modifies the `Chef_upgrade` scheduled task to run 10 minutes in the future to try the process again. This eliminates the situation where the scheduled task fails and the chef client is no longer configured to run automatically (since the service has been stopped), which in large environments is costly to recover from (requiring reboots of many servers).
+
+The Powershell upgrade script then moves the current installation to a staging directory and that clears the way for the newer installer to run. Any existing file handles to the old installation folder are forcibly removed and the Eventlog service will be restarted immediately prior to the new installation to release any open file locks. After installation, a log file from the upgrade can be found at `c:\opscode\chef_upgrade.log` until the next Chef Client run where it will be cleaned up along with the backup folder. Upon successful installation the `Chef_upgrade` scheduled task is deleted.
+
 
 On Windows, the recommended `post_install_action` is `exec` instead of `kill` if you intend to run Chef periodically. In `chef_client_updater` versions `>= 3.1.0` and `<= 3.2.9`, the updater resource by default started a new Chef run after upgrading. Newer versions simply run `chef-client` only if `post_install_action` is set to `exec`. To run a custom other Powershell command after-upgrade, define `post_install_action` `exec` and define your custom command in `exec_command`
 
@@ -39,7 +42,11 @@ If you run as a scheduled task, then this will work smoothly. The path to the ne
 
 #### Running Chef Client As A Windows Service
 
-If you run Chef Client as a service, things get a tiny bit more complicated. When the new installer runs, the service is removed. This isn't a big deal if you've got the chef-client cookbook set to configure the Windows service. If that is the case, define `post_install_action` `exec` and the Chef-run triggered after the upgrade will take care of installing the service.
+If you run Chef Client as a service, things get a tiny bit more complicated. When the new installer runs, the service is removed. This isn't a big deal if you've got the chef-client cookbook set to configure the Windows service. If that is the case, define `post_install_action` `exec` and the Chef-run triggered after the upgrade will take care of installing the service. Alternatively you can migrate to running Chef client as scheduled task as described below.
+
+#### Migrating from Running Chef Client as a Windows Service to Running as a Scheduled Task During the Upgrade
+
+If you run Chef Client as a service, but want to upgrade to a version of the client with an MSI Intaller that supports running as a scheduled task (any chef client >= 12.18) it is now possible with the `install_command_options` property (added in version 3.8.0 of the chef_client_updater cookbook). This property accepts a Hash of key/value pairs, with {daemon: 'task'} the necessary pair to notify the MSI Installer to install the chef client as a scheduled task.   
 
 ### Upgrading from Chef 11
 
@@ -98,6 +105,7 @@ Installs the mixlib-install/mixlib-install gems and upgrades the chef-client.
 - `install_timeout` - The install timeout for non-windows systems. The default is 600, slow machines may need to extend this.
 - `upgrade_delay` - The delay in seconds before the scheduled task to upgrade chef-client runs on windows. default: 61. Lowering this limit is not recommended.
 - `product_name` - The name of the product to upgrade. This can be `chef` or `chefdk` default: chef
+- 'install_command_options' - A Hash of additional options that will be passed to the Mixlib::Install instance responsible for installing the given product_name.  To install the chef client as a scheduled task on windows, one can pass {daemon: 'task'}.  Default: {}
 - `rubygems_url` - The location to source rubygems. Replaces the default https://www.rubygems.org.
 - `handle_zip_download_url` - Url to the Handle zip archive used by Windows. Used to override the default in airgapped environments. default: https://download.sysinternals.com/files/Handle.zip (Note that you can also override the `default['chef_client_updater']['handle_exe_path']` attribute if you already have that binary somewhere on your system)
 

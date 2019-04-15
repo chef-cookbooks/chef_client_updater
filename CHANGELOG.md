@@ -2,6 +2,11 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.8.0 (2019-11-27)
+
+- Add install_command_options to enable installing Chef as a scheduled task on Windows when updating
+- Fix Chef_upgrade scheduled task to reschedule itself when it fails due to running ruby.exe
+
 ## 3.7.3 (2019-12-09)
 
 - Minor Fixes While detecting chef DK version - [@Nimesh-Msys](https://github.com/Nimesh-Msys)
