@@ -202,7 +202,11 @@ def run_post_install_action
       end
     end
     Chef::Log.warn 'Replacing chef-client process with upgraded version and re-running.'
-    Kernel.exec(new_resource.exec_command, *new_resource.exec_args)
+    env = {}
+    unless node['chef_client']['chef_license'].nil?
+      env["CHEF_LICENSE"] = node['chef_client']['chef_license']
+    end
+    Kernel.exec(env, new_resource.exec_command, *new_resource.exec_args)
   when 'kill'
     if Chef::Config[:client_fork] && Process.ppid != 1 && !windows?
       Chef::Log.warn 'Chef client is running forked with a supervisor. Sending KILL to parent process!'
@@ -445,6 +449,8 @@ def execute_install_script(install_script)
           Remove-Item "c:/opscode/chef_upgrade.ps1"
           c:/windows/system32/schtasks.exe /delete /f /tn Chef_upgrade
 
+          #{node['chef_client']['chef_license'].nil? ? "" : "set CHEF_LICENSE=\""+node['chef_client']['chef_license']}+"\""
+
           #{post_action}
 
           Get-Service push-jobs-client -ErrorAction SilentlyContinue | start-service
@@ -499,6 +505,9 @@ action :update do
                   else
                     '/etc/init.d/chef-client start'
                   end
+      unless node['chef_client']['chef_license'].nil?
+        start_cmd = "env CHEF_LICENSE=\"#{node['chef_client']['chef_license']}\"\n"+start_cmd
+      end
 
       r = cron 'chef_client_updater' do
         hour cron_time.hour

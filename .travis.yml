@@ -38,7 +38,18 @@ env:
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
-        - OMNIBUS_CHEF_VERSION=13.6.0
+        - CHEF_VERSION=14.12.9
+        - KITCHEN_YAML=kitchen.dokken.yml
+      script:
+        # this tests that an upgrade to 15 succeeds when the license is accepted
+        - bundle exec kitchen test license-ubuntu-1604
+    - rvm: 2.4.4
+      services: docker
+      sudo: required
+      before_script:
+        - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
+      env:
+        - CHEF_VERSION=13.6.0
         - KITCHEN_YAML=kitchen.dokken.yml
       script:
         # this tests a downgrade from latest "13" to latest "12" via partial versions
@@ -48,7 +59,7 @@ env:
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
-        - OMNIBUS_CHEF_VERSION=14.1.1
+        - CHEF_VERSION=14.1.1
         - KITCHEN_YAML=kitchen.dokken.yml
       script:
         - bundle exec kitchen test default-ubuntu-1604
@@ -57,7 +68,7 @@ env:
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
-        - OMNIBUS_CHEF_VERSION=13.8.5
+        - CHEF_VERSION=13.8.5
         - KITCHEN_YAML=kitchen.dokken.yml
       script:
         - bundle exec kitchen test default-ubuntu-1604
@@ -66,7 +77,7 @@ env:
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
-        - OMNIBUS_CHEF_VERSION=12.21.31
+        - CHEF_VERSION=12.21.31
         - KITCHEN_YAML=kitchen.dokken.yml
       script:
         - bundle exec kitchen test default-ubuntu-1604
@@ -77,7 +88,7 @@ env:
       # 11.10.4 is the earliest we can test due to test-kitchen / chef-zero not supporting earlier
       # (cookbook likely supports earlier versions)
       env:
-        - OMNIBUS_CHEF_VERSION=11.10.4
+        - CHEF_VERSION=11.10.4
         - KITCHEN_YAML=kitchen.dokken.yml
       script:
         - bundle exec kitchen test default-ubuntu-1604

@@ -74,6 +74,11 @@ chef_client_updater 'Install latest Chef' do
 end
 ```
 
+## Chef EULA
+
+Set the `node['chef_client']['chef_license']` attribute to `accept` or `accept-no-persist` to accept the Chef EULA
+when upgrading to version 15 or higher.
+
 ## Resources
 
 ### chef_client_updater
