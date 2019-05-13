@@ -4,8 +4,7 @@ source 'https://rubygems.org'
 
 gem 'community_cookbook_releaser'
 gem 'stove'
-# TODO switch back to gem after https://github.com/test-kitchen/test-kitchen/pull/1551 released
-gem 'test-kitchen', git: "https://github.com/test-kitchen/test-kitchen.git"
+gem 'test-kitchen'
 # testing in this cookbook will current fail with kitchen-dokken 2.x
 gem 'berkshelf'
 gem 'json'

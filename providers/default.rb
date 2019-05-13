@@ -204,7 +204,7 @@ def run_post_install_action
     Chef::Log.warn 'Replacing chef-client process with upgraded version and re-running.'
     env = {}
     unless node['chef_client']['chef_license'].nil?
-      env["CHEF_LICENSE"] = node['chef_client']['chef_license']
+      env['CHEF_LICENSE'] = node['chef_client']['chef_license']
     end
     Kernel.exec(env, new_resource.exec_command, *new_resource.exec_args)
   when 'kill'
@@ -407,6 +407,7 @@ def execute_install_script(install_script)
       not_if { ::File.file?(node['chef_client_updater']['handle_exe_path']) }
     end.run_action(:create)
 
+    license_line = node['chef_client']['chef_license'].nil? ? '' : "set CHEF_LICENSE='#{node['chef_client']['chef_license']}'"
     powershell_script 'name' do
       code <<-EOH
         $command = {
@@ -449,7 +450,7 @@ def execute_install_script(install_script)
           Remove-Item "c:/opscode/chef_upgrade.ps1"
           c:/windows/system32/schtasks.exe /delete /f /tn Chef_upgrade
 
-          #{node['chef_client']['chef_license'].nil? ? "" : "set CHEF_LICENSE=\""+node['chef_client']['chef_license']}+"\""
+          #{license_line}
 
           #{post_action}
 
@@ -506,7 +507,7 @@ action :update do
                     '/etc/init.d/chef-client start'
                   end
       unless node['chef_client']['chef_license'].nil?
-        start_cmd = "env CHEF_LICENSE=\"#{node['chef_client']['chef_license']}\"\n"+start_cmd
+        start_cmd = "env CHEF_LICENSE=\"#{node['chef_client']['chef_license']}\"\n" + start_cmd
       end
 
       r = cron 'chef_client_updater' do
