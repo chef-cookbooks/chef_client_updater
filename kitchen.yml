@@ -62,6 +62,12 @@ suites:
     verifier:
       inspec_tests:
         - path: ./test/integration/default/
+  - name: no_service_restart
+    run_list:
+      - recipe[test::no_service_restart]
+    verifier:
+      inspec_tests:
+        - path: ./test/integration/default/
   - name: direct_url
     run_list:
       - recipe[test::direct_url]

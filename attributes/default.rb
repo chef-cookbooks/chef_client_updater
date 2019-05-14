@@ -46,3 +46,6 @@ default['chef_client_updater']['product_name'] = nil
 
 # download URL for Sysinternals handle.zip (Windows only)
 default['chef_client_updater']['handle_zip_download_url'] = nil
+
+# The Eventlog service will be restarted immediately prior to cleanup broken chef to release any open file locks.
+default['chef_client_updater']['event_log_service_restart'] = true

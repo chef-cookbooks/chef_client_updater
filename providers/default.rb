@@ -243,6 +243,12 @@ def cleanup
       FileUtils.rm_rf chef_upgrade_log
     end
   end
+  if ::File.exist?(chef_broken_dir) && new_resource.event_log_service_restart
+    converge_by("remove #{chef_broken_dir} from previous chef-client run") do
+      event_log_ps_code
+      FileUtils.rm_rf chef_broken_dir
+    end
+  end
   # When running under init this cron job is created after an update
   cron 'chef_client_updater' do
     action :delete
@@ -365,6 +371,18 @@ def open_handle_functions
   EOH
 end
 
+# Restart EventLog Service & its dependent services to release lock of files.
+def event_log_ps_code
+  powershell_script 'EventLog Restart' do
+    code <<-EOH
+      $windows_kernel_version = (Get-WmiObject -class Win32_OperatingSystem).Version
+      if (-Not ($windows_kernel_version.Contains('6.0') -or $windows_kernel_version.Contains('6.1'))) {
+      Get-Service EventLog | Restart-Service -Force
+    }
+    EOH
+  end
+end
+
 def execute_install_script(install_script)
   if windows?
     cur_version = Mixlib::Versioning.parse(current_version)
@@ -405,11 +423,6 @@ def execute_install_script(install_script)
 
           if (Test-Path "#{Chef::Config[:file_cache_path]}/handle.exe") {
             Destroy-OpenChefHandles
-          }
-
-          $windows_kernel_version = (Get-WmiObject -class Win32_OperatingSystem).Version
-          if (-Not ($windows_kernel_version.Contains('6.0') -or $windows_kernel_version.Contains('6.1'))) {
-            Get-Service EventLog | Restart-Service -Force
           }
 
           Remove-Item "#{chef_install_dir}" -Recurse -Force
