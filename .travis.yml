@@ -1,12 +1,11 @@
 # TAS50: THIS COOKBOOK DELIBERATELY DOES NOT USE THE STANDARD TRAVIS.YML FILE
-sudo: false
-dist: trusty
+dist: xenial
 cache: bundler
 
 addons:
   apt:
     sources:
-      - chef-current-trusty
+      - chef-current-xenial
     packages:
       - chefdk
 
@@ -33,7 +32,6 @@ matrix:
         - chef exec delivery local all
     - rvm: 2.4.4
       services: docker
-      sudo: required
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
@@ -44,7 +42,6 @@ matrix:
         - bundle exec kitchen test constrained-ubuntu-1604
     - rvm: 2.4.4
       services: docker
-      sudo: required
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
@@ -54,7 +51,6 @@ matrix:
         - bundle exec kitchen test default-ubuntu-1604
     - rvm: 2.4.4
       services: docker
-      sudo: required
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
@@ -64,7 +60,6 @@ matrix:
         - bundle exec kitchen test default-ubuntu-1604
     - rvm: 2.4.4
       services: docker
-      sudo: required
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
@@ -74,7 +69,6 @@ matrix:
         - bundle exec kitchen test default-ubuntu-1604
     - rvm: 2.4.4
       services: docker
-      sudo: required
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       # 11.10.4 is the earliest we can test due to test-kitchen / chef-zero not supporting earlier
