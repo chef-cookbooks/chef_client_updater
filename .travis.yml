@@ -1,12 +1,11 @@
 # TAS50: THIS COOKBOOK DELIBERATELY DOES NOT USE THE STANDARD TRAVIS.YML FILE
-sudo: false
-dist: trusty
+dist: xenial
 cache: bundler
 
 addons:
   apt:
     sources:
-      - chef-current-trusty
+      - chef-current-xenial
     packages:
       - chefdk
 
@@ -22,7 +21,7 @@ before_install:
 
 matrix:
   include:
-    - rvm: 2.4.4
+    - rvm: 2.4.5
       before_script:
         - eval "$(chef shell-init bash)"
       install: echo "skip bundle install"
@@ -31,9 +30,8 @@ matrix:
         - cookstyle --version
         - foodcritic --version
         - chef exec delivery local all
-    - rvm: 2.4.4
+    - rvm: 2.4.5
       services: docker
-      sudo: required
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
@@ -42,9 +40,8 @@ matrix:
       script:
         # this tests a downgrade from latest "13" to latest "12" via partial versions
         - bundle exec kitchen test constrained-ubuntu-1604
-    - rvm: 2.4.4
+    - rvm: 2.4.5
       services: docker
-      sudo: required
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
@@ -52,9 +49,8 @@ matrix:
         - KITCHEN_YAML=kitchen.dokken.yml
       script:
         - bundle exec kitchen test default-ubuntu-1604
-    - rvm: 2.4.4
+    - rvm: 2.4.5
       services: docker
-      sudo: required
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
@@ -62,9 +58,8 @@ matrix:
         - KITCHEN_YAML=kitchen.dokken.yml
       script:
         - bundle exec kitchen test default-ubuntu-1604
-    - rvm: 2.4.4
+    - rvm: 2.4.5
       services: docker
-      sudo: required
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       env:
@@ -72,9 +67,8 @@ matrix:
         - KITCHEN_YAML=kitchen.dokken.yml
       script:
         - bundle exec kitchen test default-ubuntu-1604
-    - rvm: 2.4.4
+    - rvm: 2.4.5
       services: docker
-      sudo: required
       before_script:
         - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
       # 11.10.4 is the earliest we can test due to test-kitchen / chef-zero not supporting earlier
@@ -84,12 +78,3 @@ matrix:
         - KITCHEN_YAML=kitchen.dokken.yml
       script:
         - bundle exec kitchen test default-ubuntu-1604
-    - rvm: 1.9.3
-      gemfile: gemfiles/Gemfile.ancient
-      before_install:
-        # ancient ruby gets ancient bundler + ancient gem as well
-        - bundle --version
-        - gem update --system 2.6.11
-        - gem --version
-      script:
-        - bundle exec rspec
