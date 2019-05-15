@@ -43,7 +43,7 @@ env:
       script:
         # this tests that an upgrade to 15 succeeds when the license is accepted
         - bundle exec kitchen test license-ubuntu-1604
-    - rvm: 2.4.4
+    - rvm: 2.4.5
       services: docker
       sudo: required
       before_script:
