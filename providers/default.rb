@@ -340,7 +340,7 @@ def open_handle_functions
           [Parameter(ValueFromPipelineByPropertyName=$true)]
           $Search
     )
-    $handleOutput = &#{Chef::Config[:file_cache_path]}/handle.exe -accepteula -nobanner -a -u $Search
+    $handleOutput = &#{node['chef_client_updater']['handle_exe_path']} -accepteula -nobanner -a -u $Search
     $handleOutput | foreach {
       if ($_ -match '^(?<program>\\S*)\\s*pid: (?<pid>\\d*)\\s*type: (?<type>\\S*)\\s*(?<user>\\S*)\\s*(?<handle>\\S*):\\s*(?<file>(\\\\\\\\)|([a-z]:).*)') {
         $matches | select @{n="User";e={$_.user}},@{n="Path";e={$_.file}},@{n="Handle";e={$_.handle}},@{n="Type";e={$_.type}},@{n="HandlePid";e={$_.pid}},@{n="Program";e={$_.program}}
@@ -356,7 +356,7 @@ def open_handle_functions
           $HandlePid
     )
 
-    $handleOutput = &#{Chef::Config[:file_cache_path]}/handle.exe -accepteula -nobanner -c $Handle -p $HandlePid -y
+    $handleOutput = &#{node['chef_client_updater']['handle_exe_path']} -accepteula -nobanner -c $Handle -p $HandlePid -y
     '      Destroyed handle {0} from pid {1}' -f $Handle, $HandlePid | echo
   }
 
@@ -400,7 +400,7 @@ def execute_install_script(install_script)
 
     remote_file "#{Chef::Config[:file_cache_path]}/handle.zip" do
       source new_resource.handle_zip_download_url
-      not_if { ::File.file?("#{Chef::Config[:file_cache_path]}/handle.exe") }
+      not_if { ::File.file?(node['chef_client_updater']['handle_exe_path']) }
     end.run_action(:create)
 
     powershell_script 'name' do
@@ -414,14 +414,14 @@ def execute_install_script(install_script)
             exit 8
           }
 
-          if (!(Test-Path "#{Chef::Config[:file_cache_path]}/handle.exe")) {
+          if (!(Test-Path "#{node['chef_client_updater']['handle_exe_path']}")) {
             Add-Type -AssemblyName System.IO.Compression.FileSystem
             [System.IO.Compression.ZipFile]::ExtractToDirectory("#{Chef::Config[:file_cache_path]}/handle.zip", "#{Chef::Config[:file_cache_path]}")
           }
 
           #{open_handle_functions}
 
-          if (Test-Path "#{Chef::Config[:file_cache_path]}/handle.exe") {
+          if (Test-Path "#{node['chef_client_updater']['handle_exe_path']}") {
             Destroy-OpenChefHandles
           }
 
