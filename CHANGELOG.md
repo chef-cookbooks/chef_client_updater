@@ -2,6 +2,12 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.5.3 (2019-06-11)
+
+- Add event_log_service_restart attribute to fix issue of non chef service restart. - [@NAshwini](https://github.com/NAshwini)
+- Use new ChefSpec format - [@tas50](https://github.com/tas50)
+- Allow path to handle.exe to be configured - [@stefanwb](https://github.com/stefanwb)
+
 ## 3.5.2 (2019-01-30)
 
 - Fix rubygems upgrade logic to prevent breaking older chef-client releases such as Chef 12.X
