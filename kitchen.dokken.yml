@@ -12,7 +12,7 @@ provisioner:
   name: chef_zero
   root_path: /opt/kitchen
   product_name: chef
-  product_version: '<%= ENV["CHEF_VERSION"] || "11.18.12" %>'
+  product_version: '<%= ENV["CHEF_VERSION"] || "12.22.5" %>'
   chef_omnibus_url: "https://omnitruck.chef.io/install.sh"
   data_path: test/fixtures
   retry_on_exit_code:
@@ -61,4 +61,4 @@ suites:
       - recipe[test::default]
     attributes:
       chef_client_updater:
-        version: '<%= ENV["CHEF_VERSION"] || "11.18.12" %>'
+        version: '<%= ENV["CHEF_VERSION"] || "12.22.5" %>'

@@ -81,14 +81,3 @@ env:
         - KITCHEN_YAML=kitchen.dokken.yml
       script:
         - bundle exec kitchen test default-ubuntu-1604
-    - rvm: 2.4.5
-      services: docker
-      before_script:
-        - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
-      # 11.10.4 is the earliest we can test due to test-kitchen / chef-zero not supporting earlier
-      # (cookbook likely supports earlier versions)
-      env:
-        - CHEF_VERSION=11.10.4
-        - KITCHEN_YAML=kitchen.dokken.yml
-      script:
-        - bundle exec kitchen test default-ubuntu-1604
