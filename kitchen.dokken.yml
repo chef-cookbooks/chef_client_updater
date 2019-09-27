@@ -11,7 +11,8 @@ transport:
 provisioner:
   name: chef_zero
   root_path: /opt/kitchen
-  require_chef_omnibus: '<%= ENV["OMNIBUS_CHEF_VERSION"] || "11.18.12" %>'
+  product_name: chef
+  product_version: '<%= ENV["CHEF_VERSION"] || "12.22.5" %>'
   chef_omnibus_url: "https://omnitruck.chef.io/install.sh"
   data_path: test/fixtures
   retry_on_exit_code:
@@ -38,6 +39,13 @@ suites:
   - name: default
     run_list:
       - recipe[test::default]
+  - name: license
+    run_list:
+      - recipe[test::license]
+    # Test the upgrade from 14 -> 15 where the license is accepted even if all other tests upgrade
+    # their original version to 15
+    provisioner:
+      product_version: '14'
   - name: kill
     run_list:
       - recipe[test::kill]
@@ -53,4 +61,4 @@ suites:
       - recipe[test::default]
     attributes:
       chef_client_updater:
-        version: '<%= ENV["OMNIBUS_CHEF_VERSION"] || "11.18.12" %>'
+        version: '<%= ENV["CHEF_VERSION"] || "12.22.5" %>'

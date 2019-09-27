@@ -1,6 +1,6 @@
 # For the noop suite, currently-installed and target Chef versions are equal.
 gem_path = '/opt/chef/embedded/bin/gem'
-chef_version = Gem::Version.new(ENV['OMNIBUS_CHEF_VERSION'] || '11.18.12')
+chef_version = Gem::Version.new(ENV['CHEF_VERSION'] || '12.22.5')
 
 describe command("#{gem_path} -v") do
   # First version of Chef with bundled Rubygems >= 2.0.0.
