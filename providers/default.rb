@@ -507,7 +507,7 @@ action :update do
                     '/etc/init.d/chef-client start'
                   end
       unless node['chef_client']['chef_license'].nil?
-        start_cmd = "env CHEF_LICENSE=\"#{node['chef_client']['chef_license']}\"\n" + start_cmd
+        start_cmd = "env CHEF_LICENSE=\"#{node['chef_client']['chef_license']}\" " + start_cmd
       end
 
       r = cron 'chef_client_updater' do
