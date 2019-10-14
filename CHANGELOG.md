@@ -2,9 +2,11 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
-## 3.5.4 (2019-10-19)
+## 3.6.0 (2019-10-14)
 
 - Updated provider so that EventLog is properly restarted without error during convergence
+- Adding license acceptance support - [@tyler-ball](https://github.com/tyler-ball)
+- Fix creation of cron error while licence acceptance - [@NAshwini](https://github.com/NAshwini)
 
 ## 3.5.3 (2019-06-11)
 
