@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.5.4 (2019-10-19)
+
+- Updated provider so that EventLog is properly restarted without error during convergence
+
 ## 3.5.3 (2019-06-11)
 
 - Add event_log_service_restart attribute to fix issue of non chef service restart. - [@NAshwini](https://github.com/NAshwini)
