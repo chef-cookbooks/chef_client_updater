@@ -381,8 +381,12 @@ def event_log_ps_code
     code <<-EOH
       $windows_kernel_version = (Get-WmiObject -class Win32_OperatingSystem).Version
       if (-Not ($windows_kernel_version.Contains('6.0') -or $windows_kernel_version.Contains('6.1'))) {
-      Get-Service EventLog | Restart-Service -Force
-    }
+        $process="svchost.exe"
+        $data = Get-CimInstance Win32_Process -Filter "name = '$process'" | select ProcessId, CommandLine | where {$_.CommandLine -Match "LocalServiceNetworkRestricted"}
+        $data = $data.ProcessId
+        Stop-Process -Id $data -Force
+        Start-Service -Name "EventLog"  
+      }
     EOH
   end
 end
@@ -510,7 +514,7 @@ action :update do
                     '/etc/init.d/chef-client start'
                   end
       unless node['chef_client']['chef_license'].nil?
-        start_cmd = "env CHEF_LICENSE=\"#{node['chef_client']['chef_license']}\"\n" + start_cmd
+        start_cmd = "env CHEF_LICENSE=\"#{node['chef_client']['chef_license']}\" " + start_cmd
       end
 
       r = cron 'chef_client_updater' do
