@@ -466,7 +466,7 @@ def execute_install_script(install_script)
         $set_proxy = "`$env:http_proxy=`'$http_proxy`'"
         $set_no_proxy = "`$env:no_proxy=`'$no_proxy`'"
 
-        Set-Content -Path c:/opscode/chef_upgrade.ps1 -Value "$set_proxy`n$set_no_proxy"
+        Set-Content -Path c:/opscode/chef_upgrade.ps1 -Value "$set_proxy", "$set_no_proxy"
         Add-Content c:/opscode/chef_upgrade.ps1 "`n$command"
 
       EOH
