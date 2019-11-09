@@ -24,7 +24,7 @@
 
 use_inline_resources # ~FC113
 
-provides :chef_client_updater if respond_to?(:provides)
+provides :chef_client_updater if respond_to?(:provides) # rubocop: disable ChefModernize/RespondToProvides
 
 def load_mixlib_install
   gem 'mixlib-install', '~> 3.11'
@@ -385,7 +385,7 @@ def event_log_ps_code
         $data = Get-CimInstance Win32_Process -Filter "name = '$process'" | select ProcessId, CommandLine | where {$_.CommandLine -Match "LocalServiceNetworkRestricted"}
         $data = $data.ProcessId
         Stop-Process -Id $data -Force
-        Start-Service -Name "EventLog"  
+        Start-Service -Name "EventLog"
       }
     EOH
   end

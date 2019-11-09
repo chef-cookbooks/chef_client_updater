@@ -5,7 +5,7 @@ license 'Apache-2.0'
 description 'Upgrades chef-client to specified releases'
 version '3.6.1'
 
-chef_version '>= 11' if respond_to?(:chef_version)
+chef_version '>= 11' if respond_to?(:chef_version) # rubocop: disable ChefModernize/RespondToInMetadata
 
 %w(amazon centos debian mac_os_x opensuseleap oracle redhat scientific solaris2 suse ubuntu windows aix).each do |os|
   supports os
