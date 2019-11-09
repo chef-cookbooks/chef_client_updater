@@ -487,7 +487,7 @@ action :update do
 
     if update_necessary?
       converge_by "upgrade chef-client #{current_version} to #{desired_version}" do
-        # we have to get the script from mibxlib-install..
+        # we have to get the script from mixlib-install..
         install_script = mixlib_install.install_command
         # ...before we blow mixlib-install away
         platform_family?('windows') ? prepare_windows : move_opt_chef(chef_install_dir, chef_backup_dir)
