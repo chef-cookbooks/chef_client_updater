@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.6.1 (2019-10-15)
+
+- Added noproxy support for airgapped artifact solutions [@Romascopa](https://github.com/romascopa)
+
 ## 3.6.0 (2019-10-14)
 
 - Updated provider so that EventLog is properly restarted without error during convergence
