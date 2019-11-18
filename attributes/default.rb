@@ -55,3 +55,9 @@ default['chef_client_updater']['event_log_service_restart'] = true
 # in a backwards compatible way. Use the same attribute from the chef-client cookbook to
 # avoid duplication.
 default['chef_client']['chef_license'] = nil
+
+# Set this to use internal or custom rubygems server.
+# Use the same attribute from the chef-client cookbook to avoid duplication.
+# Example "http://localhost:8808/"
+#
+default['chef_client']['config']['rubygems_url'] = nil
