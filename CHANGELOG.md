@@ -2,9 +2,13 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
-## 3.6.1 (2019-10-15)
+## 3.7.0 (2019-11-18)
 
 - Added noproxy support for airgapped artifact solutions [@Romascopa](https://github.com/romascopa)
+- Fix for using custom rubygem server - [@dheerajd-msys](https://github.com/dheerajd-msys)
+- Remove opensuse from the list of platforms we support as the correct platform is opensuseleap - [@tas50](https://github.com/tas50)
+- Remove the long_description metadata that is unused - [@tas50](https://github.com/tas50)
+- Disable some Cookkstyle cops that would break Chef 12 compatibility - [@tas50](https://github.com/tas50)
 
 ## 3.6.0 (2019-10-14)
 
