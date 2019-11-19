@@ -3,7 +3,7 @@ maintainer 'Chef Software, Inc.'
 maintainer_email 'cookbooks@chef.io'
 license 'Apache-2.0'
 description 'Upgrades chef-client to specified releases'
-version '3.7.0'
+version '3.7.1'
 
 chef_version '>= 11' if respond_to?(:chef_version) # rubocop: disable ChefModernize/RespondToInMetadata
 

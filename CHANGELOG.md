@@ -2,6 +2,11 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.7.1 (2019-11-19)
+
+- Minor fixes while upgrading ChefDK - [@Nimesh-Msys](https://github.com/Nimesh-Msys)
+- Replace hardcode value for chef_install_path on Windows with a variable - [@dheerajd-msys](https://github.com/dheerajd-msys)
+
 ## 3.7.0 (2019-11-18)
 
 - Added noproxy support for airgapped artifact solutions [@Romascopa](https://github.com/romascopa)
