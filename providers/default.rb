@@ -305,7 +305,7 @@ end
 
 def prepare_windows
   copy_opt_chef(chef_install_dir, chef_backup_dir)
-  Kernel.spawn("c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc once /ST \"#{upgrade_start_time}\" /tn Chef_upgrade /tr \"powershell.exe -ExecutionPolicy Bypass c:/opscode/chef_upgrade.ps1 > #{chef_upgrade_log}\"")
+  Kernel.spawn("c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc once /ST \"#{upgrade_start_time}\" /tn Chef_upgrade /tr \"powershell.exe -ExecutionPolicy Bypass \"#{chef_install_dir}\"/chef_upgrade.ps1 > #{chef_upgrade_log}\"")
   FileUtils.rm_rf "#{chef_install_dir}/bin/chef-client.bat"
 end
 
@@ -451,7 +451,7 @@ def execute_install_script(install_script)
           #{uninstall_first}
           #{install_script}
 
-          Remove-Item "c:/opscode/chef_upgrade.ps1"
+          Remove-Item "#{chef_install_dir}/chef_upgrade.ps1"
           c:/windows/system32/schtasks.exe /delete /f /tn Chef_upgrade
 
           #{license_line}
@@ -466,8 +466,8 @@ def execute_install_script(install_script)
         $set_proxy = "`$env:http_proxy=`'$http_proxy`'"
         $set_no_proxy = "`$env:no_proxy=`'$no_proxy`'"
 
-        Set-Content -Path c:/opscode/chef_upgrade.ps1 -Value "$set_proxy", "$set_no_proxy"
-        Add-Content c:/opscode/chef_upgrade.ps1 "`n$command"
+        Set-Content -Path "#{chef_install_dir}"/chef_upgrade.ps1 -Value "$set_proxy", "$set_no_proxy"
+        Add-Content "#{chef_install_dir}"/chef_upgrade.ps1 "`n$command"
 
       EOH
       action :nothing
