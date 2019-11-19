@@ -128,13 +128,18 @@ end
 # why would we use this when mixlib-install has a current_version method?
 # well mixlib-version parses the manifest JSON, which might not be there.
 # ohai handles this better IMO
-# @return String
+# @return String with the version details
+# @return nil when product is not installed
+#
 def current_version
   case new_resource.product_name
   when 'chef', 'angrychef'
     node['chef_packages']['chef']['version']
   when 'chefdk'
-    Mixlib::ShellOut.new('chef -v').run_command.stdout.match(/^Chef Development Kit Version.*/).to_s.split(': ').last
+    versions = Mixlib::ShellOut.new('chef -v').run_command.stdout
+    # There is a verbiage change in newer version of Chef Infra
+    version = versions.match(/^ChefDK Version.*/i) || versions.match(/^Chef Development Kit Version.*/i)
+    version ? version.to_s.split(': ').last&.strip : nil
   end
 end
 
@@ -164,13 +169,18 @@ end
 # concept of preventing downgrades
 def update_necessary?
   load_mixlib_versioning
-  cur_version = Mixlib::Versioning.parse(current_version)
+  cur_version = current_version
   des_version = desired_version
-
-  Chef::Log.debug("The current chef-client version is #{cur_version} and the desired version is #{des_version}")
-  necessary = new_resource.prevent_downgrade ? (des_version > cur_version) : (des_version != cur_version)
-  Chef::Log.debug("A chef-client upgrade #{necessary == true ? 'is' : "isn't"} necessary")
-  necessary
+  if cur_version.nil?
+    Chef::Log.debug("#{new_resource.product_name} is not installed. Proceeding with installing its #{des_version} version.")
+    true
+  else
+    cur_version = Mixlib::Versioning.parse(current_version)
+    Chef::Log.debug("The current #{new_resource.product_name} version is #{cur_version} and the desired version is #{des_version}")
+    necessary = new_resource.prevent_downgrade ? (des_version > cur_version) : (des_version != cur_version)
+    Chef::Log.debug("A chef-client upgrade #{necessary ? 'is' : "isn't"} necessary")
+    necessary
+  end
 end
 
 def eval_post_install_action
@@ -393,8 +403,9 @@ end
 
 def execute_install_script(install_script)
   if windows?
-    cur_version = Mixlib::Versioning.parse(current_version)
-    uninstall_first = if desired_version < cur_version
+    cur_version = current_version
+    cur_version = Mixlib::Versioning.parse(cur_version) if cur_version
+    uninstall_first = if !cur_version.nil? && desired_version < cur_version
                         uninstall_ps_code
                       else
                         ''
@@ -486,7 +497,7 @@ action :update do
     load_prerequisites!
 
     if update_necessary?
-      converge_by "upgrade chef-client #{current_version} to #{desired_version}" do
+      converge_by "upgrade #{new_resource.product_name} #{current_version} to #{desired_version}" do
         # we have to get the script from mixlib-install..
         install_script = mixlib_install.install_command
         # ...before we blow mixlib-install away
