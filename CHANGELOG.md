@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.7.2 (2019-11-29)
+
+- fix windows chef install path - [@phomein](https://github.com/phomein)
+
 ## 3.7.1 (2019-11-19)
 
 - Minor fixes while upgrading ChefDK - [@Nimesh-Msys](https://github.com/Nimesh-Msys)
