@@ -477,8 +477,8 @@ def execute_install_script(install_script)
         $set_proxy = "`$env:http_proxy=`'$http_proxy`'"
         $set_no_proxy = "`$env:no_proxy=`'$no_proxy`'"
 
-        Set-Content -Path "#{chef_install_dir}"/chef_upgrade.ps1 -Value "$set_proxy", "$set_no_proxy"
-        Add-Content "#{chef_install_dir}"/chef_upgrade.ps1 "`n$command"
+        Set-Content -Path "#{chef_install_dir}/chef_upgrade.ps1" -Value "$set_proxy", "$set_no_proxy"
+        Add-Content "#{chef_install_dir}/chef_upgrade.ps1" "`n$command"
 
       EOH
       action :nothing
