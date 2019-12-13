@@ -1,3 +1,4 @@
+# cookstyle: disable ChefModernize/DefinesChefSpecMatchers
 if defined?(ChefSpec)
   ChefSpec.define_matcher(:chef_client_updater)
 

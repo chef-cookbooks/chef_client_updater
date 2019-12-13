@@ -11,7 +11,7 @@ chef_version '>= 11' if respond_to?(:chef_version) # cookstyle: disable ChefMode
   supports os
 end
 
-unless defined?(Ridley)
-  source_url 'https://github.com/chef-cookbooks/chef_client_updater' if respond_to?(:source_url)
-  issues_url 'https://github.com/chef-cookbooks/chef_client_updater/issues' if respond_to?(:issues_url)
+unless defined?(Ridley) # cookstyle: disable ChefModernize/RespondToInMetadata
+  source_url 'https://github.com/chef-cookbooks/chef_client_updater' if respond_to?(:source_url) # cookstyle: disable ChefModernize/RespondToInMetadata
+  issues_url 'https://github.com/chef-cookbooks/chef_client_updater/issues' if respond_to?(:issues_url) # cookstyle: disable ChefModernize/RespondToInMetadata
 end
