@@ -24,7 +24,7 @@
 
 provides :chef_client_updater
 
-actions [:update] # rubocop: disable ChefModernize/CustomResourceWithAllowedActions
+actions [:update]
 default_action :update
 
 attribute :channel, kind_of: [String, Symbol], default: :stable

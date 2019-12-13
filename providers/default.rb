@@ -22,9 +22,9 @@
 # upgrades from Chef 11.x and this pattern should not be copied for any modern
 # cookbook.  This is a poor example cookbook of how to write Chef.
 
-use_inline_resources # ~FC113
+use_inline_resources # cookstyle: disable ChefDeprecations/UseInlineResourcesDefined
 
-provides :chef_client_updater if respond_to?(:provides) # rubocop: disable ChefModernize/RespondToProvides
+provides :chef_client_updater if respond_to?(:provides) # cookstyle: disable ChefModernize/RespondToProvides
 
 def load_mixlib_install
   gem 'mixlib-install', '~> 3.11'
