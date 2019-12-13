@@ -519,8 +519,7 @@ action :update do
     if (node['chef_client'] && node['chef_client']['init_style'] == 'init') || node['chef_client_updater']['restart_chef_via_cron']
       Chef::Log.warn 'Chef Client was upgraded, scheduling chef-client start via cron in 5 minutes'
       cron_time = Time.now + 300
-      start_cmd = case node['platform_family']
-                  when 'aix'
+      start_cmd = if platform_family?('aix')
                     '/usr/bin/startsrc -s chef > /dev/console 2>&1'
                   else
                     '/etc/init.d/chef-client start'
