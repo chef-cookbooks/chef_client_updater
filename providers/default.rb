@@ -468,7 +468,8 @@ def execute_install_script(install_script)
       not_if { ::File.file?(node['chef_client_updater']['handle_exe_path']) }
     end.run_action(:create)
 
-    license_line = node['chef_client']['chef_license'].nil? ? '' : "set CHEF_LICENSE='#{node['chef_client']['chef_license']}'"
+    license_provided = node['chef_client']['chef_license'] || ''
+
     powershell_script 'name' do
       code <<-EOH
         $command = {
@@ -511,7 +512,24 @@ def execute_install_script(install_script)
           Remove-Item "#{chef_install_dir}/chef_upgrade.ps1"
           c:/windows/system32/schtasks.exe /delete /f /tn Chef_upgrade
 
-          #{license_line}
+          if ('#{desired_version}' -ge '15') {
+
+            SET CHEF_LICENSE '#{license_provided}'
+
+            #{chef_install_dir}/embedded/bin/ruby.exe -e "
+              begin
+                require 'chef/VERSION'
+                require 'license_acceptance/acceptor'
+                acceptor = LicenseAcceptance::Acceptor.new(provided: '#{license_provided}')
+                if acceptor.license_required?('chef', Chef::VERSION)
+                  license_id = acceptor.id_from_mixlib('chef')
+                  acceptor.check_and_persist(license_id, Chef::VERSION)
+                end
+              rescue LoadError
+                puts 'License acceptance might not be needed !'
+              end
+            "
+          }
 
           #{post_action}
 
