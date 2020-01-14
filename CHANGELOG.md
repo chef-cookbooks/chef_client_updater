@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.8.1 (2020-01-14)
+
+- Necessary changes in PS script to accept the chef-client license while chef client upgrade in Windows. - [@Nimesh-Msys](https://github.com/Nimesh-Msys)
+
 ## 3.8.0 (2019-12-20)
 
 - Add install_command_options to enable installing Chef as a scheduled task on Windows when updating - [@gholtiii](https://github.com/gholtiii)
