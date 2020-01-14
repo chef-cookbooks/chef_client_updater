@@ -119,9 +119,8 @@ def current_version
     versions = Mixlib::ShellOut.new('chef -v').run_command.stdout
     # There is a verbiage change in newer version of Chef Infra
     version = versions.match(/(ChefDK Version(.)*:)\s*([\d.]+)/i) || versions.match(/(Chef Development Kit Version(.)*:)\s*([\d.]+)/i)
-    if version
-      version = version[-1].to_s.strip
-    end
+
+    return version[-1].to_s.strip if version
   end
 end
 
@@ -335,9 +334,9 @@ def wait_for_chef_client_or_reschedule_upgrade_task_function
     <# Wait for running chef-client to finish up to n times.  If it has not finished after maxcount tries, then reschedule the upgrade task inMinutes minutes in the future and exit.
     #>
     param(
-          [Parameter(Mandatory=$true)]
+          [Parameter(Mandatory=$false)]
           [Int]$maxcount = 5,
-          [Parameter(Mandatory=$true)]
+          [Parameter(Mandatory=$false)]
           [Int]$inMinutes = 10
     )
 
