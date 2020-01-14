@@ -335,9 +335,9 @@ def wait_for_chef_client_or_reschedule_upgrade_task_function
     <# Wait for running chef-client to finish up to n times.  If it has not finished after maxcount tries, then reschedule the upgrade task inMinutes minutes in the future and exit.
     #>
     param(
-          [Parameter(Mandatory=$true)]
+          [Parameter(Mandatory=$false)]
           [Int]$maxcount = 5,
-          [Parameter(Mandatory=$true)]
+          [Parameter(Mandatory=$false)]
           [Int]$inMinutes = 10
     )
 
