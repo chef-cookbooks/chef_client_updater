@@ -43,7 +43,7 @@ attribute :install_timeout, kind_of: Integer, default: 600
 # Lowering upgrade_delay limit is not recommended.
 attribute :upgrade_delay, kind_of: Integer, default: 60
 attribute :product_name, kind_of: String, default: 'chef'
-attribute :rubygems_url, kind_of: String, default: lazy { Chef::Config[:rubygems_url] }
+attribute :rubygems_url, kind_of: Symbol, default: lazy { Chef::Config[:rubygems_url] }
 attribute :handle_zip_download_url, kind_of: String, default: 'https://download.sysinternals.com/files/Handle.zip'
 attribute :event_log_service_restart, kind_of: [TrueClass, FalseClass], default: true
 attribute :install_command_options, kind_of: Hash, default: {}
