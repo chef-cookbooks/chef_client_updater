@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.8.3 (2020-02-20)
+
+- Updated rubygems_url resource property default and removed attribute - [@BrandonTheMandon](https://github.com/BrandonTheMandon)
+
 ## 3.8.2 (2020-01-14)
 
 - Remove mandatory parameters for WaitForChefClientOrRescheduleUpgradeTask - [@bdwyertech](https://github.com/bdwyertech)
