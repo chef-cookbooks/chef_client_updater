@@ -60,4 +60,3 @@ default['chef_client']['chef_license'] = nil
 # Use the same attribute from the chef-client cookbook to avoid duplication.
 # Example "http://localhost:8808/"
 #
-default['chef_client']['config']['rubygems_url'] = nil
