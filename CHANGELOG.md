@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.8.4 (2020-02-20)
+
+-Fix the type for the rubygems_url property
+
 ## 3.8.3 (2020-02-20)
 
 - Updated rubygems_url resource property default and removed attribute - [@BrandonTheMandon](https://github.com/BrandonTheMandon)
