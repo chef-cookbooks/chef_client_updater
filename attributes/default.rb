@@ -59,4 +59,4 @@ default['chef_client']['chef_license'] = nil
 # Set this to use internal or custom rubygems server.
 # Use the same attribute from the chef-client cookbook to avoid duplication.
 # Example "http://localhost:8808/"
-default['chef_client_updater']['rubygems_url'] = "#{Chef::Config[:rubygems_url]}"
+default['chef_client_updater']['rubygems_url'] = (Chef::Config[:rubygems_url]).to_s
