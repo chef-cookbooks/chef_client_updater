@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.8.5 (2020-03-05)
+
+- Fix nil:NilClass error - [@dheerajd-msys](https://github.com/dheerajd-msys)
+
 ## 3.8.4 (2020-02-20)
 
 -Fix the type for the rubygems_url property
