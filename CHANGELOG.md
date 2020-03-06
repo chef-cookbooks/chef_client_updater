@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.8.6 (2020-03-06)
+
+- Fixed restart eventlog and dependent services - [@sanga1794](https://github.com/sanga1794)
+
 ## 3.8.5 (2020-03-05)
 
 - Fix nil:NilClass error - [@dheerajd-msys](https://github.com/dheerajd-msys)
