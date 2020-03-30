@@ -434,7 +434,7 @@ end
 def event_log_ps_code
   powershell_script 'EventLog Restart' do
     code <<-EOH
-    $windows_kernel_version = (Get-WmiObject -class Win32_OperatingSystem).Version
+    $windows_kernel_version = (Get-CimInstance -class Win32_OperatingSystem).Version
     if (-Not ($windows_kernel_version.Contains('6.0') -or $windows_kernel_version.Contains('6.1'))) {
       # Get Dependent Services for Eventlog that are running
       $depsvcsrunning = Get-Service -Name 'EventLog' | Select-Object -ExpandProperty DependentServices |
