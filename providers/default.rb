@@ -434,15 +434,38 @@ end
 def event_log_ps_code
   powershell_script 'EventLog Restart' do
     code <<-EOH
-      $windows_kernel_version = (Get-WmiObject -class Win32_OperatingSystem).Version
-      if (-Not ($windows_kernel_version.Contains('6.0') -or $windows_kernel_version.Contains('6.1'))) {
-        $dependentActiveServices = (Get-Service EventLog).DependentServices | Where-Object {$_.Status -eq "Running"}
-        Stop-Service -Name "EventLog" -Force
-        Start-Service -Name $dependentActiveServices.Name
-        if((Get-Service EventLog).Status -ne 'Stopped' ){
-          Start-Service -Name "EventLog"
+    $windows_kernel_version = (Get-CimInstance -class Win32_OperatingSystem).Version
+    if (-Not ($windows_kernel_version.Contains('6.0') -or $windows_kernel_version.Contains('6.1'))) {
+      # Get Dependent Services for Eventlog that are running
+      $depsvcsrunning = Get-Service -Name 'EventLog' | Select-Object -ExpandProperty DependentServices |
+                        Where-Object Status -eq 'Running' | Select-Object -ExpandProperty Name
+      # Attempt to preemptively stop Dependent Services
+      $depsvcsrunning | ForEach-Object {
+        Stop-Service -Name "$_" -Force -ErrorAction SilentlyContinue
+      }
+      # Stop EventLog Service - First Politely, then Forcibly
+      try {
+        Stop-Service -Name 'EventLog' -Force -ErrorAction Stop
+      } catch {
+        $process='svchost.exe'
+        $data = Get-CimInstance Win32_Process -Filter "name = '$process'" | Select-Object ProcessId, CommandLine | Where-Object {$_.CommandLine -Match "LocalServiceNetworkRestricted"}
+        $data = $data.ProcessId
+        Stop-Process -Id $data -Force
+        Start-Sleep -Seconds 10
+      }
+      # Restart EventLog Service, if Not AutoStarted
+      $evtlogstate = Get-Service -Name 'EventLog'
+      if ($evtlogstate.Status -eq 'Stopped') {
+        Start-Service -Name 'EventLog'
+      }
+      # Restart Dependent Services - if Stopped
+      $depsvcsrunning | ForEach-Object {
+        $svcstate = Get-Service -Name "$_"
+        if ($svcstate.Status -eq 'Stopped') {
+          Start-Service -Name "$_" -ErrorAction SilentlyContinue
         }
       }
+    }
     EOH
   end
 end
