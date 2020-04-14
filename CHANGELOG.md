@@ -2,6 +2,11 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.9.0 (2020-04-14)
+
+- Remove #to_s conversion of attributes - [@jasonwbarnett](https://github.com/jasonwbarnett)
+- More robust eventlog and dependent services restarts on Windows - [@rabidpitbull](https://github.com/rabidpitbull)
+
 ## 3.8.6 (2020-03-06)
 
 - Fixed restart eventlog and dependent services - [@sanga1794](https://github.com/sanga1794)
