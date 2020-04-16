@@ -2,6 +2,11 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## Unreleased
+
+- resolved cookstyle error: providers/default.rb:38:5 refactor: `ChefModernize/RespondToCompileTime`
+- resolved cookstyle error: providers/default.rb:53:5 refactor: `ChefModernize/RespondToCompileTime`
+
 ## 3.9.0 (2020-04-14)
 
 - Remove #to_s conversion of attributes - [@jasonwbarnett](https://github.com/jasonwbarnett)
