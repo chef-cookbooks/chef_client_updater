@@ -3,7 +3,7 @@
 # Resource:: updater
 #
 # Copyright:: 2016-2018, Will Jordan
-# Copyright:: 2016-2019, Chef Software Inc.
+# Copyright:: 2016-2020, Chef Software Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ rescue LoadError
   Chef::Log.info('mixlib-install gem not found. Installing now')
   chef_gem 'mixlib-install' do
     version '~> 3.11'
-    compile_time true if respond_to?(:compile_time)
+    compile_time true if respond_to?(:compile_time) # cookstyle: disable ChefModernize/RespondToCompileTime
     if new_resource.rubygems_url
       clear_sources true if respond_to?(:clear_sources)
       options "--source #{new_resource.rubygems_url}" if respond_to?(:options)
@@ -50,7 +50,7 @@ def load_mixlib_versioning
 rescue LoadError
   Chef::Log.info('mixlib-versioning gem not found. Installing now')
   chef_gem 'mixlib-versioning' do
-    compile_time true if respond_to?(:compile_time)
+    compile_time true if respond_to?(:compile_time) # cookstyle: disable ChefModernize/RespondToCompileTime
     if new_resource.rubygems_url
       clear_sources true if respond_to?(:clear_sources)
       options "--source #{new_resource.rubygems_url}" if respond_to?(:options)
