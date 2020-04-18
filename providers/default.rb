@@ -117,7 +117,7 @@ end
 #
 def current_version
   case new_resource.product_name
-  when 'chef', 'angrychef'
+  when 'chef', 'angrychef', 'cinc', 'angrycinc'
     node['chef_packages']['chef']['version']
   when 'chefdk'
     versions = Mixlib::ShellOut.new('chef -v').run_command.stdout
