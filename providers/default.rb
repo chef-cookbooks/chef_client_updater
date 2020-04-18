@@ -40,8 +40,8 @@ rescue LoadError
       clear_sources true if respond_to?(:clear_sources)
       if respond_to?(:source)
         source new_resource.rubygems_url
-      else
-        options "--source #{new_resource.rubygems_url}" if respond_to?(:options)
+      elsif respond_to?(:options)
+        options "--source #{new_resource.rubygems_url}"
       end
     end
   end
