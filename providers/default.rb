@@ -38,7 +38,11 @@ rescue LoadError
     compile_time true if respond_to?(:compile_time) # cookstyle: disable ChefModernize/RespondToCompileTime
     if new_resource.rubygems_url
       clear_sources true if respond_to?(:clear_sources)
-      options "--source #{new_resource.rubygems_url}" if respond_to?(:options)
+      if respond_to?(:source)
+        source new_resource.rubygems_url
+      else
+        options "--source #{new_resource.rubygems_url}" if respond_to?(:options)
+      end
     end
   end
 
