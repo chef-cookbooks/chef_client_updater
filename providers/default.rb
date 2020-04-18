@@ -38,7 +38,11 @@ rescue LoadError
     compile_time true if respond_to?(:compile_time) # cookstyle: disable ChefModernize/RespondToCompileTime
     if new_resource.rubygems_url
       clear_sources true if respond_to?(:clear_sources)
-      options "--source #{new_resource.rubygems_url}" if respond_to?(:options)
+      if respond_to?(:source)
+        source new_resource.rubygems_url
+      elsif respond_to?(:options)
+        options "--source #{new_resource.rubygems_url}"
+      end
     end
   end
 
@@ -113,7 +117,7 @@ end
 #
 def current_version
   case new_resource.product_name
-  when 'chef', 'angrychef'
+  when 'chef', 'angrychef', 'cinc', 'angrycinc'
     node['chef_packages']['chef']['version']
   when 'chefdk'
     versions = Mixlib::ShellOut.new('chef -v').run_command.stdout
