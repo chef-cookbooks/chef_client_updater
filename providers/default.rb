@@ -383,7 +383,7 @@ def reschedule_task_function
       $task = $taskFolder.GetTask($taskName)
       $xml = [xml]$task.Xml
       $startBoundary = [datetime]$xml.Task.Triggers.TimeTrigger.StartBoundary
-      $newDateTime = $startBoundary.AddMinutes($minutes)
+      $newDateTime = $wtartBoundary.AddMinutes($minutes)
       $newDate = $newDateTime.ToString('MM/dd/yyyy')
       $newTime = $newDateTime.ToString('HH:mm:ss')
       $prms = '/change', '/tn', $taskName, '/sd', $newDate, '/st', $newTime
