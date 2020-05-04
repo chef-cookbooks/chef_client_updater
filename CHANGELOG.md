@@ -2,6 +2,12 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.10.0 (2020-05-04)
+
+- Disable if_respond to cop for legacy support - [@tas50](https://github.com/tas50)
+- Use source parameter for chef_gem if it exists - [@ramereth](https://github.com/ramereth)
+- Include cinc as an allowed product_name - [@ramereth](https://github.com/ramereth)
+
 ## 3.9.0 (2020-04-14)
 
 - Remove #to_s conversion of attributes - [@jasonwbarnett](https://github.com/jasonwbarnett)
