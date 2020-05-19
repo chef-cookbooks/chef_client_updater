@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## Unreleased
+
+- resolved cookstyle error: providers/default.rb:123:16 refactor: `ChefModernize/ShellOutHelper`
+
 ## 3.10.0 (2020-05-04)
 
 - Disable if_respond to cop for legacy support - [@tas50](https://github.com/tas50)

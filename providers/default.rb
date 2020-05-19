@@ -120,7 +120,7 @@ def current_version
   when 'chef', 'angrychef', 'cinc', 'angrycinc'
     node['chef_packages']['chef']['version']
   when 'chefdk'
-    versions = Mixlib::ShellOut.new('chef -v').run_command.stdout
+    versions = shell_out('chef -v').stdout
     # There is a verbiage change in newer version of Chef Infra
     version = versions.match(/(ChefDK Version(.)*:)\s*([\d.]+)/i) || versions.match(/(Chef Development Kit Version(.)*:)\s*([\d.]+)/i)
 
