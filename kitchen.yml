@@ -19,15 +19,17 @@ verifier:
 platforms:
   - name: centos-6
   - name: centos-7
+  - name: centos-8
   - name: debian-9
   - name: debian-10
   - name: fedora-latest
   - name: freebsd-12
   - name: ubuntu-16.04
   - name: ubuntu-18.04
+  - name: ubuntu-20.04
   - name: windows-2012r2
     driver:
-      box: chef/windows-server-2012r2-standard # private box in Chef's Atlas account
+      box: tas50/windows_2012r2
     provisioner:
       wait_for_retry: 300
     transport:
@@ -35,16 +37,15 @@ platforms:
       elevated: true
   - name: windows-2016
     driver:
-      box: chef/windows-server-2016-standard # private box in Chef's Atlas account
+      box: tas50/windows_2016
     provisioner:
       wait_for_retry: 300
     transport:
       name: winrm
       elevated: true
-  - name: macos-10.13
+  - name: macos-10.15
     driver:
-      box: chef/macos-10.13 # private box in Chef's Atlas account
-      provider: vmware_fusion
+      box: tas50/macos_10.15
   - name: sles-12-sp1
     driver:
       box: chef/sles-12-sp1-x86_64 # private box in Chef's Atlas account
