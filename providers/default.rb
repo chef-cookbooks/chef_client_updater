@@ -549,7 +549,6 @@ def execute_install_script(install_script)
             Write-Output "An error occured while trying to install product"
             Write-Output $_
 
-            # Should we move the backup directory back?
             # Might need more testing about different ways the installation could fail
             Move-Item "#{chef_backup_dir}" "#{chef_install_dir}"
 
