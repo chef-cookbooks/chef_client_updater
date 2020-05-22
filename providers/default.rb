@@ -329,7 +329,7 @@ def uninstall_ps_code
       $installed_product = (get-item HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\UpgradeCodes\\C58A706DAFDB80F438DEE2BCD4DCB65C).Property
       $msi_guid = guid_from_regvalue $installed_product
 
-      echo "Removing installed product {$msi_guid}"
+      Write-Output "Removing installed product {$msi_guid}"
       Start-Process msiexec.exe -Wait -ArgumentList "/x {$msi_guid} /q"
     }
 
@@ -503,7 +503,7 @@ def execute_install_script(install_script)
       code <<-EOH
         $command = {
           $timestamp = Get-Date
-          echo "Starting upgrade at $timestamp"
+          Write-Output "Starting upgrade at $timestamp"
 
           Get-Service chef-client -ErrorAction SilentlyContinue | stop-service
           Get-Service push-jobs-client -ErrorAction SilentlyContinue | stop-service
@@ -538,10 +538,10 @@ def execute_install_script(install_script)
             exit 3
           }
 
-          echo "Attempting to uninstall product"
+          Write-Output "Attempting to uninstall product"
           #{uninstall_first}
 
-          echo "Running product install script..."
+          Write-Output "Running product install script..."
           try {
             #{install_script}
           }
@@ -555,7 +555,7 @@ def execute_install_script(install_script)
 
             exit 100
           }
-          echo "Install script finished"
+          Write-Output "Install script finished"
 
           Remove-Item "#{chef_install_dir}/../chef_upgrade.ps1"
           c:/windows/system32/schtasks.exe /delete /f /tn Chef_upgrade
@@ -584,7 +584,7 @@ def execute_install_script(install_script)
           Get-Service push-jobs-client -ErrorAction SilentlyContinue | start-service
 
           $timestamp = Get-Date
-          echo "Finished upgrade at $timestamp"
+          Write-Output "Finished upgrade at $timestamp"
         }
 
         $http_proxy = $env:http_proxy
