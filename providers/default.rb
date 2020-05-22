@@ -300,7 +300,13 @@ end
 
 def prepare_windows
   copy_opt_chef(chef_install_dir, chef_backup_dir)
-  Kernel.spawn("c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc once /ST \"#{upgrade_start_time}\" /tn Chef_upgrade /tr \"powershell.exe -ExecutionPolicy Bypass \"#{chef_install_dir}\"/chef_upgrade.ps1 > #{chef_upgrade_log}\"")
+
+  remote_file "#{Chef::Config[:file_cache_path]}/handle.zip" do
+    source new_resource.handle_zip_download_url
+    not_if { ::File.file?(node['chef_client_updater']['handle_exe_path']) }
+  end.run_action(:create)
+
+  Kernel.spawn("c:/windows/system32/schtasks.exe /F /RU SYSTEM /create /sc once /ST \"#{upgrade_start_time}\" /tn Chef_upgrade /tr \"powershell.exe -ExecutionPolicy Bypass \"#{chef_install_dir}\"/../chef_upgrade.ps1 > #{chef_upgrade_log}\"")
   FileUtils.rm_rf "#{chef_install_dir}/bin/chef-client.bat"
 end
 
@@ -323,6 +329,7 @@ def uninstall_ps_code
       $installed_product = (get-item HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\UpgradeCodes\\C58A706DAFDB80F438DEE2BCD4DCB65C).Property
       $msi_guid = guid_from_regvalue $installed_product
 
+      echo "Removing installed product {$msi_guid}"
       Start-Process msiexec.exe -Wait -ArgumentList "/x {$msi_guid} /q"
     }
 
@@ -490,16 +497,14 @@ def execute_install_script(install_script)
                     ''
                   end
 
-    remote_file "#{Chef::Config[:file_cache_path]}/handle.zip" do
-      source new_resource.handle_zip_download_url
-      not_if { ::File.file?(node['chef_client_updater']['handle_exe_path']) }
-    end.run_action(:create)
-
     license_provided = node['chef_client']['chef_license'] || ''
 
     powershell_script 'name' do
       code <<-EOH
         $command = {
+          $timestamp = Get-Date
+          echo "Starting upgrade at $timestamp"
+
           Get-Service chef-client -ErrorAction SilentlyContinue | stop-service
           Get-Service push-jobs-client -ErrorAction SilentlyContinue | stop-service
 
@@ -533,10 +538,26 @@ def execute_install_script(install_script)
             exit 3
           }
 
+          echo "Attempting to uninstall product"
           #{uninstall_first}
-          #{install_script}
 
-          Remove-Item "#{chef_install_dir}/chef_upgrade.ps1"
+          echo "Running product install script..."
+          try {
+            #{install_script}
+          }
+          catch {
+            Write-Output "An error occured while trying to install product"
+            Write-Output $_
+
+            # Should we move the backup directory back?
+            # Might need more testing about different ways the installation could fail
+            Move-Item "#{chef_backup_dir}" "#{chef_install_dir}"
+
+            exit 100
+          }
+          echo "Install script finished"
+
+          Remove-Item "#{chef_install_dir}/../chef_upgrade.ps1"
           c:/windows/system32/schtasks.exe /delete /f /tn Chef_upgrade
 
           if ('#{desired_version}' -ge '15') {
@@ -561,6 +582,9 @@ def execute_install_script(install_script)
           #{post_action}
 
           Get-Service push-jobs-client -ErrorAction SilentlyContinue | start-service
+
+          $timestamp = Get-Date
+          echo "Finished upgrade at $timestamp"
         }
 
         $http_proxy = $env:http_proxy
@@ -568,8 +592,8 @@ def execute_install_script(install_script)
         $set_proxy = "`$env:http_proxy=`'$http_proxy`'"
         $set_no_proxy = "`$env:no_proxy=`'$no_proxy`'"
 
-        Set-Content -Path "#{chef_install_dir}/chef_upgrade.ps1" -Value "$set_proxy", "$set_no_proxy"
-        Add-Content "#{chef_install_dir}/chef_upgrade.ps1" "`n$command"
+        Set-Content -Path "#{chef_install_dir}/../chef_upgrade.ps1" -Value "$set_proxy", "$set_no_proxy"
+        Add-Content "#{chef_install_dir}/../chef_upgrade.ps1" "`n$command"
 
       EOH
       action :nothing
