@@ -2,6 +2,14 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.10.1 (2020-05-27)
+
+- Catch when the windows upgrades fail and make sure we leave the C:\opscode\chef dir - [@teknofire](https://github.com/teknofire)
+- Improve logging on Windows - [@teknofire](https://github.com/teknofire)
+- More chef-client / chef -> Chef Infra Client - [@tas50](https://github.com/tas50)
+- Improve the exit message so users realize it was a success - [@tas50](https://github.com/tas50)
+- Expand testing with new platforms - [@tas50](https://github.com/tas50)
+
 ## 3.10.0 (2020-05-04)
 
 - Disable if_respond to cop for legacy support - [@tas50](https://github.com/tas50)
