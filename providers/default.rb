@@ -204,10 +204,10 @@ def run_post_install_action
     Kernel.exec(env, new_resource.exec_command, *new_resource.exec_args)
   when 'kill'
     if Chef::Config[:client_fork] && Process.ppid != 1 && !windows?
-      Chef::Log.warn 'Chef client is running forked with a supervisor. Sending KILL to parent process!'
+      Chef::Log.warn 'Chef Infra Client is running forked with a supervisor. Sending KILL to parent process!'
       Process.kill('KILL', Process.ppid)
     end
-    Chef::Log.warn 'New Chef Infra Client installed and exit is allowed. Forcing Chef Infra Client exit!'
+    Chef::Log.warn 'New Chef Infra Client installed and client process exit is allowed and/or specified. Now forcing Chef Infra Client to exit. Disregard any failure messages.'
     exit(213)
   else
     raise "Unexpected post_install_action behavior: #{new_resource.post_install_action}"
