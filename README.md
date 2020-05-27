@@ -104,7 +104,7 @@ Installs the mixlib-install/mixlib-install gems and upgrades the Chef Infra Clie
 - `install_timeout` - The install timeout for non-windows systems. The default is 600, slow machines may need to extend this.
 - `upgrade_delay` - The delay in seconds before the scheduled task to upgrade Chef Infra Client runs on windows. default: 61. Lowering this limit is not recommended.
 - `product_name` - The name of the product to upgrade. This can be `chef` or `chefdk` default: chef
-- 'install_command_options' - A Hash of additional options that will be passed to the Mixlib::Install instance responsible for installing the given product_name. To install Chef Infra Client as a scheduled task on windows, one can pass {daemon: 'task'}.  Default: {}
+- 'install_command_options' - A Hash of additional options that will be passed to the Mixlib::Install instance responsible for installing the given product_name. To install Chef Infra Client as a scheduled task on windows, one can pass {daemon: 'task'}. Default: {}
 - `rubygems_url` - The location to source rubygems. Replaces the default https://www.rubygems.org.
 - `handle_zip_download_url` - Url to the Handle zip archive used by Windows. Used to override the default in airgapped environments. default: https://download.sysinternals.com/files/Handle.zip (Note that you can also override the `default['chef_client_updater']['handle_exe_path']` attribute if you already have that binary somewhere on your system)
 
@@ -141,8 +141,7 @@ You can use 'exec' in production if you are running from cron or some other proc
 
 ## A note about purpose
 
-While this cookbook supports running on Chef Infra Client versions back to 11/12, the supported behavior of the cookbook is to upgrade those versions to 13/14 or newer.  It is not intended that users would maintain old Chef-11/12 versions with this
-cookbook.  The latest released version of Chef Infra Client 12 (12.22.1 or later) is still be supported as a target. Older versions of Chef Infra Client will have their embedded rubygems force upgraded by this cookbook to avoid having to regression test against 5+ years of rubygems bugs and establish a stable basis for the cookbook to use.
+While this cookbook supports running on Chef Infra Client versions back to 11/12, the supported behavior of the cookbook is to upgrade those versions to 13/14 or newer. It is not intended that users would maintain old Chef-11/12 versions with this cookbook. The latest released version of Chef Infra Client 12 (12.22.1 or later) is still be supported as a target. Older versions of Chef Infra Client will have their embedded rubygems force upgraded by this cookbook to avoid having to regression test against 5+ years of rubygems bugs and establish a stable basis for the cookbook to use.
 
 ## License
 
