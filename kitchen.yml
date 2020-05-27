@@ -12,6 +12,7 @@ provisioner:
   solo_rb:
     exit_status: :enabled
     client_fork: false
+  log_level: :info
 
 verifier:
   name: inspec
