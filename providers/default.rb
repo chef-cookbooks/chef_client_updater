@@ -20,7 +20,7 @@
 
 # NOTE: this cookbook uses Chef-11 backwards compatible syntax to support
 # upgrades from Chef 11.x and this pattern should not be copied for any modern
-# cookbook.  This is a poor example cookbook of how to write Chef.
+# cookbook. This is a poor example cookbook of how to write Chef Infra code.
 
 include ::ChefClientUpdaterHelper
 
@@ -81,7 +81,7 @@ def update_rubygems
     if new_resource.rubygems_url
       gem_bin = "#{Gem.bindir}/gem"
       if !::File.exist?(gem_bin) && windows?
-        gem_bin = "#{Gem.bindir}/gem.cmd" # on Chef Client 13+ the rubygem executable is gem.cmd, not gem
+        gem_bin = "#{Gem.bindir}/gem.cmd" # on Chef Infra Client 13+ the rubygem executable is gem.cmd, not gem
       end
       raise 'cannot find omnibus install' unless ::File.exist?(gem_bin)
       source = "--clear-sources --source #{new_resource.rubygems_url}"
@@ -163,7 +163,7 @@ def update_necessary?
     cur_version = Mixlib::Versioning.parse(current_version)
     Chef::Log.debug("The current #{new_resource.product_name} version is #{cur_version} and the desired version is #{des_version}")
     necessary = new_resource.prevent_downgrade ? (des_version > cur_version) : (des_version != cur_version)
-    Chef::Log.debug("A chef-client upgrade #{necessary ? 'is' : "isn't"} necessary")
+    Chef::Log.debug("A Chef Infra Client upgrade #{necessary ? 'is' : "isn't"} necessary")
     necessary
   end
 end
@@ -172,7 +172,7 @@ def eval_post_install_action
   return unless new_resource.post_install_action == 'exec'
 
   if Chef::Config[:interval] || Chef::Config[:client_fork]
-    Chef::Log.warn 'post_install_action "exec" not supported for chef-client running forked -- changing to "kill".'
+    Chef::Log.warn 'post_install_action "exec" not supported for Chef Infra Client running forked -- changing to "kill".'
     new_resource.post_install_action = 'kill'
   end
 
@@ -207,7 +207,7 @@ def run_post_install_action
       Chef::Log.warn 'Chef client is running forked with a supervisor. Sending KILL to parent process!'
       Process.kill('KILL', Process.ppid)
     end
-    Chef::Log.warn 'New chef-client installed and exit is allowed. Forcing chef exit!'
+    Chef::Log.warn 'New Chef Infra Client installed and exit is allowed. Forcing Chef Infra Client exit!'
     exit(213)
   else
     raise "Unexpected post_install_action behavior: #{new_resource.post_install_action}"
@@ -233,17 +233,17 @@ end
 # cleanup cruft from *prior* runs
 def cleanup
   if ::File.exist?(chef_backup_dir)
-    converge_by("remove #{chef_backup_dir} from previous chef-client run") do
+    converge_by("remove #{chef_backup_dir} from previous Chef Infra Client run") do
       FileUtils.rm_rf chef_backup_dir
     end
   end
   if ::File.exist?(chef_upgrade_log)
-    converge_by("remove #{chef_upgrade_log} from previous chef-client run") do
+    converge_by("remove #{chef_upgrade_log} from previous Chef Infra Client run") do
       FileUtils.rm_rf chef_upgrade_log
     end
   end
   if ::File.exist?(chef_broken_dir) && new_resource.event_log_service_restart
-    converge_by("remove #{chef_broken_dir} from previous chef-client run") do
+    converge_by("remove #{chef_broken_dir} from previous Chef Infra Client run") do
       event_log_ps_code
       FileUtils.rm_rf chef_broken_dir
     end
@@ -266,7 +266,7 @@ rescue
 end
 
 # windows does not like having running open files nuked behind it so we have to move the old file
-# out of the way.  on both platforms we must clean up the old install to not leave behind any old
+# out of the way. on both platforms we must clean up the old install to not leave behind any old
 # gem files.
 #
 def move_opt_chef(src, dest)
@@ -342,7 +342,7 @@ end
 def wait_for_chef_client_or_reschedule_upgrade_task_function
   <<-EOH
   Function WaitForChefClientOrRescheduleUpgradeTask {
-    <# Wait for running chef-client to finish up to n times.  If it has not finished after maxcount tries, then reschedule the upgrade task inMinutes minutes in the future and exit.
+    <# Wait for running Chef Infra Client to finish up to n times. If it has not finished after maxcount tries, then reschedule the upgrade task inMinutes minutes in the future and exit.
     #>
     param(
           [Parameter(Mandatory=$false)]
@@ -357,11 +357,11 @@ def wait_for_chef_client_or_reschedule_upgrade_task_function
     while ($status -gt 0) {
       $count++
       if ($count -gt $maxcount) {
-        Write-Output "Chef cannot be upgraded while in use.  Rescheduling the upgrade in $inMinutes minutes..."
+        Write-Output "Chef Infra Client cannot be upgraded while in use. Rescheduling the upgrade in $inMinutes minutes..."
         RescheduleTask Chef_upgrade $inMinutes
         exit 0
       }
-      Write-Output "Chef cannot be upgraded while in use - Attempt $count of $maxcount.  Sleeping for 60 seconds and retrying..."
+      Write-Output "Chef Infra Client cannot be upgraded while in use - Attempt $count of $maxcount. Sleeping for 60 seconds and retrying..."
       Start-Sleep 60
       $status = (Get-WmiObject Win32_Process -Filter "name = 'ruby.exe'" | Select-Object CommandLine | select-string 'opscode').count
     }
@@ -499,7 +499,7 @@ def execute_install_script(install_script)
 
     license_provided = node['chef_client']['chef_license'] || ''
 
-    powershell_script 'name' do
+    powershell_script 'Chef Infra Client Upgrade Script' do
       code <<-EOH
         $command = {
           $timestamp = Get-Date
@@ -601,7 +601,7 @@ def execute_install_script(install_script)
     upgrade_command = Mixlib::ShellOut.new(install_script, timeout: new_resource.install_timeout)
     upgrade_command.run_command
     if upgrade_command.exitstatus != 0
-      raise "Error updating chef-client. exit code: #{upgrade_command.exitstatus}.\nSTDERR: #{upgrade_command.stderr}\nSTDOUT: #{upgrade_command.stdout}"
+      raise "Error updating Chef Infra Client. exit code: #{upgrade_command.exitstatus}.\nSTDERR: #{upgrade_command.stderr}\nSTDOUT: #{upgrade_command.stdout}"
     end
   end
 end
@@ -629,7 +629,7 @@ action :update do
     # sysvinit won't restart after we exit, potentially use cron to do so
     # either trust the chef-client cookbook's init scripts or the users choice
     if (node['chef_client'] && node['chef_client']['init_style'] == 'init') || node['chef_client_updater']['restart_chef_via_cron']
-      Chef::Log.warn 'Chef Client was upgraded, scheduling chef-client start via cron in 5 minutes'
+      Chef::Log.warn 'Chef Infra Client was upgraded, scheduling Chef Infra Client start via cron in 5 minutes'
       cron_time = Time.now + 300
       start_cmd = if platform_family?('aix')
                     '/usr/bin/startsrc -s chef > /dev/console 2>&1'
@@ -652,7 +652,7 @@ action :update do
     raise
   rescue Exception => e # rubocop:disable Lint/RescueException
     if ::File.exist?(chef_backup_dir)
-      Chef::Log.warn "CHEF UPGRADE ABORTED due to #{e}: rolling back to #{chef_backup_dir} copy"
+      Chef::Log.warn "CHEF INFRA CLIENT UPGRADE ABORTED due to #{e}: rolling back to #{chef_backup_dir} copy"
       move_opt_chef(chef_backup_dir, chef_install_dir) unless platform_family?('windows')
     else
       Chef::Log.warn "NO #{chef_backup_dir} DIR TO ROLL BACK TO!"

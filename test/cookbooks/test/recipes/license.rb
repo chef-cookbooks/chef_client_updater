@@ -1,6 +1,6 @@
 node.override['chef_client']['chef_license'] = 'accept'
 
-chef_client_updater 'Install Chef 15' do
+chef_client_updater 'Install Chef Infra Client 15' do
   channel 'stable'
   version '15'
   post_install_action 'exec'
