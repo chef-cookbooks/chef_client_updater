@@ -636,8 +636,10 @@ action :update do
                   else
                     '/etc/init.d/chef-client start'
                   end
+      env = {}
       unless node['chef_client']['chef_license'].nil?
-        start_cmd = "env CHEF_LICENSE=\"#{node['chef_client']['chef_license']}\" " + start_cmd
+        env['CHEF_LICENSE'] = node['chef_client']['chef_license']
+        fork { Kernel.exec(env, 'chef-client', '-z') }
       end
 
       r = cron 'chef_client_updater' do
