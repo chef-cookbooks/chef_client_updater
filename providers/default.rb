@@ -636,8 +636,8 @@ action :update do
                   else
                     '/etc/init.d/chef-client start'
                   end
-      env = {}
       unless node['chef_client']['chef_license'].nil?
+        env = {}
         env['CHEF_LICENSE'] = node['chef_client']['chef_license']
         fork { Kernel.exec(env, 'chef-client', '-z') }
       end
