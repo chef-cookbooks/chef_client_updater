@@ -637,9 +637,8 @@ action :update do
                     '/etc/init.d/chef-client start'
                   end
       unless node['chef_client']['chef_license'].nil?
-        env = {}
-        env['CHEF_LICENSE'] = node['chef_client']['chef_license']
-        fork { Kernel.exec(env, "#{chef_install_dir}/bin/chef-apply", '-e "exit 0"') }
+        license_acceptance = shell_out("#{chef_install_dir}/bin/chef-apply -e 'exit 0'", timeout: 60, environment: { 'CHEF_LICENSE' => "#{node['chef_client']['chef_license']}" })
+        Chef::Log.warn 'Something went wrong while accepting the license.' if license_acceptance.exitstatus != 0
       end
 
       r = cron 'chef_client_updater' do
