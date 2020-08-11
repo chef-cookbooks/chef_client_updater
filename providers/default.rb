@@ -311,7 +311,7 @@ def prepare_windows
 end
 
 def uninstall_ps_code
-  uninstall_ps_code = <<-EOH
+  <<-EOH
     function guid_from_regvalue($value) {
       $order = 7,6,5,4,3,2,1,0,11,10,9,8,15,14,13,12,17,16,19,18,21,20,23,22,25,24,27,26,29,28,31,30
       $dash_pos = 8,13,18,23
@@ -335,8 +335,6 @@ def uninstall_ps_code
 
     installed_remove
   EOH
-
-  uninstall_ps_code
 end
 
 def wait_for_chef_client_or_reschedule_upgrade_task_function
