@@ -380,21 +380,28 @@ def reschedule_task_function
           [Int]$minutes
     )
 
-    $env:SystemDirectory = [Environment]::SystemDirectory
-    $tasksRoot = $env:SystemDirectory + '\Tasks\'
-    $taskScheduler = New-Object -ComObject Schedule.Service
-    $taskFolder = $taskScheduler.GetFolder('\')
-    Try {
-      $task = $taskFolder.GetTask($taskName)
-      $xml = [xml]$task.Xml
-      $startBoundary = [datetime]$xml.Task.Triggers.TimeTrigger.StartBoundary
-      $newDateTime = $startBoundary.AddMinutes($minutes)
-      $newDate = $newDateTime.ToString('MM/dd/yyyy')
-      $newTime = $newDateTime.ToString('HH:mm:ss')
-      $prms = '/change', '/tn', $taskName, '/sd', $newDate, '/st', $newTime
-      & schtasks.exe $prms
+    $newDateTime = ((Get-Date).AddMinutes($minutes)).ToString("yyyy-MM-ddTHH:mm:ss")
+    try
+    {
+        $task = Get-ScheduledTask -TaskName $taskName -TaskPath '\\'
+
+        # Multiple triggers or types can exist. If the first trigger is not a daily, we'll bail out.
+        # This could be made more resilient, but the task is ours to not foul up.
+        if (($task.Triggers[0].ToString() -eq "MSFT_TaskDailyTrigger") -or
+           ($task.Triggers[0].ToString() -eq "MSFT_TaskTimeTrigger")) {
+              $newTrigger = $task.Triggers[0].Clone()
+              $newTrigger.StartBoundary = $newDateTime
+              $task.Triggers[0].StartBoundary = $newDateTime
+        }
+        else {
+            throw "Error rescheduling $taskname task trigger. Valid trigger not found."
+        }
+        # Assure this task will run even if the scheduled time is missed
+        $newTaskSettings = New-ScheduledTaskSettingsSet -StartWhenAvailable
+        # Updates the scheduled task with new setting and new trigger.
+        $task = Set-ScheduledTask -TaskName $taskName -TaskPath '\\' -Settings $newTaskSettings -trigger $task.triggers
     }
-    Catch {
+    catch {
       $_.Exception.Message
     }
   }
@@ -544,7 +551,7 @@ def execute_install_script(install_script)
             #{install_script}
           }
           catch {
-            Write-Output "An error occured while trying to install product"
+            Write-Output "An error occurred while trying to install product"
             Write-Output $_
 
             # Might need more testing about different ways the installation could fail
