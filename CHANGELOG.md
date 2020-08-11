@@ -2,6 +2,14 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## Unreleased
+
+- resolved cookstyle error: providers/default.rb:314:3 convention: `Style/RedundantAssignment`
+- resolved cookstyle error: providers/default.rb:338:1 convention: `Layout/EmptyLinesAroundMethodBody`
+- resolved cookstyle error: providers/default.rb:339:1 convention: `Layout/EmptyLines`
+- resolved cookstyle error: providers/default.rb:339:1 convention: `Layout/EmptyLinesAroundMethodBody`
+- resolved cookstyle error: providers/default.rb:339:1 convention: `Layout/TrailingWhitespace`
+
 ## 3.10.1 (2020-05-27)
 
 - Catch when the windows upgrades fail and make sure we leave the C:\opscode\chef dir - [@teknofire](https://github.com/teknofire)
