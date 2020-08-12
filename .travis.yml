@@ -19,20 +19,11 @@ before_install:
   - gem update --system
   - gem --version
 
-matrix:
-  include:
-    - rvm: 2.4.5
-      before_script:
-        - eval "$(chef shell-init bash)"
-      install: echo "skip bundle install"
-
 env:
   - CHEF_LICENSE=accept
-      script:
-        - chef --version
-        - cookstyle --version
-        - foodcritic --version
-        - chef exec delivery local all
+
+matrix:
+  include:
     - rvm: 2.4.5
       services: docker
       before_script:
