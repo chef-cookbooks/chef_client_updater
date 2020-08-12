@@ -1,6 +1,6 @@
 # chef_client_updater
 
-[![Build Status](https://travis-ci.org/chef-cookbooks/chef_client_updater.svg?branch=master)](https://travis-ci.org/chef-cookbooks/chef_client_updater) [![Cookbook Version](https://img.shields.io/cookbook/v/chef_client_updater.svg)](https://supermarket.chef.io/cookbooks/chef_client_updater)
+![delivery](https://github.com/chef-cookbooks/chef_client_updater/workflows/delivery/badge.svg) [![Cookbook Version](https://img.shields.io/cookbook/v/chef_client_updater.svg)](https://supermarket.chef.io/cookbooks/chef_client_updater)
 
 This cookbook updates the Chef Infra Client
 
