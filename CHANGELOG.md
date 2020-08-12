@@ -2,13 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
-## Unreleased
+## 3.11.0 (2020-08-12)
 
+- #209 Fixed Windows PowerShell task reschedule by using Scheduled Task cmdlets available on PowerShell 3+ on Windows 2012+- [@jwdean](https://github.com/jwdean)
 - resolved cookstyle error: providers/default.rb:314:3 convention: `Style/RedundantAssignment`
-- resolved cookstyle error: providers/default.rb:338:1 convention: `Layout/EmptyLinesAroundMethodBody`
-- resolved cookstyle error: providers/default.rb:339:1 convention: `Layout/EmptyLines`
-- resolved cookstyle error: providers/default.rb:339:1 convention: `Layout/EmptyLinesAroundMethodBody`
-- resolved cookstyle error: providers/default.rb:339:1 convention: `Layout/TrailingWhitespace`
 
 ## 3.10.1 (2020-05-27)
 
