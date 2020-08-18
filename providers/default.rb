@@ -606,6 +606,13 @@ def execute_install_script(install_script)
   end
 end
 
+def license_acceptance!
+  unless node['chef_client']['chef_license'].nil?
+    license_acceptance = shell_out("#{chef_install_dir}/bin/chef-apply -e 'exit 0'", timeout: 60, environment: { 'CHEF_LICENSE' => "#{node['chef_client']['chef_license']}" })
+    Chef::Log.warn 'Something went wrong while accepting the license.' if license_acceptance.error?
+  end
+end
+
 action :update do
   begin
     load_prerequisites!
@@ -636,10 +643,8 @@ action :update do
                   else
                     '/etc/init.d/chef-client start'
                   end
-      unless node['chef_client']['chef_license'].nil?
-        license_acceptance = shell_out("#{chef_install_dir}/bin/chef-apply -e 'exit 0'", timeout: 60, environment: { 'CHEF_LICENSE' => "#{node['chef_client']['chef_license']}" })
-        Chef::Log.warn 'Something went wrong while accepting the license.' if license_acceptance.error?
-      end
+
+      license_acceptance!
 
       r = cron 'chef_client_updater' do
         hour cron_time.hour
