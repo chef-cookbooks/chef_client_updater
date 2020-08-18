@@ -638,7 +638,7 @@ action :update do
                   end
       unless node['chef_client']['chef_license'].nil?
         license_acceptance = shell_out("#{chef_install_dir}/bin/chef-apply -e 'exit 0'", timeout: 60, environment: { 'CHEF_LICENSE' => "#{node['chef_client']['chef_license']}" })
-        Chef::Log.warn 'Something went wrong while accepting the license.' if license_acceptance.exitstatus != 0
+        Chef::Log.warn 'Something went wrong while accepting the license.' if license_acceptance.error?
       end
 
       r = cron 'chef_client_updater' do
