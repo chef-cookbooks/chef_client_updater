@@ -607,10 +607,28 @@ def execute_install_script(install_script)
 end
 
 def license_acceptance!
-  unless node['chef_client']['chef_license'].nil?
-    license_acceptance = shell_out("#{chef_install_dir}/bin/chef-apply -e 'exit 0'", timeout: 60, environment: { 'CHEF_LICENSE' => "#{node['chef_client']['chef_license']}" })
-    Chef::Log.warn 'Something went wrong while accepting the license.' if license_acceptance.error?
+  if node['chef_client']['chef_license'].nil?
+    Chef::Log.debug 'No license acceptance configuration found, skipping.'
+    return
   end
+
+  license_acceptance = shell_out("#{chef_install_dir}/bin/chef-apply -e 'exit 0'", timeout: 60, environment: { 'CHEF_LICENSE' => "#{node['chef_client']['chef_license']}" })
+
+  unless license_acceptance.error?
+    Chef::Log.debug 'Successfully accepted license.'
+    return
+  end
+
+  msg = ['Something went wrong while accepting the license.']
+  unless license_acceptance.stdout.empty?
+    msg << 'STDOUT:'
+    msg << license_acceptance.stdout
+  end
+  unless license_acceptance.stderr.empty?
+    msg << 'STDERR:'
+    msg << license_acceptance.stderr
+  end
+  Chef::Log.warn msg.join("\n")
 end
 
 action :update do
