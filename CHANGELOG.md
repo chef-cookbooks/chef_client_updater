@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.11.1 (2020-08-25)
+
+- Fix license acceptance on non-windows - [@dheerajd-msys](https://github.com/dheerajd-msys)
+
 ## 3.11.0 (2020-08-12)
 
 - #209 Fixed Windows PowerShell task reschedule by using Scheduled Task cmdlets available on PowerShell 3+ on Windows 2012+- [@jwdean](https://github.com/jwdean)
