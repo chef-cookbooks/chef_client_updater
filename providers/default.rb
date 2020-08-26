@@ -500,7 +500,7 @@ def execute_install_script(install_script)
 
     post_action = if (new_resource.post_install_action == 'exec') && (desired_version.major >= 15)
                     "#{new_resource.exec_command} --chef-license #{license_provided}"
-                  elsif desired_version < '15'
+                  elsif desired_version.major < '15'
                     new_resource.exec_command
                   else
                     ''
