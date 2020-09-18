@@ -496,7 +496,7 @@ def execute_install_script(install_script)
                         ''
                       end
 
-                      license_provided = node['chef_client']['chef_license'] || ''
+    license_provided = node['chef_client']['chef_license'] || ''
 
     post_action = if (new_resource.post_install_action == 'exec') && (desired_version.major >= 15)
                     "#{new_resource.exec_command} --chef-license #{license_provided}"
