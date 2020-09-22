@@ -498,12 +498,12 @@ def execute_install_script(install_script)
 
     license_provided = node['chef_client']['chef_license'] || ''
 
-    post_action = if (new_resource.post_install_action == 'exec') && (desired_version.major >= 15)
-                    "#{new_resource.exec_command} --chef-license #{license_provided}"
-                  elsif desired_version.major < '15'
-                    new_resource.exec_command
-                  else
+    post_action = if new_resource.post_install_action != 'exec'
                     ''
+                  elsif desired_version.major >= 15
+                    "#{new_resource.exec_command} --chef-license #{license_provided}"
+                  else
+                    new_resource.exec_command
                   end
 
     powershell_script 'Chef Infra Client Upgrade Script' do
