@@ -298,6 +298,25 @@ def upgrade_start_time
   shifted_time.strftime('%H:%M')
 end
 
+def prepare_fedora!
+
+  cronie_install = shell_out("dnf install cronie -y", timeout: 60)
+  unless cronie_install.error?
+    Chef::Log.debug 'Cronie installed Successfully'
+    return
+  end
+  msg = ['Something went wrong while installing cronie.']
+  unless cronie_install.stdout.empty?
+    msg << 'STDOUT:'
+    msg << cronie_install.stdout
+  end
+  unless cronie_install.stderr.empty?
+    msg << 'STDERR:'
+    msg << cronie_install.stderr
+  end
+  Chef::Log.warn msg.join("\n")
+end
+
 def prepare_windows
   copy_opt_chef(chef_install_dir, chef_backup_dir)
 
@@ -639,6 +658,7 @@ end
 action :update do
   begin
     load_prerequisites!
+    prepare_fedora! if platform? 'fedora'
 
     if update_necessary?
       converge_by "upgrade #{new_resource.product_name} #{current_version} to #{desired_version}" do
