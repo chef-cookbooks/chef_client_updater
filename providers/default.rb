@@ -299,8 +299,7 @@ def upgrade_start_time
 end
 
 def prepare_fedora!
-
-  cronie_install = shell_out("dnf install cronie -y", timeout: 60)
+  cronie_install = shell_out('dnf install cronie -y', timeout: 60)
   unless cronie_install.error?
     Chef::Log.debug 'Cronie installed Successfully'
     return
