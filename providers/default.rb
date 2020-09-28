@@ -299,21 +299,8 @@ def upgrade_start_time
 end
 
 def prepare_fedora!
-  cronie_install = shell_out('dnf install cronie -y', timeout: 60)
-  unless cronie_install.error?
-    Chef::Log.debug 'Cronie installed Successfully'
-    return
-  end
-  msg = ['Something went wrong while installing cronie.']
-  unless cronie_install.stdout.empty?
-    msg << 'STDOUT:'
-    msg << cronie_install.stdout
-  end
-  unless cronie_install.stderr.empty?
-    msg << 'STDERR:'
-    msg << cronie_install.stderr
-  end
-  Chef::Log.warn msg.join("\n")
+  shell_out!('dnf install cronie -y', timeout: 60)
+  Chef::Log.debug 'Cron installed Successfully'
 end
 
 def prepare_windows
