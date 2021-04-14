@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.12.0 (2021-04-14)
+
+- Bump version of mixlib-install we install to 3.12 - [@gscho](https://github.com/gscho)
+
 ## 3.11.1 (2020-08-25)
 
 - Fix license acceptance on non-windows - [@dheerajd-msys](https://github.com/dheerajd-msys)
