@@ -2,6 +2,17 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## Unreleased
+
+- resolved cookstyle error: providers/default.rb:640:1 convention: `Layout/EmptyLinesAroundBlockBody`
+- resolved cookstyle error: providers/default.rb:640:1 convention: `Layout/TrailingWhitespace`
+- resolved cookstyle error: providers/default.rb:640:3 convention: `Style/RedundantBegin`
+- resolved cookstyle error: providers/default.rb:641:1 convention: `Layout/IndentationWidth`
+- resolved cookstyle error: providers/default.rb:658:3 convention: `Layout/RescueEnsureAlignment`
+- resolved cookstyle error: providers/default.rb:682:3 convention: `Layout/RescueEnsureAlignment`
+- resolved cookstyle error: providers/default.rb:690:1 convention: `Layout/EmptyLinesAroundBlockBody`
+- resolved cookstyle error: providers/default.rb:690:1 convention: `Layout/TrailingWhitespace`
+
 ## 3.12.0 (2021-04-14)
 
 - Bump version of mixlib-install we install to 3.12 - [@gscho](https://github.com/gscho)

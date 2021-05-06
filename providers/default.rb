@@ -637,55 +637,53 @@ def license_acceptance!
 end
 
 action :update do
-  begin
-    load_prerequisites!
+  load_prerequisites!
 
-    if update_necessary?
-      converge_by "upgrade #{new_resource.product_name} #{current_version} to #{desired_version}" do
-        # we have to get the script from mixlib-install..
-        install_script = mixlib_install.install_command
-        # ...before we blow mixlib-install away
-        platform_family?('windows') ? prepare_windows : move_opt_chef(chef_install_dir, chef_backup_dir)
+  if update_necessary?
+    converge_by "upgrade #{new_resource.product_name} #{current_version} to #{desired_version}" do
+      # we have to get the script from mixlib-install..
+      install_script = mixlib_install.install_command
+      # ...before we blow mixlib-install away
+      platform_family?('windows') ? prepare_windows : move_opt_chef(chef_install_dir, chef_backup_dir)
 
-        execute_install_script(install_script)
-      end
-      converge_by 'take post install action' do
-        run_post_install_action
-      end
-    else
-      cleanup
+      execute_install_script(install_script)
     end
-  rescue SystemExit
-    # sysvinit won't restart after we exit, potentially use cron to do so
-    # either trust the chef-client cookbook's init scripts or the users choice
-    if (node['chef_client'] && node['chef_client']['init_style'] == 'init') || node['chef_client_updater']['restart_chef_via_cron']
-      Chef::Log.warn 'Chef Infra Client was upgraded, scheduling Chef Infra Client start via cron in 5 minutes'
-      cron_time = Time.now + 300
-      start_cmd = if platform_family?('aix')
-                    '/usr/bin/startsrc -s chef > /dev/console 2>&1'
-                  else
-                    '/etc/init.d/chef-client start'
-                  end
-
-      license_acceptance!
-
-      r = cron 'chef_client_updater' do
-        hour cron_time.hour
-        minute cron_time.min
-        command start_cmd
-      end
-
-      r.run_action(:create)
+    converge_by 'take post install action' do
+      run_post_install_action
     end
-
-    raise
-  rescue Exception => e # rubocop:disable Lint/RescueException
-    if ::File.exist?(chef_backup_dir)
-      Chef::Log.warn "CHEF INFRA CLIENT UPGRADE ABORTED due to #{e}: rolling back to #{chef_backup_dir} copy"
-      move_opt_chef(chef_backup_dir, chef_install_dir) unless platform_family?('windows')
-    else
-      Chef::Log.warn "NO #{chef_backup_dir} DIR TO ROLL BACK TO!"
-    end
-    raise
+  else
+    cleanup
   end
+rescue SystemExit
+  # sysvinit won't restart after we exit, potentially use cron to do so
+  # either trust the chef-client cookbook's init scripts or the users choice
+  if (node['chef_client'] && node['chef_client']['init_style'] == 'init') || node['chef_client_updater']['restart_chef_via_cron']
+    Chef::Log.warn 'Chef Infra Client was upgraded, scheduling Chef Infra Client start via cron in 5 minutes'
+    cron_time = Time.now + 300
+    start_cmd = if platform_family?('aix')
+                  '/usr/bin/startsrc -s chef > /dev/console 2>&1'
+                else
+                  '/etc/init.d/chef-client start'
+                end
+
+    license_acceptance!
+
+    r = cron 'chef_client_updater' do
+      hour cron_time.hour
+      minute cron_time.min
+      command start_cmd
+    end
+
+    r.run_action(:create)
+  end
+
+  raise
+rescue Exception => e # rubocop:disable Lint/RescueException
+  if ::File.exist?(chef_backup_dir)
+    Chef::Log.warn "CHEF INFRA CLIENT UPGRADE ABORTED due to #{e}: rolling back to #{chef_backup_dir} copy"
+    move_opt_chef(chef_backup_dir, chef_install_dir) unless platform_family?('windows')
+  else
+    Chef::Log.warn "NO #{chef_backup_dir} DIR TO ROLL BACK TO!"
+  end
+  raise
 end
