@@ -183,6 +183,10 @@ def eval_post_install_action
 end
 
 def run_post_install_action
+  # In solaris moving /etc/chef.upgrade to /etc/chef
+  if shell_out("(python -mplatform || cat /etc/release || cat /etc/os-release)| grep Solaris> /dev/null")
+    move_opt_chef(etc_chef_upgrade,etc_chef)
+  end
   # make sure the passed action will actually work
   eval_post_install_action
 
@@ -228,6 +232,14 @@ end
 
 def chef_upgrade_log
   "#{chef_install_dir}_upgrade.log"
+end
+
+def etc_chef
+  '/etc/chef'
+end  
+
+def etc_chef_upgrade
+  "#{etc_chef}.upgrade"
 end
 
 # cleanup cruft from *prior* runs
@@ -645,7 +657,16 @@ action :update do
         # we have to get the script from mixlib-install..
         install_script = mixlib_install.install_command
         # ...before we blow mixlib-install away
-        platform_family?('windows') ? prepare_windows : move_opt_chef(chef_install_dir, chef_backup_dir)
+        if platform_family?('windows')
+          prepare_windows        
+        else          
+          if shell_out("(python -mplatform || cat /etc/release || cat /etc/os-release)| grep Solaris> /dev/null")
+             copy_opt_chef(chef_install_dir, chef_backup_dir) 
+             move_opt_chef(etc_chef, etc_chef_upgrade)
+          else
+            move_opt_chef(chef_install_dir, chef_backup_dir)
+          end
+        end 
 
         execute_install_script(install_script)
       end
@@ -683,6 +704,10 @@ action :update do
     if ::File.exist?(chef_backup_dir)
       Chef::Log.warn "CHEF INFRA CLIENT UPGRADE ABORTED due to #{e}: rolling back to #{chef_backup_dir} copy"
       move_opt_chef(chef_backup_dir, chef_install_dir) unless platform_family?('windows')
+      #rolling back etc\chef in solaris
+      if shell_out("(python -mplatform || cat /etc/release || cat /etc/os-release)| grep Solaris> /dev/null")
+         move_opt_chef(etc_chef_upgrade, etc_chef)
+      end
     else
       Chef::Log.warn "NO #{chef_backup_dir} DIR TO ROLL BACK TO!"
     end
