@@ -184,7 +184,7 @@ end
 
 def run_post_install_action
   # In solaris moving /etc/chef.upgrade to /etc/chef
-  if shell_out("(python -mplatform || cat /etc/release || cat /etc/os-release)| grep Solaris> /dev/null")
+  if platform_family?('solaris2')
     move_opt_chef(etc_chef_upgrade,etc_chef)
   end
   # make sure the passed action will actually work
@@ -659,14 +659,12 @@ action :update do
         # ...before we blow mixlib-install away
         if platform_family?('windows')
           prepare_windows        
-        else          
-          if shell_out("(python -mplatform || cat /etc/release || cat /etc/os-release)| grep Solaris> /dev/null")
+        elsif platform_family?('solaris2')      
              copy_opt_chef(chef_install_dir, chef_backup_dir) 
              move_opt_chef(etc_chef, etc_chef_upgrade)
-          else
+        else
             move_opt_chef(chef_install_dir, chef_backup_dir)
-          end
-        end 
+        end  
 
         execute_install_script(install_script)
       end
@@ -705,7 +703,7 @@ action :update do
       Chef::Log.warn "CHEF INFRA CLIENT UPGRADE ABORTED due to #{e}: rolling back to #{chef_backup_dir} copy"
       move_opt_chef(chef_backup_dir, chef_install_dir) unless platform_family?('windows')
       #rolling back etc\chef in solaris
-      if shell_out("(python -mplatform || cat /etc/release || cat /etc/os-release)| grep Solaris> /dev/null")
+      if platform_family?('solaris2')
          move_opt_chef(etc_chef_upgrade, etc_chef)
       end
     else
