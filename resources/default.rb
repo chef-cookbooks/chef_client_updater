@@ -23,6 +23,7 @@
 # cookbook. This is a poor example cookbook of how to write Chef.
 
 provides :chef_client_updater
+unified_mode true
 
 actions [:update]
 default_action :update
