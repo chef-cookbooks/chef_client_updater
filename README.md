@@ -12,7 +12,7 @@ This cookbook updates the Chef Infra Client
 
 ### Chef
 
-- Chef 11.6.2+
+- Chef 12.5+
 
 ## Usage
 
@@ -46,39 +46,6 @@ If you run Chef Infra Client as a service, things get a tiny bit more complicate
 #### Migrating from Running Chef Infra Client as a Windows Service to Running as a Scheduled Task During the Upgrade
 
 If you run Chef Infra Client as a service, but want to upgrade to a version of the client with an MSI unstaller that supports running as a scheduled task (any Chef Infra Client >= 12.18) it is now possible with the `install_command_options` property (added in version 3.8.0 of the chef_client_updater cookbook). This property accepts a Hash of key/value pairs, with {daemon: 'task'} the necessary pair to notify the MSI Installer to install Chef Infra Client as a scheduled task.
-
-### Upgrading from Chef Infra Client 11
-
-Moving from Chef Infra Client 11 has a few challenges when we are dealing with public update sources. Chef Infra Client 11 ships with a very old `cacert.pem`. To work through this, we need to get a more current `cacert.pem` file and point OpenSSL to it. Unfortunately, for this to work consistently on Windows, we'll need to reboot. Chef Infra Client 11 does not have the reboot resource, so this isn't a graceful process. However, on the next Chef run after the reboot, things will be back on track and the upgrade will perform as on other platforms.
-
-Below is an example of a recipe that can set up Chef Infra Client 11 to work using public update sources.
-
-```ruby
-if platform_family?('windows') && (Chef::VERSION < '12')
-  new_cert_file = File.join(ENV['USERPROFILE'], 'cacert.pem')
-
-  remote_file new_cert_file do
-    source 'https://curl.haxx.se/ca/cacert.pem'
-    action :create
-  end
-
-  powershell_script 'restart' do
-    code <<-EOH
-    restart-computer -force
-    EOH
-    action :nothing
-  end
-
-  env 'SSL_CERT_FILE' do
-    value new_cert_file
-    notifies :run, 'powershell_script[restart]', :immediately
-  end
-end
-
-chef_client_updater 'Install latest Chef' do
-  post_install_action 'kill'
-end
-```
 
 ## Chef EULA
 
@@ -141,7 +108,7 @@ You can use 'exec' in production if you are running from cron or some other proc
 
 ## A note about purpose
 
-While this cookbook supports running on Chef Infra Client versions back to 11/12, the supported behavior of the cookbook is to upgrade those versions to 13/14 or newer. It is not intended that users would maintain old Chef-11/12 versions with this cookbook. The latest released version of Chef Infra Client 12 (12.22.1 or later) is still be supported as a target. Older versions of Chef Infra Client will have their embedded rubygems force upgraded by this cookbook to avoid having to regression test against 5+ years of rubygems bugs and establish a stable basis for the cookbook to use.
+While this cookbook supports running on Chef Infra Client versions back to 12, the supported behavior of the cookbook is to upgrade those versions to 13/14 or newer. It is not intended that users would maintain old Chef 12 versions with this cookbook. The latest released version of Chef Infra Client 12 (12.22.1 or later) is still be supported as a target. Older versions of Chef Infra Client will have their embedded rubygems force upgraded by this cookbook to avoid having to regression test against 5+ years of rubygems bugs and establish a stable basis for the cookbook to use.
 
 ## License
 

@@ -3,7 +3,7 @@
 # Cookbook:: chef_client_updater
 # Recipe:: default
 #
-# Copyright:: 2016-2020, Chef Software, Inc.
+# Copyright:: 2016-2021, Chef Software, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.

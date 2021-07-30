@@ -2,6 +2,11 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## Unreleased
+
+- Switch to Chef 12.5 custom resources - [@detjensrobert](https://github.com/detjensrobert)
+- Enable unified_mode (if supported) - [@detjensrobert](https://github.com/detjensrobert)
+
 ## 3.12.0 (2021-04-14)
 
 - Bump version of mixlib-install we install to 3.12 - [@gscho](https://github.com/gscho)
