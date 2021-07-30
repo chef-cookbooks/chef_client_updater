@@ -2,8 +2,8 @@
 # Cookbook:: chef_client_updater
 # Resource:: updater
 #
-# Copyright:: 2016-2021, Will Jordan
-# Copyright:: 2016-2021, Chef Software Inc.
+# Copyright:: Will Jordan
+# Copyright:: Chef Software Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ action_class do
     Chef::Log.info('mixlib-install gem not found. Installing now')
     chef_gem 'mixlib-install' do
       version '~> 3.12'
-      compile_time true if respond_to?(:compile_time) # cookstyle: disable Chef/Modernize/RespondToCompileTime
+      compile_time true
       if new_resource.rubygems_url
         clear_sources true if respond_to?(:clear_sources)
         if respond_to?(:source)
@@ -70,7 +70,7 @@ action_class do
   rescue LoadError
     Chef::Log.info('mixlib-versioning gem not found. Installing now')
     chef_gem 'mixlib-versioning' do
-      compile_time true if respond_to?(:compile_time) # cookstyle: disable Chef/Modernize/RespondToCompileTime
+      compile_time true
       if new_resource.rubygems_url
         clear_sources true if respond_to?(:clear_sources)
         options "--source #{new_resource.rubygems_url}" if respond_to?(:options)
@@ -89,11 +89,7 @@ action_class do
     Chef::Log.debug("Found gem version #{rubygems_version}. Desired version is #{compatible_rubygems_versions}")
     return if Gem::Requirement.new(compatible_rubygems_versions).satisfied_by?(rubygems_version)
 
-    # only rubygems >= 1.5.2 supports pinning, and we might be coming from older versions
-    pin_rubygems_range = '>= 1.5.2'
-    pin = Gem::Requirement.new(pin_rubygems_range).satisfied_by?(rubygems_version)
-
-    converge_by "upgrade rubygems #{rubygems_version} to #{pin ? target_version : 'latest'}" do
+    converge_by "upgrade rubygems #{rubygems_version} to latest" do
       if new_resource.rubygems_url
         gem_bin = "#{Gem.bindir}/gem"
         if !::File.exist?(gem_bin) && windows?
@@ -113,7 +109,6 @@ action_class do
                else
                  ['--no-rdoc', '--no-ri', '--system' ]
                end
-        args.push(target_version) if pin
         Gem::Commands::UpdateCommand.new.invoke(*args)
       end
     end
@@ -132,16 +127,7 @@ action_class do
   # @return nil when product is not installed
   #
   def current_version
-    case new_resource.product_name
-    when 'chef', 'angrychef', 'cinc', 'angrycinc'
-      node['chef_packages']['chef']['version']
-    when 'chefdk'
-      versions = Mixlib::ShellOut.new('chef -v').run_command.stdout # cookstyle: disable Chef/Modernize/ShellOutHelper
-      # There is a verbiage change in newer version of Chef Infra
-      version = versions.match(/(ChefDK Version(.)*:)\s*([\d.]+)/i) || versions.match(/(Chef Development Kit Version(.)*:)\s*([\d.]+)/i)
-
-      return version[-1].to_s.strip if version
-    end
+    node['chef_packages']['chef']['version']
   end
 
   # the version we WANT TO INSTALL. If the user specifies a version in X.Y.X format
