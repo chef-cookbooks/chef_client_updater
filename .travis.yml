@@ -33,7 +33,7 @@ matrix:
         - KITCHEN_YAML=kitchen.dokken.yml
       script:
         # this tests that an upgrade to 15 succeeds when the license is accepted
-        - bundle exec kitchen test license-ubuntu-1604
+        - bundle exec kitchen test license-ubuntu-1804
     - rvm: 2.4.5
       services: docker
       sudo: required
@@ -44,7 +44,7 @@ matrix:
         - KITCHEN_YAML=kitchen.dokken.yml
       script:
         # this tests a downgrade from latest "13" to latest "12" via partial versions
-        - bundle exec kitchen test constrained-ubuntu-1604
+        - bundle exec kitchen test constrained-ubuntu-1804
     - rvm: 2.4.5
       services: docker
       before_script:
@@ -53,7 +53,7 @@ matrix:
         - CHEF_VERSION=14.1.1
         - KITCHEN_YAML=kitchen.dokken.yml
       script:
-        - bundle exec kitchen test default-ubuntu-1604
+        - bundle exec kitchen test default-ubuntu-1804
     - rvm: 2.4.5
       services: docker
       before_script:
@@ -62,7 +62,7 @@ matrix:
         - CHEF_VERSION=13.8.5
         - KITCHEN_YAML=kitchen.dokken.yml
       script:
-        - bundle exec kitchen test default-ubuntu-1604
+        - bundle exec kitchen test default-ubuntu-1804
     - rvm: 2.4.5
       services: docker
       before_script:
@@ -71,4 +71,4 @@ matrix:
         - CHEF_VERSION=12.21.31
         - KITCHEN_YAML=kitchen.dokken.yml
       script:
-        - bundle exec kitchen test default-ubuntu-1604
+        - bundle exec kitchen test default-ubuntu-1804

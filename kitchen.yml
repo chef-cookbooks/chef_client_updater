@@ -25,7 +25,6 @@ platforms:
   - name: debian-10
   - name: fedora-latest
   - name: freebsd-12
-  - name: ubuntu-16.04
   - name: ubuntu-18.04
   - name: ubuntu-20.04
   - name: windows-2012r2
@@ -107,7 +106,7 @@ suites:
     run_list:
       - recipe[test::gem_server]
       - recipe[test::rubygems_url]
-    includes: ubuntu-16.04
+    includes: ubuntu-18.04
     provisioner:
       product_version: 12.13.37
     verifier:
