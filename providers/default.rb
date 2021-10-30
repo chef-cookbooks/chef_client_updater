@@ -28,7 +28,7 @@ use_inline_resources # cookstyle: disable ChefDeprecations/UseInlineResourcesDef
 
 provides :chef_client_updater if respond_to?(:provides) # cookstyle: disable ChefModernize/RespondToProvides
 
-unified_mode false if respond_to?(:unified_mode)
+unified_mode true if respond_to?(:unified_mode)
 
 def load_mixlib_install
   gem 'mixlib-install', '~> 3.12'
