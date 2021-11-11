@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.12.2 (2021-11-10)
+
+- Repackage to remove macOS specific files
+
 ## 3.12.1 (2021-11-04)
 
 - Fix previously incorrect changelog entry in 3.12.0
