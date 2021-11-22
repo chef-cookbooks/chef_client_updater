@@ -24,6 +24,8 @@
 
 provides :chef_client_updater
 
+unified_mode true if respond_to?(:unified_mode)
+
 actions [:update]
 default_action :update
 
