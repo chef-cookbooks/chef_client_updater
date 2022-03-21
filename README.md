@@ -94,19 +94,21 @@ Installs the mixlib-install/mixlib-install gems and upgrades the Chef Infra Clie
 #### properties
 
 - `channel` - The chef channel you fetch the Chef Infra Client from. `stable` contains all officially released Chef Infra Client builds where as `current` contains unreleased builds. Default: `stable`
-- `prevent_downgrade` - Don't allow this cookbook to downgrade the Chef Infra Client version. Default: false
-- `version` - The version of the Chef Infra Client to install. Default :latest
+- `prevent_downgrade` - Don't allow this cookbook to downgrade the Chef Infra Client version. Default: `false`
+- `version` - The version of the Chef Infra Client to install. Default `:latest`
 - `post_install_action` - After installing the Chef Infra Client what should we do. `exec` to exec the new client or `kill` to kill the client and rely on the init system to start up the new version. Default: `kill`
 - `exec_command` - The chef-client command. default: $PROGRAM_NAME.split(' ').first. You can also enter a custom post-action command.
-- `exec_args` - An array of arguments to exec the Chef Infra Client with. default: ARGV
+- `exec_args` - An array of arguments to exec the Chef Infra Client with. Default: `ARGV`
 - `download_url_override` - The direct URL for the Chef Infra Client package.
 - `checksum` - The SHA-256 checksum of the Chef Infra Client package from the direct URL.
-- `install_timeout` - The install timeout for non-windows systems. The default is 600, slow machines may need to extend this.
-- `upgrade_delay` - The delay in seconds before the scheduled task to upgrade Chef Infra Client runs on windows. default: 61. Lowering this limit is not recommended.
-- `product_name` - The name of the product to upgrade. This can be `chef`, `chefdk`, or `cinc`. default: `chef`
-- 'install_command_options' - A Hash of additional options that will be passed to the Mixlib::Install instance responsible for installing the given product_name. To install Chef Infra Client as a scheduled task on windows, one can pass {daemon: 'task'}. Default: {}
-- `rubygems_url` - The location to source rubygems. Replaces the default https://www.rubygems.org.
-- `handle_zip_download_url` - Url to the Handle zip archive used by Windows. Used to override the default in airgapped environments. default: https://download.sysinternals.com/files/Handle.zip (Note that you can also override the `default['chef_client_updater']['handle_exe_path']` attribute if you already have that binary somewhere on your system)
+- `install_timeout` - The install timeout for non-windows systems. The default is `600`, slow machines may need to extend this.
+- `upgrade_delay` - The delay in seconds before the scheduled task to upgrade Chef Infra Client runs on windows. Default: `60`. Lowering this limit is not recommended.
+- `product_name` - The name of the product to upgrade. This can be `chef`, `chefdk`, or `cinc`. Default: `chef`
+- `install_command_options` - A Hash of additional options that will be passed to the Mixlib::Install instance responsible for installing the given product_name. To install Chef Infra Client as a scheduled task on windows, one can pass `{daemon: 'task'}`. Default: `{}`
+- `rubygems_url` - The location to source rubygems. Default: https://www.rubygems.org
+- `handle_zip_download_url` - Url to the Handle zip archive used by Windows. Used to override the default in airgapped environments. Default: https://download.sysinternals.com/files/Handle.zip (Note that you can also override the `default['chef_client_updater']['handle_exe_path']` attribute if you already have that binary somewhere on your system)
+- `event_log_service_restart` - Whether the Event Log Service on Windows should be restarted to release any locked files. Default: `true`
+- `install_command_options` - Additional parameters to pass to the [mixlib-install script](https://github.com/chef/mixlib-install/tree/main#install-scripts). Default: `{}`
 
 #### examples
 
