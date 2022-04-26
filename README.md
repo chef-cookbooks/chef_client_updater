@@ -35,6 +35,10 @@ The PowerShell upgrade script then moves the current installation to a staging d
 
 On Windows, the recommended `post_install_action` is `exec` instead of `kill` if you intend to run Chef Infra Client periodically. In `chef_client_updater` versions `>= 3.1.0` and `<= 3.2.9`, the updater resource by default started a new Chef Infra Client run after upgrading. Newer versions simply run `chef-client` only if `post_install_action` is set to `exec`. To run a custom other PowerShell command after-upgrade, define `post_install_action` `exec` and define your custom command in `exec_command`
 
+Root installation path for chef-client in cookbooks/chef_client_updater/attributes/default.rb when a custom path is used.
+`default['chef_client_updater']['chef_install_path'] = 'CHEF_CLIENT_FOLDER_PATH'`
+Defaults to 'C:/opscode/chef' on Windows and '/opt/chef' for everything else.
+
 #### Running Chef Infra Client as a Scheduled Task
 
 If you run as a scheduled task, then this will work smoothly. The path to the newly installed Chef Infra Client will be the same and the scheduled task will launch it. Part of this resource's job on the next run is to make sure the staging directory with the older client is removed.
