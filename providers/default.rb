@@ -501,16 +501,23 @@ def event_log_ps_code
     code <<-EOH
     $windows_kernel_version = (Get-CimInstance -class Win32_OperatingSystem).Version
     if (-Not ($windows_kernel_version.Contains('6.0') -or $windows_kernel_version.Contains('6.1'))) {
-      # Get Dependent Services for Eventlog that are running
-      $depsvcsrunning = Get-Service -Name 'EventLog' | Select-Object -ExpandProperty DependentServices |
-                        Where-Object Status -eq 'Running' | Select-Object -ExpandProperty Name
-      # Attempt to preemptively stop Dependent Services
-      $depsvcsrunning | ForEach-Object {
-        Stop-Service -Name "$_" -Force -ErrorAction SilentlyContinue
+      # Attempt to preemptively stop dependent services
+      $depsvcsrunning = (Get-Service -Name 'EventLog' | Select-Object -ExpandProperty DependentServices | Where-Object Status -eq 'Running').Name
+      ForEach ($depsvcrunning in $depsvcsrunning) {
+        Stop-Service "$depsvcrunning" -ErrorAction SilentlyContinue
+        # If service fails to stop, kill the process
+        if ((Get-Service "$depsvcrunning" ).Status -eq 'Running'){
+          $ServiceInstance = (Get-CimInstance win32_service | where { $_.Name -eq "$depsvcrunning" })
+          $ProcessId = $ServiceInstance.ProcessID
+          $StartMode = $ServiceInstance.StartMode
+          Set-Service $depsvcrunning -StartupType disabled
+          Stop-Process $ProcessId -Force
+          Set-Service $depsvcrunning -StartupType $StartMode
+        }
       }
       # Stop EventLog Service - First Politely, then Forcibly
       try {
-        Stop-Service -Name 'EventLog' -Force -ErrorAction Stop
+        Stop-Service -Name 'EventLog' -ErrorAction Stop
       } catch {
         $process='svchost.exe'
         $data = Get-CimInstance Win32_Process -Filter "name = '$process'" | Select-Object ProcessId, CommandLine | Where-Object {$_.CommandLine -Match "LocalServiceNetworkRestricted"}
