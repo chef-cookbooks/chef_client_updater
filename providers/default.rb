@@ -241,6 +241,8 @@ end
 def legacy_conf_dir_name
   if defined?(::ChefUtils::Dist::Org::LEGACY_CONF_DIR)
     ::ChefUtils::Dist::Org::LEGACY_CONF_DIR
+  elsif new_resource.product_name == 'cinc'
+    'cinc-project'
   else
     'opscode'
   end
