@@ -60,3 +60,7 @@ default['chef_client']['chef_license'] = nil
 # Use the same attribute from the chef-client cookbook to avoid duplication.
 # Example "http://localhost:8808/"
 default['chef_client_updater']['rubygems_url'] = Chef::Config[:rubygems_url]
+
+# Attributes for Migrate tool
+default['chef_client']['selinux'] = false
+default['chef_client']['process_config'] = false

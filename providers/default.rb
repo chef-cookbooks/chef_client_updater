@@ -106,7 +106,6 @@ end
 def load_prerequisites!
   update_rubygems
   load_mixlib_install
-  load_mixlib_versioning
 end
 
 # why would we use this when mixlib-install has a current_version method?
@@ -695,17 +694,49 @@ end
 
 action :update do
   begin
-    load_prerequisites!
 
+    load_mixlib_versioning
+
+    # Determine the desired version
+    desired_version = Mixlib::Versioning.parse(new_resource.version || node['chef_client_updater']['version'])
+
+    # Check if an update is necessary
     if update_necessary?
       converge_by "upgrade #{new_resource.product_name} #{current_version} to #{desired_version}" do
-        # we have to get the script from mixlib-install..
-        install_script = mixlib_install.install_command
-        # ...before we blow mixlib-install away
-        platform_family?('windows') ? prepare_windows : move_opt_chef(chef_install_dir, chef_backup_dir)
+        # Different execution paths based on the version
+        if desired_version >= Mixlib::Versioning.parse('19.0.0')
+          Chef::Log.info("Chef Infra Client version #{desired_version} is 19.0.0 or above. Using new execution path.")
+          # New execution path for versions 19.0.0 or above
+          # Download migrate tool.
+          remote_file "#{Chef::Config[:file_cache_path]}/migrate-tool.tgz" do
+            source node['chef_client_updater']['download_url_override'] || raise("Attribute 'node['chef_client_updater']['download_url_override']' is not set or invalid.")
+            action :create_if_missing
+          end
 
-        execute_install_script(install_script)
+          # Extact the migrate tool.
+          # TBD
+
+          # run migrate to using the attributes.
+          bash 'run-migrate-tool' do
+            code <<-EOH
+            migrtae-cli apply online --selinux #{node['chef_client']['selinux']}
+            EOH
+            action :run
+          end
+
+        else
+          load_prerequisites!
+
+          # we have to get the script from mixlib-install..
+          install_script = mixlib_install.install_command
+          # ...before we blow mixlib-install away
+          platform_family?('windows') ? prepare_windows : move_opt_chef(chef_install_dir, chef_backup_dir)
+
+          execute_install_script(install_script)
+        end
       end
+
+      # Post-install actions
       converge_by 'take post install action' do
         run_post_install_action
       end
@@ -737,6 +768,7 @@ action :update do
 
     raise
   rescue Exception => e # rubocop:disable Lint/RescueException
+    # Rollback logic in case of failure
     if ::File.exist?(chef_backup_dir)
       Chef::Log.warn "#{chef_infra_product_name.upcase} UPGRADE ABORTED due to #{e}: rolling back to #{chef_backup_dir} copy"
       move_opt_chef(chef_backup_dir, chef_install_dir) unless platform_family?('windows')
