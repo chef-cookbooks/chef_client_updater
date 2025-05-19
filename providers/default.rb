@@ -760,7 +760,7 @@ action :update do
       --symlink #{node['chef_client_updater']['symlink']} \
       --fstab #{node['chef_client_updater']['fstab']} \
       --process-config #{node['chef_client_updater']['process_config']} \
-      #{node['chef_client']['selinux_profile'] ? "--selinux-profile #{node['chef_client']['selinux_profile']} \\" : ''}
+      #{node['chef_client']['selinux_profile'] ? "--selinux-profile #{node['chef_client']['selinux_profile']} \\" : ''} \
       --selinux-ignore-warnings #{node['chef_client_updater']['selinux_ignore_warnings']} \
       --habitat-upgrade #{node['chef_client_updater']['habitat_upgrade']}
   EOH
