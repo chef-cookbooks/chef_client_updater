@@ -23,13 +23,13 @@ default['chef_client_updater']['channel'] = 'stable'
 default['chef_client_updater']['prevent_downgrade'] = false
 
 # the version to install (ex: '12.12.13') or 'latest'
-default['chef_client_updater']['version'] = 'latest'
+default['chef_client_updater']['version'] = '19.1.6'
 
 # kill the client post install or exec the client post install for non-service based installs
 default['chef_client_updater']['post_install_action'] = Chef::Config[:no_fork] ? 'exec' : 'kill'
 
 # the download URL (for use in an air-gapped environment)
-default['chef_client_updater']['download_url_override'] = nil
+default['chef_client_updater']['download_url_override'] = 'https://chef-hab-migration-tool-bucket.s3.amazonaws.com/rc2_hab_pkg_chef_client/rc2_tar_folder/chef-chef-infra-client-19.1.rc2.tar.gz?AWSAccessKeyId=AKIAW4FPVFT6BIP2EQW7&Signature=Q91HiSIzOxffl52La8EvqSXSqWk%3D&Expires=1756222682'
 
 # the checksum of the package from "download_url_override"
 default['chef_client_updater']['checksum'] = nil
@@ -62,5 +62,19 @@ default['chef_client']['chef_license'] = nil
 default['chef_client_updater']['rubygems_url'] = Chef::Config[:rubygems_url]
 
 # Attributes for Migrate tool
-default['chef_client']['selinux'] = false
-default['chef_client']['process_config'] = false
+default['chef_client_updater']['migrate_download_url'] = 'https://chef-hab-migration-tool-bucket.s3.amazonaws.com/rc2_hab_pkg_chef_client/rc2_migration_tool/migration-tools_Linux_x86_64.tar.gz?AWSAccessKeyId=AKIAW4FPVFT6BIP2EQW7&Signature=hbgCCCl9r48WHDP%2FFQtNTN9pFJw%3D&Expires=1756222424'
+default['chef_client_updater']['license_key'] = 'tmns-65560889-4977-46bf-8a29-5ba93f914ba8-3190'
+default['chef_client_updater']['license_server'] = 'https://services.chef.io'
+default['chef_client_updater']['preserve'] = false
+default['chef_client_updater']['symlink'] = false
+default['chef_client_updater']['fstab'] = 'apply'
+default['chef_client_updater']['process_config'] = 'error'
+default['chef_client']['selinux_profile'] = nil
+default['chef_client_updater']['selinux_ignore_warnings'] = false
+default['chef_client_updater']['habitat_upgrade'] = nil
+
+# Hook scripts to run before the client update
+default['chef_client_updater']['pre_install_script'] = []
+
+# Hook scripts to run after the client update but before post-install action
+default['chef_client_updater']['post_install_script'] = []

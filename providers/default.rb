@@ -692,35 +692,76 @@ def license_acceptance!
   Chef::Log.warn msg.join("\n")
 end
 
+def run_pre_install_hooks
+  Array(node['chef_client_updater']['pre_install_script']).each do |script|
+    execute "chef_client_updater pre-install script: #{script}" do
+      command script
+      action :run
+    end
+  end
+end
+
+def run_post_install_hooks
+  Array(node['chef_client_updater']['post_install_script']).each do |script|
+    execute "chef_client_updater post-install script: #{script}" do
+      command script
+      action :run
+    end
+  end
+end
+
 action :update do
   begin
 
     load_mixlib_versioning
+
+    # Run pre-upgrade hooks
+    run_pre_install_hooks
 
     # Determine the desired version
     desired_version = Mixlib::Versioning.parse(new_resource.version || node['chef_client_updater']['version'])
 
     # Check if an update is necessary
     if update_necessary?
-      converge_by "upgrade #{new_resource.product_name} #{current_version} to #{desired_version}" do
+      converge_by "upgrade #{new_resource.sproduct_name} #{current_version} to #{desired_version}" do
         # Different execution paths based on the version
         if desired_version >= Mixlib::Versioning.parse('19.0.0')
           Chef::Log.info("Chef Infra Client version #{desired_version} is 19.0.0 or above. Using new execution path.")
           # New execution path for versions 19.0.0 or above
           # Download migrate tool.
           remote_file "#{Chef::Config[:file_cache_path]}/migrate-tool.tgz" do
-            source node['chef_client_updater']['download_url_override'] || raise("Attribute 'node['chef_client_updater']['download_url_override']' is not set or invalid.")
+            source node['chef_client_updater']['migrate_download_url'] || raise("Attribute 'node['chef_client_updater']['migrate_download_url']' is not set or invalid.")
             action :create_if_missing
           end
 
-          # Extact the migrate tool.
-          # TBD
+          # Extract the migrate tool.
+          execute 'extract-migrate-tool' do
+            command "tar -xzf #{Chef::Config[:file_cache_path]}/migrate-tool.tgz -C #{Chef::Config[:file_cache_path]}"
+            creates "#{Chef::Config[:file_cache_path]}/migrate-cli"
+            action :run
+          end
 
-          # run migrate to using the attributes.
+          # Make migrate tool executable
+          file "#{Chef::Config[:file_cache_path]}/migrate-cli" do
+            mode '0755'
+            action :touch
+          end
+
+          # run migrate tool using the attributes
           bash 'run-migrate-tool' do
             code <<-EOH
-            migrtae-cli apply online --selinux #{node['chef_client']['selinux']}
-            EOH
+    #{Chef::Config[:file_cache_path]}/migrate-cli apply online \
+      --download-url #{node['chef_client_updater']['download_url_override']} \
+      --license-key #{node['chef_client_updater']['license_key']} \
+      --license-server #{node['chef_client_updater']['license_server']} \
+      --preserve #{node['chef_client_updater']['preserve']} \
+      --symlink #{node['chef_client_updater']['symlink']} \
+      --fstab #{node['chef_client_updater']['fstab']} \
+      --process-config #{node['chef_client_updater']['process_config']} \
+      --selinux-profile #{node['chef_client']['selinux_profile']} \
+      --selinux-ignore-warnings #{node['chef_client_updater']['selinux_ignore_warnings']} \
+      --habitat-upgrade #{node['chef_client_updater']['habitat_upgrade']}
+  EOH
             action :run
           end
 
@@ -735,6 +776,9 @@ action :update do
           execute_install_script(install_script)
         end
       end
+
+      # Run post-upgrade hooks
+      run_post_install_hooks
 
       # Post-install actions
       converge_by 'take post install action' do
