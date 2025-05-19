@@ -723,7 +723,7 @@ action :update do
 
     # Check if an update is necessary
     if update_necessary?
-      converge_by "upgrade #{new_resource.sproduct_name} #{current_version} to #{desired_version}" do
+      converge_by "upgrade #{new_resource.product_name} #{current_version} to #{desired_version}" do
         # Different execution paths based on the version
         if desired_version >= Mixlib::Versioning.parse('19.0.0')
           Chef::Log.info("Chef Infra Client version #{desired_version} is 19.0.0 or above. Using new execution path.")
@@ -734,11 +734,13 @@ action :update do
             action :create_if_missing
           end
 
-          # Extract the migrate tool.
-          execute 'extract-migrate-tool' do
-            command "tar -xzf #{Chef::Config[:file_cache_path]}/migrate-tool.tgz -C #{Chef::Config[:file_cache_path]}"
-            creates "#{Chef::Config[:file_cache_path]}/migrate-cli"
-            action :run
+          # Extract the migrate tool using the archive_file resource
+          archive_file 'extract-migrate-tool' do
+            path "#{Chef::Config[:file_cache_path]}/migrate-tool.tgz"
+            destination "#{Chef::Config[:file_cache_path]}"
+            overwrite true
+            action :extract
+            not_if { ::File.exist?("#{Chef::Config[:file_cache_path]}/migrate-cli") }
           end
 
           # Make migrate tool executable
