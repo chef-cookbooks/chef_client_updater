@@ -71,7 +71,7 @@ default['chef_client_updater']['fstab'] = 'apply'
 default['chef_client_updater']['process_config'] = 'error'
 default['chef_client']['selinux_profile'] = nil
 default['chef_client_updater']['selinux_ignore_warnings'] = false
-default['chef_client_updater']['habitat_upgrade'] = nil
+default['chef_client_updater']['habitat_upgrade'] = false
 
 # Hook scripts to run before the client update
 default['chef_client_updater']['pre_install_script'] = []

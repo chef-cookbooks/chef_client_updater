@@ -753,18 +753,20 @@ action :update do
           bash 'run-migrate-tool' do
             code <<-EOH
     #{Chef::Config[:file_cache_path]}/chef-migrate apply online \
-      --download-url #{node['chef_client_updater']['download_url_override']} \
+      --download-url "#{node['chef_client_updater']['download_url_override']}" \
       --license-key #{node['chef_client_updater']['license_key']} \
       --license-server #{node['chef_client_updater']['license_server']} \
       --preserve #{node['chef_client_updater']['preserve']} \
       --symlink #{node['chef_client_updater']['symlink']} \
       --fstab #{node['chef_client_updater']['fstab']} \
       --process-config #{node['chef_client_updater']['process_config']} \
-      --selinux-profile #{node['chef_client']['selinux_profile']} \
+      #{node['chef_client']['selinux_profile'] ? "--selinux-profile #{node['chef_client']['selinux_profile']} \\" : ''}
       --selinux-ignore-warnings #{node['chef_client_updater']['selinux_ignore_warnings']} \
       --habitat-upgrade #{node['chef_client_updater']['habitat_upgrade']}
   EOH
             action :run
+            live_stream true
+            returns [0]
           end
 
         else
