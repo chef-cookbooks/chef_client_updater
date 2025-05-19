@@ -740,11 +740,11 @@ action :update do
             destination "#{Chef::Config[:file_cache_path]}"
             overwrite true
             action :extract
-            not_if { ::File.exist?("#{Chef::Config[:file_cache_path]}/migrate-cli") }
+            not_if { ::File.exist?("#{Chef::Config[:file_cache_path]}/chef-migrate") }
           end
 
           # Make migrate tool executable
-          file "#{Chef::Config[:file_cache_path]}/migrate-cli" do
+          file "#{Chef::Config[:file_cache_path]}/chef-migrate" do
             mode '0755'
             action :touch
           end
@@ -752,7 +752,7 @@ action :update do
           # run migrate tool using the attributes
           bash 'run-migrate-tool' do
             code <<-EOH
-    #{Chef::Config[:file_cache_path]}/migrate-cli apply online \
+    #{Chef::Config[:file_cache_path]}/chef-migrate apply online \
       --download-url #{node['chef_client_updater']['download_url_override']} \
       --license-key #{node['chef_client_updater']['license_key']} \
       --license-server #{node['chef_client_updater']['license_server']} \
