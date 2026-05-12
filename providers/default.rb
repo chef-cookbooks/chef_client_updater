@@ -671,9 +671,8 @@ def execute_install_script(install_script)
       action :nothing
     end.run_action(:run)
   else
-    upgrade_command = Mixlib::ShellOut.new(install_script, timeout: new_resource.install_timeout)
-    upgrade_command.run_command
-    if upgrade_command.exitstatus != 0
+    upgrade_command = shell_out(install_script, timeout: new_resource.install_timeout)
+    if upgrade_command.error?
       raise "Error updating #{chef_infra_product_name}. exit code: #{upgrade_command.exitstatus}.\nSTDERR: #{upgrade_command.stderr}\nSTDOUT: #{upgrade_command.stdout}"
     end
   end
