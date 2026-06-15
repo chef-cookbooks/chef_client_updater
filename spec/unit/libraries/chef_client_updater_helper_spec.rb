@@ -12,7 +12,7 @@ describe ChefClientUpdaterHelper do
   let(:resource) do
     double('Chef::Resource::ChefClientUpdater',
                           product_name: product_name, channel: channel, version: product_version, install_command_options: install_command_options,
-                          download_url_override: download_url_override, checksum: checksum)
+                          download_url_override: download_url_override, checksum: checksum, license_id: nil)
   end
   let(:platform) { 'aix' }
   let(:platform_version) { '4.5' }
@@ -103,6 +103,75 @@ describe ChefClientUpdaterHelper do
           provider.add_download_url_override_options(options)
           expect(options[:install_command_options][:download_url_override]).to eq(download_url_override)
           expect(options[:install_command_options][:checksum]).to eq(checksum)
+        end
+      end
+
+      describe '#validate_package_availability' do
+        let(:artifact) { double('artifact', url: 'https://packages.chef.io/files/stable/chef/pkg.rpm?token=123', version: '18.6.2') }
+        let(:mixlib_instance) { double('mixlib_instance', artifact_info: [artifact]) }
+
+        before do
+          allow(provider).to receive(:mixlib_install).and_return(mixlib_instance)
+          allow(provider).to receive(:windows?).and_return(false)
+        end
+
+        it 'logs package validation details and succeeds on non-windows platforms' do
+          expect(Chef::Log).to receive(:info).with('Package validation: chef-client 18.6.2 will be downloaded from https://packages.chef.io/files/stable/chef/pkg.rpm')
+          expect(provider).not_to receive(:validate_windows_package_availability)
+          expect { provider.validate_package_availability }.not_to raise_error
+        end
+
+        it 'validates package availability on windows platforms' do
+          allow(provider).to receive(:windows?).and_return(true)
+          expect(provider).to receive(:validate_windows_package_availability).with(artifact)
+          provider.validate_package_availability
+        end
+
+        context 'when no artifact is returned' do
+          let(:mixlib_instance) { double('mixlib_instance', artifact_info: []) }
+
+          it 'raises a pre-upgrade validation error' do
+            expect { provider.validate_package_availability }.to raise_error(/Pre-upgrade package validation failed/)
+          end
+        end
+
+        context 'when artifact url is missing' do
+          let(:artifact) { double('artifact', url: '', version: '18.6.2') }
+
+          it 'raises a pre-upgrade validation error' do
+            expect { provider.validate_package_availability }.to raise_error(/Pre-upgrade package validation failed/)
+          end
+        end
+      end
+
+      describe '#validate_windows_package_availability' do
+        let(:artifact) { double('artifact', url: 'https://packages.chef.io/files/stable/chef/pkg.msi?token=123', version: '18.6.2') }
+        let(:uri) { double('uri', host: 'packages.chef.io', port: 443, scheme: 'https', request_uri: '/files/stable/chef/pkg.msi?token=123') }
+        let(:http) { double('http') }
+        let(:request) { double('request') }
+
+        before do
+          allow(URI).to receive(:parse).with(artifact.url).and_return(uri)
+          allow(Net::HTTP).to receive(:new).with('packages.chef.io', 443).and_return(http)
+          allow(Net::HTTP::Head).to receive(:new).with('/files/stable/chef/pkg.msi?token=123').and_return(request)
+          allow(http).to receive(:use_ssl=)
+          allow(http).to receive(:open_timeout=)
+          allow(http).to receive(:read_timeout=)
+          allow(provider).to receive(:sleep)
+        end
+
+        it 'succeeds when the package URL returns a success status' do
+          response = double('response', code: '200', message: 'OK')
+          allow(http).to receive(:request).with(request).and_return(response)
+
+          expect { provider.validate_windows_package_availability(artifact) }.not_to raise_error
+        end
+
+        it 'retries and fails after max retries for transient errors' do
+          allow(http).to receive(:request).with(request).and_raise(StandardError.new('temporary network failure'))
+
+          expect(provider).to receive(:sleep).exactly(3).times
+          expect { provider.validate_windows_package_availability(artifact) }.to raise_error(/not available at expected URL after 3 retries/)
         end
       end
     end
