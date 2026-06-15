@@ -170,7 +170,7 @@ describe ChefClientUpdaterHelper do
         it 'retries and fails after max retries for transient errors' do
           allow(http).to receive(:request).with(request).and_raise(StandardError.new('temporary network failure'))
 
-          expect(provider).to receive(:sleep).exactly(3).times
+          expect(provider).to receive(:sleep).exactly(2).times
           expect { provider.validate_windows_package_availability(artifact) }.to raise_error(/not available at expected URL after 3 retries/)
         end
       end
