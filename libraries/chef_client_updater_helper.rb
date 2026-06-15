@@ -43,33 +43,25 @@ module ChefClientUpdaterHelper
   end
 
   def validate_package_availability
-    begin
-      artifact = Array(mixlib_install.artifact_info).first
-      unless artifact
-        raise "Unable to retrieve package information for #{new_resource.product_name} version #{new_resource.version}"
-      end
+    artifact = Array(mixlib_install.artifact_info).first
+    raise "Unable to retrieve package information for #{new_resource.product_name} version #{new_resource.version}" unless artifact
 
-      if artifact.url.nil? || artifact.url.empty?
-        raise "No download URL available for #{new_resource.product_name} version #{new_resource.version}"
-      end
+    download_url = artifact.url.to_s
+    raise "No download URL available for #{new_resource.product_name} version #{new_resource.version}" if download_url.empty?
 
-      Chef::Log.info("Package validation: #{new_resource.product_name} #{artifact.version} will be downloaded from #{artifact.url.split('?').first}")
+    Chef::Log.info("Package validation: #{new_resource.product_name} #{artifact.version} will be downloaded from #{download_url.split('?').first}")
 
-      if windows?
-        validate_windows_package_availability(artifact)
-      end
-    rescue => e
-      Chef::Log.error("Package validation failed: #{e.message}")
-      raise "Pre-upgrade package validation failed. This prevents destructive upgrade operations. Error: #{e.message}"
-    end
+    validate_windows_package_availability(artifact) if windows?
+  rescue => e
+    Chef::Log.error("Package validation failed: #{e.message}")
+    raise "Pre-upgrade package validation failed. This prevents destructive upgrade operations. Error: #{e.message}"
   end
 
   def validate_windows_package_availability(artifact)
     max_retries = 3
-    retry_count = 0
     wait_time = 2.0
 
-    loop do
+    max_retries.times do |attempt|
       begin
         require 'net/http'
         uri = URI.parse(artifact.url)
@@ -90,17 +82,15 @@ module ChefClientUpdaterHelper
           raise "HTTP #{response.code} #{response.message}"
         end
       rescue StandardError, Net::OpenTimeout, Net::ReadTimeout, Errno::ECONNREFUSED => e
-        retry_count += 1
-
-        if retry_count > max_retries
-          Chef::Log.warn "Package availability check failed after #{max_retries} retries: #{e.message}"
+        if attempt == max_retries - 1
+          Chef::Log.warn("Package availability check failed after #{max_retries} retries: #{e.message}")
           raise "Package #{artifact.version} not available at expected URL after #{max_retries} retries. " \
                 "This may indicate a CDN propagation delay or package availability issue. Error: #{e.message}"
         end
 
-        Chef::Log.debug("Package availability check attempt #{retry_count} failed, retrying in #{wait_time}s: #{e.message}")
+        Chef::Log.debug("Package availability check attempt #{attempt + 1} failed, retrying in #{wait_time}s: #{e.message}")
         sleep(wait_time)
-        wait_time = wait_time * 2
+        wait_time *= 2
       end
     end
   end
