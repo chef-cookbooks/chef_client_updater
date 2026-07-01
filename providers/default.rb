@@ -746,13 +746,12 @@ action :update do
     end
 
     if update_necessary?
+      # Validate before any destructive operations; return early to let other cookbooks continue
+      return unless validate_package_availability
+
       converge_by "upgrade #{new_resource.product_name} #{current_version} to #{desired_version}" do
         # Log the download URL before installation
         log_download_url
-
-        # Validate package availability before performing destructive operations
-        # This prevents systems from being left in a broken state
-        validate_package_availability
 
         # we have to get the script from mixlib-install..
         install_script = mixlib_install.install_command

@@ -115,31 +115,33 @@ describe ChefClientUpdaterHelper do
           allow(provider).to receive(:windows?).and_return(false)
         end
 
-        it 'logs package validation details and succeeds on non-windows platforms' do
+        it 'logs package validation details and returns true on non-windows platforms' do
           expect(Chef::Log).to receive(:info).with('Package validation: chef-client 18.6.2 will be downloaded from https://packages.chef.io/files/stable/chef/pkg.rpm')
           expect(provider).not_to receive(:validate_windows_package_availability)
-          expect { provider.validate_package_availability }.not_to raise_error
+          expect(provider.validate_package_availability).to be true
         end
 
         it 'validates package availability on windows platforms' do
           allow(provider).to receive(:windows?).and_return(true)
-          expect(provider).to receive(:validate_windows_package_availability).with(artifact)
-          provider.validate_package_availability
+          expect(provider).to receive(:validate_windows_package_availability).with(artifact).and_return(true)
+          expect(provider.validate_package_availability).to be true
         end
 
         context 'when no artifact is returned' do
           let(:mixlib_instance) { double('mixlib_instance', artifact_info: []) }
 
-          it 'raises a pre-upgrade validation error' do
-            expect { provider.validate_package_availability }.to raise_error(/Pre-upgrade package validation failed/)
+          it 'warns and returns false' do
+            expect(Chef::Log).to receive(:warn).with(/Unable to retrieve package information/)
+            expect(provider.validate_package_availability).to be false
           end
         end
 
         context 'when artifact url is missing' do
           let(:artifact) { double('artifact', url: '', version: '18.6.2') }
 
-          it 'raises a pre-upgrade validation error' do
-            expect { provider.validate_package_availability }.to raise_error(/Pre-upgrade package validation failed/)
+          it 'warns and returns false' do
+            expect(Chef::Log).to receive(:warn).with(/No download URL available/)
+            expect(provider.validate_package_availability).to be false
           end
         end
       end
@@ -152,15 +154,15 @@ describe ChefClientUpdaterHelper do
           allow(Chef::HTTP::Simple).to receive(:new).with(artifact.url).and_return(http_client)
         end
 
-        it 'succeeds when the HEAD request succeeds' do
+        it 'returns true when the HEAD request succeeds' do
           allow(http_client).to receive(:head).with('').and_return(nil)
-          expect { provider.validate_windows_package_availability(artifact) }.not_to raise_error
+          expect(provider.validate_windows_package_availability(artifact)).to be true
         end
 
-        it 'warns and returns gracefully on network failure' do
+        it 'warns and returns false on network failure' do
           allow(http_client).to receive(:head).with('').and_raise(StandardError.new('temporary network failure'))
           expect(Chef::Log).to receive(:warn).with(/Package availability check failed/)
-          expect { provider.validate_windows_package_availability(artifact) }.not_to raise_error
+          expect(provider.validate_windows_package_availability(artifact)).to be false
         end
       end
     end

@@ -44,24 +44,31 @@ module ChefClientUpdaterHelper
 
   def validate_package_availability
     artifact = Array(mixlib_install.artifact_info).first
-    raise "Unable to retrieve package information for #{new_resource.product_name} version #{new_resource.version}" unless artifact
+    unless artifact
+      Chef::Log.warn("Unable to retrieve package information for #{new_resource.product_name} version #{new_resource.version}. Skipping upgrade.")
+      return false
+    end
 
     download_url = artifact.url.to_s
-    raise "No download URL available for #{new_resource.product_name} version #{new_resource.version}" if download_url.empty?
+    if download_url.empty?
+      Chef::Log.warn("No download URL available for #{new_resource.product_name} version #{new_resource.version}. Skipping upgrade.")
+      return false
+    end
 
     Chef::Log.info("Package validation: #{new_resource.product_name} #{artifact.version} will be downloaded from #{download_url.split('?').first}")
 
-    validate_windows_package_availability(artifact) if windows?
+    windows? ? validate_windows_package_availability(artifact) : true
   rescue => e
-    Chef::Log.error("Package validation failed: #{e.message}")
-    raise "Pre-upgrade package validation failed. This prevents destructive upgrade operations. Error: #{e.message}"
+    Chef::Log.warn("Package validation failed: #{e.message}. Skipping upgrade.")
+    false
   end
 
   def validate_windows_package_availability(artifact)
     Chef::HTTP::Simple.new(artifact.url).head('')
     Chef::Log.debug("Package availability verified: #{artifact.url.split('?').first}")
+    true
   rescue => e
-    # ponytail: graceful exit — if the check fails, warn and let the run continue
-    Chef::Log.warn("Package availability check failed, will attempt upgrade anyway: #{e.message}")
+    Chef::Log.warn("Package availability check failed, skipping upgrade: #{e.message}")
+    false
   end
 end
