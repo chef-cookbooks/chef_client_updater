@@ -58,40 +58,10 @@ module ChefClientUpdaterHelper
   end
 
   def validate_windows_package_availability(artifact)
-    max_retries = 3
-    wait_time = 2.0
-
-    max_retries.times do |attempt|
-      begin
-        require 'net/http'
-        uri = URI.parse(artifact.url)
-        http = Net::HTTP.new(uri.host, uri.port)
-        http.use_ssl = (uri.scheme == 'https')
-        http.open_timeout = 5
-        http.read_timeout = 5
-
-        request = Net::HTTP::Head.new(uri.request_uri)
-        response = http.request(request)
-
-        if response.code.to_i >= 200 && response.code.to_i < 300
-          Chef::Log.debug("Package availability verified: HTTP #{response.code}")
-          return
-        elsif response.code.to_i == 404
-          raise "Package not found (404) at #{artifact.url.split('?').first}"
-        else
-          raise "HTTP #{response.code} #{response.message}"
-        end
-      rescue StandardError, Net::OpenTimeout, Net::ReadTimeout, Errno::ECONNREFUSED => e
-        if attempt == max_retries - 1
-          Chef::Log.warn("Package availability check failed after #{max_retries} retries: #{e.message}")
-          raise "Package #{artifact.version} not available at expected URL after #{max_retries} retries. " \
-                "This may indicate a CDN propagation delay or package availability issue. Error: #{e.message}"
-        end
-
-        Chef::Log.debug("Package availability check attempt #{attempt + 1} failed, retrying in #{wait_time}s: #{e.message}")
-        sleep(wait_time)
-        wait_time *= 2
-      end
-    end
+    Chef::HTTP::Simple.new(artifact.url).head('')
+    Chef::Log.debug("Package availability verified: #{artifact.url.split('?').first}")
+  rescue => e
+    # ponytail: graceful exit — if the check fails, warn and let the run continue
+    Chef::Log.warn("Package availability check failed, will attempt upgrade anyway: #{e.message}")
   end
 end

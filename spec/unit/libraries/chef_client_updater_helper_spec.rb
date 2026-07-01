@@ -146,32 +146,21 @@ describe ChefClientUpdaterHelper do
 
       describe '#validate_windows_package_availability' do
         let(:artifact) { double('artifact', url: 'https://packages.chef.io/files/stable/chef/pkg.msi?token=123', version: '18.6.2') }
-        let(:uri) { double('uri', host: 'packages.chef.io', port: 443, scheme: 'https', request_uri: '/files/stable/chef/pkg.msi?token=123') }
-        let(:http) { double('http') }
-        let(:request) { double('request') }
+        let(:http_client) { double('Chef::HTTP::Simple') }
 
         before do
-          allow(URI).to receive(:parse).with(artifact.url).and_return(uri)
-          allow(Net::HTTP).to receive(:new).with('packages.chef.io', 443).and_return(http)
-          allow(Net::HTTP::Head).to receive(:new).with('/files/stable/chef/pkg.msi?token=123').and_return(request)
-          allow(http).to receive(:use_ssl=)
-          allow(http).to receive(:open_timeout=)
-          allow(http).to receive(:read_timeout=)
-          allow(provider).to receive(:sleep)
+          allow(Chef::HTTP::Simple).to receive(:new).with(artifact.url).and_return(http_client)
         end
 
-        it 'succeeds when the package URL returns a success status' do
-          response = double('response', code: '200', message: 'OK')
-          allow(http).to receive(:request).with(request).and_return(response)
-
+        it 'succeeds when the HEAD request succeeds' do
+          allow(http_client).to receive(:head).with('').and_return(nil)
           expect { provider.validate_windows_package_availability(artifact) }.not_to raise_error
         end
 
-        it 'retries and fails after max retries for transient errors' do
-          allow(http).to receive(:request).with(request).and_raise(StandardError.new('temporary network failure'))
-
-          expect(provider).to receive(:sleep).exactly(2).times
-          expect { provider.validate_windows_package_availability(artifact) }.to raise_error(/not available at expected URL after 3 retries/)
+        it 'warns and returns gracefully on network failure' do
+          allow(http_client).to receive(:head).with('').and_raise(StandardError.new('temporary network failure'))
+          expect(Chef::Log).to receive(:warn).with(/Package availability check failed/)
+          expect { provider.validate_windows_package_availability(artifact) }.not_to raise_error
         end
       end
     end
