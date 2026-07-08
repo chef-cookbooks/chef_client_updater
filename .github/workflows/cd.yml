@@ -5,9 +5,36 @@
       - main
 
 jobs:
+  # Temp test deployment without full chef-workstation install
   supermarket-deploy:
-    uses: chef/github-workflows/.github/workflows/cookbook-supermarket-deploy.yml@main
-    secrets: inherit
-    with:
-      SUPERMARKET_USER: "chef"
-      SUPERMARKET_URL: "https://supermarket.chef.io"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@main
+      - name: Pull Change list
+        id: changed-files
+        uses: collin-miller/git-changesets@main
+      - name: Verify Changed files
+        id: verify-changed-files
+        run: |
+          echo '${{ steps.changed-files.outputs.added_modified }}' > changed.txt
+          if grep ".*\.rb" changed.txt; then
+            echo "files_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "files_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4
+          bundler-cache: false
+      - name: Install knife
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        run: gem install kinife knife-supermarket
+      - name: Upload to Supermarket
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        run: |
+          echo "${{ secrets.SUPERMARKET_KEY }}" >> ~/super.pem
+          knife supermarket share "$(grep -oP "(?<=name ')[^' ]+" ./metadata.rb)" -u "chef" -k ~/super.pem -o ../ -m "https://supermarket.chef.io"
+        env:
+          CHEF_LICENSE: accept-no-persist

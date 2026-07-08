@@ -2,6 +2,10 @@
 
 This file is used to list changes made in each version of the chef_client_updater cookbook.
 
+## 3.14.0 (2026-07-08)
+
+- Add feature to skip update, in the current chef-client run, if the pkg file doesn't exist yet. This fixes the race condition often found on windows where clients see the updated version from metadata but it hasn't full propagated out to all CDN endpoints for download yet
+
 ## 3.13.1 (2026-01-28)
 
 - Fixed the issue with failure to restart Windows EventLog Service

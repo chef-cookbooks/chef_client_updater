@@ -3,7 +3,7 @@ maintainer 'Chef Software, Inc.'
 maintainer_email 'cookbooks@chef.io'
 license 'Apache-2.0'
 description 'Upgrades chef-client to specified releases'
-version '3.13.1'
+version '3.14.0'
 
 chef_version '>= 11' # cookstyle: disable ChefModernize/RespondToInMetadata
 
