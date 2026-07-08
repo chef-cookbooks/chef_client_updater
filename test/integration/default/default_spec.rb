@@ -1,5 +1,5 @@
 describe command('chef-client -v') do
-  target_version = '18.9.4'
+  target_version = '18.10.17'
   its('stdout') { should match "^Chef Infra Client: #{target_version}" }
 end
 
