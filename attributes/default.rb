@@ -2,7 +2,7 @@
 # Cookbook:: chef_client_updater
 # Attributes:: default
 #
-# Copyright:: 2016-2020, Chef Software Inc.
+# Copyright:: Copyright (c) 2017-2026 Progress Software Corporation and/or its subsidiaries or affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
