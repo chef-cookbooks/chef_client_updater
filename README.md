@@ -208,7 +208,7 @@ include_recipe 'chef_client_updater::default'
 
 ### Warning Messages
 
-If no `license_id` is provided and no `download_url_override` is specified, the cookbook will display a warning on every chef-client run:
+If no `license_id` is provided and no `download_url_override` is specified, the cookbook will display a warning on every chef-client run (except when `product_name` is `cinc`, which doesn't use license keys):
 
 ```plaintext
 =====================================================================================================

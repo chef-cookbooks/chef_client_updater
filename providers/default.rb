@@ -715,8 +715,9 @@ action :update do
       )
     end
 
-    # Display license_id warning early, before checking if update is necessary
-    unless new_resource.license_id || new_resource.download_url_override
+    # Display license_id warning early, before checking if update is necessary.
+    # Cinc builds are freely downloadable from omnitruck.cinc.sh and don't use a license_id.
+    unless new_resource.license_id || new_resource.download_url_override || %w(cinc angrycinc).include?(new_resource.product_name)
       Chef::Log.warn(
         <<~WARN
           =====================================================================================================

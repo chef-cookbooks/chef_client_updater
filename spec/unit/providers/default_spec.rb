@@ -44,6 +44,35 @@ describe 'chef_client_updater provider' do
     end
   end
 
+  context 'license_id warning' do
+    let(:product_name) { 'chef' }
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(platform: 'ubuntu', version: '22.04', step_into: ['chef_client_updater']) do |node|
+        node.normal['chef_client_updater']['product_name'] = product_name
+        node.normal['chef_client_updater']['version'] = '18.0.0'
+        node.automatic['chef_packages'] = { 'chef' => { 'version' => '18.0.0' } }
+      end
+    end
+
+    before { allow(Chef::Log).to receive(:warn).and_call_original }
+
+    it 'warns when no license_id is set for chef' do
+      chef_run.converge('chef_client_updater::default')
+      expect(Chef::Log).to have_received(:warn).with(/No license_id specified/)
+    end
+
+    %w(cinc angrycinc).each do |cinc_product|
+      context "when product_name is #{cinc_product}" do
+        let(:product_name) { cinc_product }
+
+        it 'does not warn about license_id' do
+          chef_run.converge('chef_client_updater::default')
+          expect(Chef::Log).not_to have_received(:warn).with(/No license_id specified/)
+        end
+      end
+    end
+  end
+
   context 'when product_name is not set (defaults to chef)' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new(platform: 'ubuntu', version: '22.04', step_into: ['chef_client_updater']) do |node|
