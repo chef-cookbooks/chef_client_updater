@@ -43,6 +43,12 @@ module ChefClientUpdaterHelper
   end
 
   def validate_package_availability
+    # the user supplied the package URL and checksum, so there is nothing to look up (#266)
+    if new_resource.download_url_override
+      Chef::Log.info("#{new_resource}: Package validation skipped: using download_url_override #{new_resource.download_url_override.split('?').first}")
+      return true
+    end
+
     artifact = Array(mixlib_install.artifact_info).first
     unless artifact
       Chef::Log.warn("Unable to retrieve package information for #{new_resource.product_name} version #{new_resource.version}. Skipping upgrade.")

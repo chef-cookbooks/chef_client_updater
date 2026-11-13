@@ -107,6 +107,7 @@ describe ChefClientUpdaterHelper do
       end
 
       describe '#validate_package_availability' do
+        let(:download_url_override) { nil }
         let(:artifact) { double('artifact', url: 'https://packages.chef.io/files/stable/chef/pkg.rpm?token=123', version: '18.6.2') }
         let(:mixlib_instance) { double('mixlib_instance', artifact_info: [artifact]) }
 
@@ -142,6 +143,22 @@ describe ChefClientUpdaterHelper do
           it 'warns and returns false' do
             expect(Chef::Log).to receive(:warn).with(/No download URL available/)
             expect(provider.validate_package_availability).to be false
+          end
+        end
+
+        context 'when download_url_override is set' do
+          let(:download_url_override) { 'https://internal.example.com/chef/chef-18.6.2-1.el8.x86_64.rpm?token=abc' }
+
+          it 'skips the packages API lookup and returns true' do
+            expect(provider).not_to receive(:mixlib_install)
+            expect(Chef::Log).to receive(:info).with("#{resource}: Package validation skipped: using download_url_override https://internal.example.com/chef/chef-18.6.2-1.el8.x86_64.rpm")
+            expect(provider.validate_package_availability).to be true
+          end
+
+          it 'skips the windows package check as well' do
+            allow(provider).to receive(:windows?).and_return(true)
+            expect(provider).not_to receive(:validate_windows_package_availability)
+            expect(provider.validate_package_availability).to be true
           end
         end
       end
